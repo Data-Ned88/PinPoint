@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PinpointOnenote;
+using PinpointUI.modals;
+using PinpointUI.tabs;
 
 namespace PinpointUI
 {
@@ -24,15 +28,62 @@ namespace PinpointUI
         public MainWindow()
         {
             InitializeComponent();
-            bool OnenoteOpen = OnenoteMethods.IsOnenoteOpen();
-            if (OnenoteOpen)
+            
+    }
+
+        //Microsoft.Office.Interop.OneNote.Application app = OnenoteMethods.InstantiateOneNoteApp();
+        //bool OnenoteOpen = OnenoteMethods.IsOnenoteOpen(app);
+        //List<string> OpenNBNames = OnenoteMethods.GetAvailableNotebooks(app);
+
+        private void BtnLandingTabExit_Click(object sender, RoutedEventArgs e)
+        {
+            //Application.Current.Shutdown();
+            LandingExitConfirm exitConfirm = new LandingExitConfirm(this);
+            Opacity = 0.6;
+            exitConfirm.ShowDialog();
+            Opacity = 1;
+            if (exitConfirm.ExitChoice == true)
             {
-                pinpointTitle.Text = "OneNote is open";
+                Application.Current.Shutdown();
+            }
+
+        }
+        private void ValidateMoveToSetup([CallerMemberName] string ButtonName = null)
+        {
+            if (ButtonName == "LandingCreate_Click")
+            {
+                LandingWarning.Text = "OneNote is Closed.\nYou must open the OneNote Desktop app first before using PinPoint to create a password section.";
             }
             else
             {
-                pinpointTitle.Text = "OneNote is NOT open";
+                LandingWarning.Text = "OneNote is Closed.\nYou must open the OneNote Desktop app first before using PinPoint to edit passwords in a previously saved section.";
             }
+            if (Process.GetProcessesByName("onenote").Any())
+            {
+                LandingTab.Visibility = Visibility.Collapsed;
+                OneNoteTab.IsSelected = true;
+
+
+                OneNoteManagementTab OneNoteManager = new OneNoteManagementTab(this, ButtonName);
+                OneNoteTab.Content = OneNoteManager;
+
+
+
+            }
+            else
+            {
+                LandingWarning.Visibility = Visibility.Visible;
+            }
+        }
+        private void LandingCreate_Click(object sender, RoutedEventArgs e)
+        {
+
+            ValidateMoveToSetup();
+        }
+
+        private void LandingLoad_Click(object sender, RoutedEventArgs e)
+        {
+            ValidateMoveToSetup();
         }
     }
 }

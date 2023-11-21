@@ -16,3 +16,10 @@ C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\PinpointUI.pdb
 C:\github\PinPoint\PinpointOnenote\PinpointUI\bin\Debug\PinpointOnenote.dll
 C:\github\PinPoint\PinpointOnenote\PinpointUI\bin\Debug\PinpointOnenote.pdb
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\PinpointUI.csproj.CopyComplete
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\Interop.Microsoft.Office.Interop.OneNote.dll
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\Interop.OneNoteEx.dll
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\PinpointUI.csproj.ResolveComReference.cache
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\LandingExitConfirm.g.cs
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\LandingExitConfirm.baml
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\tabs\OneNoteManagementTab.g.cs
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\tabs\OneNoteManagementTab.baml

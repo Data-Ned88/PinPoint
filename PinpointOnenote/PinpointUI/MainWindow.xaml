@@ -4,10 +4,57 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PinpointUI"
+        xmlns:tabs="clr-namespace:PinpointUI.tabs"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="834.903">
+        Title="UCOVI PinPoint" Height="450" Width="834.903" Icon="icons/ucovi_small.ico">
+    <Window.Resources></Window.Resources>
     <Grid>
-        <TextBlock Name="pinpointTitle" Text="Welcome to Pinpoint" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontFamily="Arial"></TextBlock>
+        <TabControl>
+            <TabItem Name="LandingTab" Header="Welcome to PinPoint">
+                <Grid Name="LandingTabMainGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25*"/>
+                        <RowDefinition Height="75*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock TextWrapping="Wrap" Padding ="5,20,5,5">
+                        UCOVI PinPoint is an admin tool for Windows which helps users to organise passwords, PINs, and logins in OneNote.<LineBreak/><LineBreak/>
+                        You can also use it to generate secure passwords automatically for new logins, 
+                        and run a Digital Footprint Security report based on your logins' individual strengths as well as how often they the same 
+                        or similar passwords/PINs.                    
+                    </TextBlock>
+                    <Grid Name="LandingTabSecondRow" Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50*"/>
+                            <ColumnDefinition Width="50*"/>
+                        </Grid.ColumnDefinitions>
+                        <Rectangle Fill="LightGray"/>
+                        <Rectangle Grid.Column="1" Fill="LightGray"/>
+                        <Grid Name="LandingTabSecondRowLeft">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="37.5*"/>
+                                <RowDefinition Height="37.5*"/>
+                                <RowDefinition Height="25*"/>
+                            </Grid.RowDefinitions>
+                            <Button x:Name="LandingCreate" Margin="20" Content="Create New Password Section" Click="LandingCreate_Click"/>
+                            <Button x:Name="LandingLoad" Grid.Row="1" Margin="20" Content="Load Existing Password Section" Click="LandingLoad_Click"/>
+                            <Button Name="BtnLandingTabExit" Grid.Row="2" Margin="20" Content="Exit PinPoint" Click="BtnLandingTabExit_Click"/>
 
+
+                        </Grid>
+                        <Grid Name="LandingTabSecondRowRight" Grid.Column="1">
+                            <TextBlock x:Name="LandingWarning"  VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden" Foreground="DarkOrange" FontWeight="Bold" TextWrapping="Wrap" Margin="45,5,45,5"/>
+
+                        </Grid>
+
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Name="OneNoteTab" Header="OneNote Setup">
+                <!--<tabs:OneNoteManagementTab/>-->
+            </TabItem>
+            <TabItem Name="PasswordsTab" Header="Section Passwords (Make dynamic)">
+                
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
