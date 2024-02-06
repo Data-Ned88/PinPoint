@@ -4,20 +4,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Microsoft.Office.Interop.OneNote;
+using OneNoteInterop = Microsoft.Office.Interop.OneNote;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace PinpointOnenote
-{
+{        
+    /// <summary>
+   /// This holds all the methods for interacting with the OneNote application, Notebooks, Sections, and Section Groups.
+   /// </summary>
+
     public static class OnenoteMethods
     {
-        public static Microsoft.Office.Interop.OneNote.Application InstantiateOneNoteApp()
+
+        public static OneNoteInterop.Application InstantiateOneNoteApp()
         {
-            Microsoft.Office.Interop.OneNote.Application app = new Microsoft.Office.Interop.OneNote.Application();
+            OneNoteInterop.Application app = new OneNoteInterop.Application();
             return app;
 
         }
-        public static bool IsOnenoteOpen (Microsoft.Office.Interop.OneNote.Application app)
+        public static bool IsOnenoteOpen (OneNoteInterop.Application app)
         {
             //Microsoft.Office.Interop.OneNote.Application app = new Microsoft.Office.Interop.OneNote.Application();
 
@@ -31,11 +37,11 @@ namespace PinpointOnenote
             }
         }
 
-        public static XmlDocument GetOneNoteHierarchy(Microsoft.Office.Interop.OneNote.Application app)
+        public static XmlDocument GetOneNoteHierarchy(OneNoteInterop.Application app)
         {
             String strXML;
             app.GetHierarchy(null,
-                    HierarchyScope.hsPages, out strXML);
+                    OneNoteInterop.HierarchyScope.hsPages, out strXML);
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(strXML);
             return xmlDoc;
@@ -147,10 +153,10 @@ namespace PinpointOnenote
                     }
                 }
             }
-
-
             return output;
         }
+
+
 
     }
 }

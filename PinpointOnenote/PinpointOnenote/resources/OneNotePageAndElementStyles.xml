@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<StylingBank>
+  <BaseStyles name="Base"><!-- Things that never change -->
+    <SectionTabCol>#F6B078</SectionTabCol>
+    <Font>Calibri</Font>
+    <SpaceBefore>0.0</SpaceBefore>
+    <SpaceAfter>0.0</SpaceAfter>
+    <TwoFactorTrue>#2AD00E</TwoFactorTrue>
+    <TwoFactorFalse>#FF8181</TwoFactorFalse>
+  </BaseStyles>
+  <TableSizings>
+    <!-- Font weights for table titles are given as CSS style properties in the CDATA value -->
+    <TableSizing name="Small" default="0" fontSizeSectionHead="12.0" fontSizeTableHead="10.0" fontSizeText="9.0" fontSizeLineBreak="10.0" />
+    <TableSizing name="Small_Regular" default="0" fontSizeSectionHead="13.0" fontSizeTableHead="12.0" fontSizeText="10.0" fontSizeLineBreak="10.0" />
+    <TableSizing name="Regular" default="1" fontSizeSectionHead="14.0" fontSizeTableHead="13.0" fontSizeText="11.0" fontSizeLineBreak="10.5" />
+    <TableSizing name="Large_Regular" default="0" fontSizeSectionHead="16.0" fontSizeTableHead="14.0" fontSizeText="12.0" fontSizeLineBreak="10.5" />
+    <TableSizing name="Large" default="0" fontSizeSectionHead="18.0" fontSizeTableHead="16.0" fontSizeText="14.0" fontSizeLineBreak="10.5" />
+  </TableSizings>
+  <ColorThemes>
+    <!-- These are al based on Excel table styles -->
+    <ColorTheme name="Grey" default="1" titleShade="#000000" mainShade="#D9D9D9" alternateShade="#FFFFFF"/>
+    <ColorTheme name="Blue" default="0" titleShade="#4472C4" mainShade="#D9E1F2" alternateShade="#FFFFFF"/>
+    <ColorTheme name="Green" default="0" titleShade="#70AD47" mainShade="#E2EFDA" alternateShade="#FFFFFF"/>
+    <ColorTheme name="Yellow" default="0" titleShade="#FFC000" mainShade="#FFE699" alternateShade="#FFF2CC"/>
+  </ColorThemes>
+  <SizingConverters>
+    <SizingConverter fontSize="9.0">
+      <SizingConverterFont fontName="Arial" charWidth="3.83" charWidthBold="4.12"/>
+      <SizingConverterFont fontName="Calibri" charWidth="3.54" charWidthBold="3.62"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="3.52" charWidthBold="3.75"/>
+    </SizingConverter>
+    <SizingConverter fontSize="10.0">
+      <SizingConverterFont fontName="Arial" charWidth="4.26" charWidthBold="4.58"/>
+      <SizingConverterFont fontName="Calibri" charWidth="3.93" charWidthBold="4.02"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="3.92" charWidthBold="4.17"/>
+    </SizingConverter>
+    <SizingConverter fontSize="10.5">
+      <SizingConverterFont fontName="Arial" charWidth="4.47" charWidthBold="4.81"/>
+      <SizingConverterFont fontName="Calibri" charWidth="4.13" charWidthBold="4.22"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="4.11" charWidthBold="4.38"/>
+    </SizingConverter>
+    <SizingConverter fontSize="11.0">
+      <SizingConverterFont fontName="Arial" charWidth="4.68" charWidthBold="5.04"/>
+      <SizingConverterFont fontName="Calibri" charWidth="4.32" charWidthBold="4.42"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="4.31" charWidthBold="4.58"/>>
+    </SizingConverter>
+    <SizingConverter fontSize="12.0">
+      <SizingConverterFont fontName="Arial" charWidth="5.11" charWidthBold="5.5"/>
+      <SizingConverterFont fontName="Calibri" charWidth="4.72" charWidthBold="4.83"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="4.7" charWidthBold="5.0"/>
+    </SizingConverter>
+    <SizingConverter fontSize="13.0">
+      <SizingConverterFont fontName="Arial" charWidth="5.54" charWidthBold="5.96"/>
+      <SizingConverterFont fontName="Calibri" charWidth="5.11" charWidthBold="5.23"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="5.09" charWidthBold="5.42"/>
+    </SizingConverter>
+    <SizingConverter fontSize="14.0">
+      <SizingConverterFont fontName="Arial" charWidth="5.96" charWidthBold="6.41"/>
+      <SizingConverterFont fontName="Calibri" charWidth="5.5" charWidthBold="5.63"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="5.48" charWidthBold="5.83"/>
+    </SizingConverter>
+    <SizingConverter fontSize="15.0">
+      <SizingConverterFont fontName="Arial" charWidth="6.39" charWidthBold="6.87"/>
+      <SizingConverterFont fontName="Calibri" charWidth="5.9" charWidthBold="6.03"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="5.87" charWidthBold="6.25"/>
+    </SizingConverter>
+    <SizingConverter fontSize="16.0">
+      <SizingConverterFont fontName="Arial" charWidth="6.81" charWidthBold="7.33"/>
+      <SizingConverterFont fontName="Calibri" charWidth="6.29" charWidthBold="6.44"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="6.27" charWidthBold="6.67"/>
+    </SizingConverter>
+    <SizingConverter fontSize="18.0">
+      <SizingConverterFont fontName="Arial" charWidth="7.67" charWidthBold="8.25"/>
+      <SizingConverterFont fontName="Calibri" charWidth="7.08" charWidthBold="7.24"/>
+      <SizingConverterFont fontName="Times New Roman" charWidth="7.05" charWidthBold="7.5"/>
+    </SizingConverter>
+  </SizingConverters>
+</StylingBank>
+
