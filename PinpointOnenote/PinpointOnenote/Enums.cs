@@ -12,4 +12,9 @@ namespace PinpointOnenote
         PinSix,
         PinFour
     }
+    public enum  OneNoteOEChildType
+    {
+        Table,
+        BaseOE
+    }
 }

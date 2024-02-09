@@ -85,6 +85,20 @@ namespace PinpointOnenote
             }
             return output;
         }
+        public static string GetNotebookID(List<XmlNode> availableNotebooks,string notebookname)
+        {
+            string outstring = null;
+            XmlNode targetNotebook = availableNotebooks.Where(x => x.Attributes["name"].Value == notebookname).FirstOrDefault();
+            if (targetNotebook != null)
+            {
+                outstring = GetNotebookID(targetNotebook);
+            }
+            return outstring;
+        }
+        public static string GetNotebookID (XmlNode nbXml)
+        {
+            return nbXml.Attributes["ID"].Value;
+        }
 
         private static bool IsLocked (XmlNode nbXml)
         {
@@ -146,7 +160,7 @@ namespace PinpointOnenote
                             SectionListEntry.IsLocked = IsLocked(sg_s);
                             if (!IsLocked(sg_s))
                             {
-                                SectionListEntry.IsValidPinPointInstance = false; // Eventually replace the hardcode false with Valid pinooint eval function call
+                                SectionListEntry.IsValidPinPointInstance = false; // TODO Eventually replace the hardcode false with Valid pinooint eval function call
                             }
                             output.Add(SectionListEntry);
                         }
@@ -156,6 +170,90 @@ namespace PinpointOnenote
             return output;
         }
 
+        public static bool CheckSectionExists(List<OneNoteSection> sectionsList, string sectionName)
+        {
+            bool output = false;
+            OneNoteSection targetSection = sectionsList.Where(x => x.SectionName == sectionName).FirstOrDefault();
+            if (targetSection != null)
+            {
+                output = true;
+            }
+            return output;
+        }
+
+        public static string GetSectionID (List<OneNoteSection> sectionsList, string sectionName)
+        {
+            OneNoteSection targetSection = sectionsList.Where(x => x.SectionName == sectionName).First();
+            return targetSection.SectionID;
+        }
+
+        /// <summary>
+        /// This adds a new section to a Notebook with the name provided in sectionName.
+        /// It returns the section id of the new section, and updates the hierarchy you are working with for you.
+        /// It does *not* support the adding of Sections to existing or new section groups within the notebook.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="hierarchy"></param>
+        /// <param name="namespaceMgr"></param>
+        /// <param name="sectionName"></param>
+        /// <param name="existingSectionsList"></param>
+        /// <returns></returns>
+        public static string AddSectionToNotebook (
+            OneNoteInterop.Application app,
+            ref XmlDocument hierarchy,
+            ref XmlNamespaceManager namespaceMgr,
+            string sectionName,
+            ref List<OneNoteSection> existingSectionsList,
+            string notebookId,
+            string sectionColor
+            )
+            
+        {
+            //Amend the name if it already exists.
+            bool AlreadyExists = CheckSectionExists(existingSectionsList, sectionName);
+            if (AlreadyExists)
+            {
+                sectionName = sectionName + " (1)";
+            }
+            XmlNode NotebookNodeInHierarchy = hierarchy.SelectSingleNode($"//one:Notebook[@ID=\"{notebookId}\"]", namespaceMgr);
+            string NotebookPath = NotebookNodeInHierarchy.Attributes["path"].Value;
+            string sectRelPath = sectionName + ".one";
+
+            // Prepare a separate hierarchy xml document and namespace manager for just the Notebook we are adding the section to.
+            string NoteBookXmlHier;
+            app.GetHierarchy(notebookId, OneNoteInterop.HierarchyScope.hsPages, out NoteBookXmlHier);
+            XmlDocument NotebookXmlDoc = new XmlDocument();
+            NotebookXmlDoc.LoadXml(NoteBookXmlHier);
+            XmlNamespaceManager notebookNSMGR = OnenoteMethods.GetOneNoteNSMGR(NotebookXmlDoc);
+            XmlNode notebookNotebookNode = NotebookXmlDoc.SelectSingleNode("//one:Notebook", notebookNSMGR);
+            string notebookName = notebookNotebookNode.Attributes["name"].Value;
+            // Make the new section within the notebooks own heirarchy xml
+            XmlElement newSection = NotebookXmlDoc.CreateElement("one", "Section", "http://schemas.microsoft.com/office/onenote/2013/onenote");
+            newSection.SetAttribute("name", sectionName);
+            newSection.SetAttribute("path", NotebookPath + sectRelPath);
+            newSection.SetAttribute("color", sectionColor);
+
+            //Find the first available section group in the notebook. If there is none, just add it, if there is, insert before it.
+            XmlNodeList NotebookNodeSGL = NotebookXmlDoc.SelectNodes("//one:SectionGroup", notebookNSMGR);
+            XmlNode NotebookNodeSGLFirst = NotebookNodeSGL.Cast<XmlNode>().FirstOrDefault();
+            if (NotebookNodeSGLFirst == null)
+            {
+                notebookNotebookNode.AppendChild(newSection);
+            }
+            else
+            {
+                notebookNotebookNode.InsertBefore(newSection, NotebookNodeSGLFirst);
+            }
+            // update the hierarchy with the new notebook
+            app.UpdateHierarchy(NotebookXmlDoc.OuterXml);
+            // Refresh the working heirarchy (all notebooks) and return new section ID.
+            hierarchy = GetOneNoteHierarchy(app);
+            namespaceMgr = GetOneNoteNSMGR(hierarchy);
+            existingSectionsList = GetSectionsInNotebook(hierarchy, namespaceMgr, notebookName);
+
+            string output = GetSectionID(existingSectionsList, sectionName);
+            return output;
+        }
 
 
     }

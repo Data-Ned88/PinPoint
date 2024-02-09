@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using OneNoteInterop = Microsoft.Office.Interop.OneNote;
 using System.Xml;
 using System.Xml.Linq;
+using System.Security.Policy;
+
 namespace PinpointOnenote
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace PinpointOnenote
             pageEl.Add(new XElement(ns + "Title", //add the title
                 new XElement(ns + "OE", //add the OE to the title
                     new XElement(ns + "T", // add the text holder to the OE
-                        new XCData(PageName))))); //add the data tot the text holder
+                        new XCData(PageName))))); //add the data to the text holder
             pageEl.SetAttributeValue("name", PageName); //set page name
             pageEl.SetAttributeValue("pageLevel", PageLevel); //set page level
 
@@ -82,7 +84,23 @@ namespace PinpointOnenote
             return sconv;
         }
 
+        public static string GetOneNoteHyperLinkHTML (string sectionId, string pageId, string pageName, string linkText = null)
+        {
+            if (linkText == null)
+            {
+                // linkText parameter has not been supplied - default it to pageName.
+                linkText = pageName;
+            }
+            string link = $"<a href=\"onenote:#{pageName}&amp;section-id={sectionId}&amp;page-id={pageId}\">{linkText}</a>";
+            return link;
+        }
 
+        public static string GetExternalHyperLinkHTML(string hyperlink, string linkText)
+        {
+            string link = $"<a href=\"{hyperlink}\">{linkText}</a>";
+            return link;
+
+        }
 
         #endregion
     }
