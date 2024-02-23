@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<StaticAndTest>
+  <TestRecords>
+    <LoginRecord LoginType="Password" LoginDescription ="RichBloke LLP Investor Account" LoginURL="www.rb.com/login" LoginUsername="GekkoG" LoginPass="!Million2017" HasTwoFa="true" TwoFaMethod="SMS" LastModified="2019-06-07 08:47:00" LoginStrength="5.9"/>
+    <LoginRecord LoginType="PINFour" LoginDescription ="Monzo Card" LoginURL="" LoginUsername="" LoginPass="2580" HasTwoFa="false" TwoFaMethod="" LastModified="2024-01-03 23:47:00" LoginStrength="1.0"/>
+    <LoginRecord LoginType="PinSix" LoginDescription ="Samsung Phone" LoginURL="" LoginUsername="" LoginPass="321123" HasTwoFa="false" TwoFaMethod="" LastModified="2015-12-07 11:39:00" LoginStrength="4.5"/>
+    <LoginRecord LoginType="PinFour" LoginDescription ="Barclays Debit" LoginURL="" LoginUsername="" LoginPass="2580" HasTwoFa="false" TwoFaMethod="" LastModified="2018-10-07 08:05:00" LoginStrength="1.0"/>
+    <LoginRecord LoginType="Password" LoginDescription ="Aviva Pensions" LoginURL="www.aviva.co.uk/accounts/login" LoginUsername="GekkoG1971" LoginPass="!£bb895^ngfhTT5$" HasTwoFa="true" TwoFaMethod="SMS" LastModified="2020-06-07 15:42:00" LoginStrength="846.4"/>
+    <LoginRecord LoginType="Password" LoginDescription ="Amazon" LoginURL="www.amazon.co.uk" LoginUsername="ggekko5@hotmail.com" LoginPass="!£bb895^ngfhTT5$" HasTwoFa="false" TwoFaMethod="" LastModified="2022-04-07 08:19:00" LoginStrength="80.6"/>
+    <LoginRecord LoginType="Password" LoginDescription ="Google" LoginURL="www.google.co.uk" LoginUsername="ggekko5@hotmail.com" LoginPass="gordon1" HasTwoFa="false" TwoFaMethod="" LastModified="2021-06-13 13:25:00" LoginStrength="3.3"/>
+    <LoginRecord LoginType="Password" LoginDescription ="Microsoft 365" LoginURL="" LoginUsername="ggekko5@hotmail.com" LoginPass="GekkoG1971" HasTwoFa="true" TwoFaMethod="email" LastModified="2023-08-07 08:01:00" LoginStrength="57.69"/>
+  </TestRecords>
+  <StaticCopy>
+    <Pages>
+      <Page name="Notes and Instructions">
+        <Sections>
+          <Section name="DescriptiveTable" headerless="true">
+            <Table ShowBorders="yes" HeaderRow="no">
+              <Columns>
+                <Column index="0" customWidth="500" customWidthType="cap_at"/>
+              </Columns>
+              <Row>
+                <Cell shadingColor="#D66510" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599"><!--OE treat as cell. These propagate down to all Ts in this Cell/OE, unless overrided in the span html-->-
+                  <Line>
+                    <span isBold="true">
+                      <RawText><![CDATA[Welcome to your OneNote password storage bank - powered by UCOVI Pinpoint.]]></RawText>
+                      <HTML><![CDATA[<span style='font-weight:bold'>Welcome to your OneNote password storage bank - powered by UCOVI Pinpoint.</span>]]></HTML>
+                    </span>
+                  </Line>
+                </Cell>
+              </Row>
+              <Row>
+                <Cell shadingColor="#FEE599" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599">
+                  <Line>
+                    <span customFontWeight="12">
+                      <RawText><![CDATA[How to Use and Update]]></RawText>
+                      <HTML><![CDATA[<span style='text-decoration:underline;font-size:12pt;'>How to Use and Update</span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line></Line> <!--An empty line is treated as a linebreak, and inherits the same font family as the OE and the 'fontsizelibebreak' value as its fontsize-->
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the Password Bank page.]]></RawText>
+                      <HTML><![CDATA[<span>This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the <a href="https://www.hivesystems.io/password-table">Password Bank page.</a></span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[It is recommended to add new passwords or edit existing ones in the UCOVI Pinpoint application.]]></RawText>
+                      <HTML><![CDATA[<span>It is recommended to add new passwords or edit existing ones in the UCOVI Pinpoint application.</span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line></Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[In the Password Bank page, click anywhere in the table to show the ]]></RawText>
+                      <HTML><![CDATA[<span>In the Password Bank page, click anywhere in the table to show the </span>]]></HTML>                      
+                    </span>
+                    <span isBold="true">
+                      <RawText><![CDATA[Table]]></RawText>
+                      <HTML><![CDATA[<span style='font-weight:bold;color:#7030A0'>Table</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ tab in the ribbon above, where you can:]]></RawText>
+                      <HTML><![CDATA[<span> tab in the ribbon above, where you can:</span>]]></HTML>
+                    </span>
+                    <Line><!--Sub-line in a line my code will interpret it as an OE with treatas cell False. It should Indent 1.-->
+                      <Bullet Bullet="2"/> <!--Filled Bullet point - the oneNote xml needs a fontSize for this, which it should inherit from the nearest OE parent fontweight.-->
+                      <span>
+                        <RawText><![CDATA[Sort the rows as you wish by:]]></RawText>
+                        <HTML><![CDATA[<span>Sort the rows as you wish by:</span>]]></HTML>
+                      </span>
+                      <Line><!--Sub-line IN A SUB_LINE in a line my code will interpret it as an OE with treatas cell False. It should Indent 1 + 1 = 2.-->
+                        <Bullet Bullet="3"/> <!--Hollow Bullet point-->
+                        <span>
+                          <RawText><![CDATA[Any column alphabetically (Select Table, then Sort>Sort Selected Rows).]]></RawText>
+                          <HTML><![CDATA[<span>Any column alphabetically (Select Table, then Sort>Sort Selected Rows).</span>]]></HTML>
+                        </span>
+                      </Line>
+                      <Line><!--2nd Sub-line IN A SUB_LINE-->
+                        <Bullet Bullet="3"/><!--Hollow Bullet point-->
+                        <span>
+                          <RawText><![CDATA[Last Modified Sort]]></RawText>
+                          <HTML><![CDATA[<span style='font-style:italic'>Last Modified Sort</span>]]></HTML>
+                        </span>
+                        <span>
+                          <RawText><![CDATA[ column, to arrange by when the password was last updated (same steps as above).]]></RawText>
+                          <HTML><![CDATA[<span> column, to arrange by when the password was last updated (same steps as above).</span>]]></HTML>
+                        </span>
+                      </Line>
+                    </Line>
+                    <Line><!--Second sub line (full bullet point 1 indent-->
+                      <Bullet Bullet="2"/>
+                      <span>
+                        <RawText><![CDATA[Select specific cells of the table to add colour shading or other formats such as bold text.]]></RawText>
+                        <HTML><![CDATA[<span>Select specific cells of the table to add colour shading or other formats such as bold text.</span>]]></HTML>
+                      </span>
+                    </Line>
+                  </Line>
+                  <Line></Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[You can add or edit a password in the table directly in OneNote, but this will not generate values for Date Last Modified, Last Modified Sort or Strength. ]]></RawText>
+                      <HTML><![CDATA[<span>You can add or edit a password in the table directly in OneNote, but this will not generate values for Date Last Modified, Last Modified Sort or Strength. </span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[If you wish to edit in OneNote, do not add any new tables, as the application will not be able to pick these up, should you wish to use it for future editing or password strength analysis. ]]></RawText>
+                      <HTML><![CDATA[<span>If you wish to edit in OneNote, do not add any new tables, as the application will not be able to pick these up, should you wish to use it for future editing or password strength analysis. </span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line></Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[Do ]]></RawText>
+                      <HTML><![CDATA[<span>Do </span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[not]]></RawText>
+                      <HTML><![CDATA[<span style='text-decoration:underline'>not</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ click ]]></RawText>
+                      <HTML><![CDATA[<span> click </span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[Convert to Excel Spreadsheet]]></RawText>
+                      <HTML><![CDATA[<span style='font-style: italic'>Convert to Excel Spreadsheet</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ in the ]]></RawText>
+                      <HTML><![CDATA[<span> in the </span>]]></HTML>
+                    </span>
+                    <span isBold="true">
+                      <RawText><![CDATA[Table]]></RawText>
+                      <HTML><![CDATA[<span style='font-weight: bold;color:#7030A0'>Table</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ ribbon options, as this cannot be reversed with the Undo button.]]></RawText>
+                      <HTML><![CDATA[<span> ribbon options, as this cannot be reversed with the Undo button.</span>]]></HTML>
+                    </span>
+                  </Line>
+                </Cell>
+              </Row>
+              <Row>
+                <Cell shadingColor="#FFD965" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599">
+                  <Line>
+                    <span customFontWeight="12">
+                      <RawText><![CDATA[Digital Security Insights]]></RawText>
+                      <HTML><![CDATA[<span style='text-decoration:underline;font-size:12pt;'>Digital Security Insights</span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line></Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[The Insights page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.]]></RawText>
+                      <HTML><![CDATA[<span>The <a href="https://www.hivesystems.io/password-table">Insights</a> page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.</span>]]></HTML>
+                    </span>                  
+                  </Line>
+                  <Line></Line>
+                  <Line></Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[The password-strength analysis on the Insights page aggregates the scores in the ]]></RawText>
+                      <HTML><![CDATA[<span>The password-strength analysis on the Insights page aggregates the scores in the </span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[Strength]]></RawText>
+                      <HTML><![CDATA[<span style='font-style:italic'>Strength</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ column for each password or pin in your Password Bank. ]]></RawText>
+                      <HTML><![CDATA[<span> column for each password or pin in your Password Bank. </span>]]></HTML>
+                    </span>
+                  </Line>
+                  <Line>
+                    <span>
+                      <RawText><![CDATA[These scores are calculated as follows: ]]></RawText>
+                      <HTML><![CDATA[<span>These scores are calculated as follows: </span>]]></HTML>
+                    </span>
+                    <Line>
+                      <Bullet Bullet="2"/>
+                      <span>
+                        <RawText><![CDATA[For passwords, the Hyve Systems Password Table 2023 is used, with additional points awarded if multi-factor authentication is used (2FA column). ]]></RawText>
+                        <HTML><![CDATA[<span>For passwords, the <a href="https://www.hivesystems.io/password-table">Hyve Systems Password Table 2023</a> is used, with additional points awarded if multi-factor authentication is used (2FA column). </span>]]></HTML>
+                      </span>
+                    </Line>
+                    <Line>
+                      <Bullet Bullet="2"/>
+                      <span>
+                        <RawText><![CDATA[For PINs, strength scores increase based on the following factors: ]]></RawText>
+                        <HTML><![CDATA[<span>For PINs, strength scores increase based on the following factors: </span>]]></HTML>
+                      </span>
+                      <Line>
+                        <Bullet Bullet="3"/>
+                        <span>
+                          <RawText><![CDATA[Scarcity of use based on analysis from Data Genetics. ]]></RawText>
+                          <HTML><![CDATA[<span>Scarcity of use based on analysis from <a href="http://www.datagenetics.com/blog/september32012/">Data Genetics</a> </span>]]></HTML>
+                        </span>
+                      </Line>
+                      <Line>
+                        <Bullet Bullet="3"/>
+                        <span>
+                          <RawText><![CDATA[Length (6 digits is more secure than 4). ]]></RawText>
+                          <HTML><![CDATA[<span>Length (6 digits is more secure than 4). </span>]]></HTML>
+                        </span>
+                      </Line>
+                      <Line>
+                        <Bullet Bullet="3"/>
+                        <span>
+                          <RawText><![CDATA[Presence of multi-factor authentication. ]]></RawText>
+                          <HTML><![CDATA[<span>Presence of multi-factor authentication. </span>]]></HTML>
+                        </span>
+                      </Line>
+                    </Line>
+                  </Line>
+                </Cell>
+              </Row>              
+            </Table>
+          </Section>
+        </Sections>
+        
+      </Page>
+    </Pages>
+  </StaticCopy>
+</StaticAndTest>

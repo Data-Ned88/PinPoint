@@ -23,10 +23,10 @@ namespace PinpointOnenote.Properties {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
-        
-        private static global::System.Resources.ResourceManager resourceMan;
-        
-        private static global::System.Globalization.CultureInfo resourceCulture;
+
+        public static global::System.Resources.ResourceManager resourceMan;
+
+        public static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public Resources() {
@@ -78,6 +78,19 @@ namespace PinpointOnenote.Properties {
         public static string OneNotePageAndElementStyles {
             get {
                 return ResourceManager.GetString("OneNotePageAndElementStyles", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;StaticAndTest&gt;
+        ///  &lt;TestRecords&gt;
+        ///    &lt;LoginRecord LoginType=&quot;Password&quot; LoginDescription =&quot;RichBloke LLP Investor Account&quot; LoginURL=&quot;www.rb.com/login&quot; LoginUsername=&quot;GekkoG&quot; LoginPass=&quot;!Million2017&quot; HasTwoFa=&quot;true&quot; TwoFaMethod=&quot;SMS&quot; LastModified=&quot;2019-06-07 08:47:00&quot; LoginStrength=&quot;5.9&quot;/&gt;
+        ///    &lt;LoginRecord LoginType=&quot;PINFour&quot; LoginDescription =&quot;Monzo Card&quot; LoginURL=&quot;&quot; LoginUsername=&quot;&quot; LoginPass=&quot;2580&quot; HasTwoFa=&quot;false&quot; TwoFaMethod=&quot;&quot; LastModified=&quot;2024-01-03 23:47:00&quot;  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string StaticAndTestData {
+            get {
+                return ResourceManager.GetString("StaticAndTestData", resourceCulture);
             }
         }
     }

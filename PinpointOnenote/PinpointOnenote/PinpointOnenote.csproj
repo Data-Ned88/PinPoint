@@ -41,12 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataParsers.cs" />
+    <Compile Include="OneNoteClasses\OneNoteOE.cs" />
+    <Compile Include="OneNoteClasses\OneNoteOEChild.cs" />
+    <Compile Include="OneNoteClasses\OneNoteQuickStyleDef.cs" />
+    <Compile Include="OneNoteClasses\OneNoteT.cs" />
+    <Compile Include="OneNoteClasses\OneNoteTable.cs" />
     <Compile Include="OneNotePageFmtMethods.cs" />
-    <Compile Include="OneNoteSection.cs" />
+    <Compile Include="OneNoteClasses\OneNoteSection.cs" />
     <Compile Include="OnenoteMethods.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="LoginEntry.cs" />
-    <Compile Include="OneNoteSpan.cs" />
+    <Compile Include="OneNoteClasses\OneNoteSpan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -76,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\OneNotePageAndElementStyles.xml" />
+    <Content Include="resources\StaticAndTestData.xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
