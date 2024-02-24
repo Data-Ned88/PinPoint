@@ -14,7 +14,7 @@
     <Pages>
       <Page name="Notes and Instructions">
         <Sections>
-          <Section name="DescriptiveTable" headerless="true">
+          <Section name="DescriptiveTable" headerless="true"> <!--If headerless is true, only the first child is used. If it's false, the first line child is used as a header and all else used as a child.-->
             <Table ShowBorders="yes" HeaderRow="no">
               <Columns>
                 <Column index="0" customWidth="500" customWidthType="cap_at"/>
