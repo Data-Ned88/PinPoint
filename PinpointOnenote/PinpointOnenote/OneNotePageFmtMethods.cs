@@ -45,8 +45,13 @@ namespace PinpointOnenote
             return pageID;
         }
 
-        public static XDocument RenderOneNotePage (OneNoteInterop.Application app, string pageID, List<OneNoteQuickStyleDef> addQuickStyles)
+        public static XDocument RenderOneNotePage(OneNoteInterop.Application app, string pageID, List<OneNoteOE> sectionsData, bool newPage = false)
         {
+            //Params:
+            //1. OneNoteInterop.Application app - should be quite obvious
+            //2. string pageID - page ID you are adding content to.
+            // 3. List<OneNoteOE> sectionsData. List of OE Class objects from OneNoteClasses tahta represent page sections. This has come from Data Parsers, and its the OE ojects not the prepared XML. (This functioon calls that).
+            // 4. bool newPage = false - is the page being rendered for the first time??
             string pageXML;
             app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
             XDocument PageResult = XDocument.Parse(pageXML);
@@ -55,6 +60,26 @@ namespace PinpointOnenote
             Dictionary<string,string> quickStylesDict = new Dictionary<string, string>();
             requisiteDefs.Add(new OneNoteQuickStyleDef("p"));
             requisiteDefs.Add(new OneNoteQuickStyleDef(new Dictionary<string, string> { {"name","PageTitle"},{"font", "Calibri Light"}, { "fontSize", "20.0"} }));
+
+            List<OneNoteQuickStyleDef> addQuickStyles = new List<OneNoteQuickStyleDef>();
+            List<string> sectionsListnonStandardFromData = new List<string>();
+            foreach (OneNoteOE section in sectionsData)
+            {
+                string sectionQSI_ = section.quickStyleIndexName;
+                if (sectionQSI_ != "p" & sectionQSI_ != "PageTitle")
+                {
+                    sectionsListnonStandardFromData.Add(sectionQSI_);
+                }
+            }
+            if (sectionsListnonStandardFromData.Count != sectionsListnonStandardFromData.Distinct().Count())
+            {
+                throw new Exception($"RenderOneNotePage ERROR: Your List<OneNoteOE> sectionsData input param value has 2 or more sections that share a quickStyleIndexName. THis is not allowed.");
+            }
+            foreach (string dataSectionName in sectionsListnonStandardFromData)
+            {
+                addQuickStyles.Add(new OneNoteQuickStyleDef(dataSectionName));
+            }
+
 
             XNamespace ns = PageResult.Root.Name.Namespace;
             XElement pageEl = PageResult.Elements(ns + "Page").First();
@@ -131,18 +156,24 @@ namespace PinpointOnenote
 
             // THe below is not finalised yet. At the moment it just puts one line of test data on. What we want it to do is recursively build from the data object and "quickStylesDict".
 
+            if (newPage) {
 
-            titleEl.AddAfterSelf(new XElement(ns + "Outline",
-                        new XElement(ns + "OEChildren",
-                            new XElement(ns + "OE", new XAttribute("quickStyleIndex", "2"),
-                                new XElement (ns + "T",
-                                    new XCData("testData")
-                                )
-                            )
-                        )
-                    )
-                );
+                // Add the outline
+                XElement outlineEl = new XElement(ns + "Outline");
+                XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
 
+                foreach (OneNoteOE sectionLoop in sectionsData)
+                {
+                    XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
+                    outlineElChildrenWrapper.Add(sectionEl);
+                }
+                outlineEl.Add(outlineElChildrenWrapper);
+                titleEl.AddAfterSelf(outlineEl);
+            }
+            else
+            {
+                // TODO: What are we doing for existing pages that we're overriding? Look for the OEs with the section headings we're after, so taht we can just update those.
+            }
 
             app.UpdatePageContent(PageResult.ToString());
             pageXML = "";

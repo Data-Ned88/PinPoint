@@ -11,6 +11,10 @@
     <LoginRecord LoginType="Password" LoginDescription ="Microsoft 365" LoginURL="" LoginUsername="ggekko5@hotmail.com" LoginPass="GekkoG1971" HasTwoFa="true" TwoFaMethod="email" LastModified="2023-08-07 08:01:00" LoginStrength="57.69"/>
   </TestRecords>
   <StaticCopy>
+    <!--Pages>Page>Sections>Section> Line>Line||Span> || Table>Columns>Column>,Row>Cell>Line>Line||Span-->
+    <!--Bullet is an attribute of line."2" for filled, "3" for hollow-->
+    <!--An empty line is treated as a linebreak, and inherits the same font family as the OE and the 'fontsizelibebreak' value as its fontsize-->
+    <!--All text references to font sizes in Attributes MUST BE DECIMALIZED.-->
     <Pages>
       <Page name="Notes and Instructions">
         <Sections>
@@ -20,7 +24,7 @@
                 <Column index="0" customWidth="500" customWidthType="cap_at"/>
               </Columns>
               <Row>
-                <Cell shadingColor="#D66510" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599"><!--OE treat as cell. These propagate down to all Ts in this Cell/OE, unless overrided in the span html-->-
+                <Cell shadingColor="#D66510" colIndex="0" alignment="left" fontColor="#FEE599"><!--Cell.Shading and font colour can be set from here, but not font size or family. THese are either at the span or the style selected.-->-
                   <Line>
                     <span isBold="true">
                       <RawText><![CDATA[Welcome to your OneNote password storage bank - powered by UCOVI Pinpoint.]]></RawText>
@@ -30,9 +34,9 @@
                 </Cell>
               </Row>
               <Row>
-                <Cell shadingColor="#FEE599" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599">
+                <Cell shadingColor="#FEE599" colIndex="0" alignment="left" fontColor="#FEE599"> 
                   <Line>
-                    <span customFontWeight="12">
+                    <span customFontWeight="12.0">
                       <RawText><![CDATA[How to Use and Update]]></RawText>
                       <HTML><![CDATA[<span style='text-decoration:underline;font-size:12pt;'>How to Use and Update</span>]]></HTML>
                     </span>
@@ -64,21 +68,18 @@
                       <RawText><![CDATA[ tab in the ribbon above, where you can:]]></RawText>
                       <HTML><![CDATA[<span> tab in the ribbon above, where you can:</span>]]></HTML>
                     </span>
-                    <Line><!--Sub-line in a line my code will interpret it as an OE with treatas cell False. It should Indent 1.-->
-                      <Bullet Bullet="2"/> <!--Filled Bullet point - the oneNote xml needs a fontSize for this, which it should inherit from the nearest OE parent fontweight.-->
+                    <Line Bullet="2"><!--Sub-line in a line my code will interpret it as an OE with treatas cell False. It should Indent 1.-->
                       <span>
                         <RawText><![CDATA[Sort the rows as you wish by:]]></RawText>
                         <HTML><![CDATA[<span>Sort the rows as you wish by:</span>]]></HTML>
                       </span>
-                      <Line><!--Sub-line IN A SUB_LINE in a line my code will interpret it as an OE with treatas cell False. It should Indent 1 + 1 = 2.-->
-                        <Bullet Bullet="3"/> <!--Hollow Bullet point-->
+                      <Line Bullet="3"><!--Sub-line IN A SUB_LINE in a line my code will interpret it as an OE with treatas cell False. It should Indent 1 + 1 = 2.-->
                         <span>
                           <RawText><![CDATA[Any column alphabetically (Select Table, then Sort>Sort Selected Rows).]]></RawText>
                           <HTML><![CDATA[<span>Any column alphabetically (Select Table, then Sort>Sort Selected Rows).</span>]]></HTML>
                         </span>
                       </Line>
-                      <Line><!--2nd Sub-line IN A SUB_LINE-->
-                        <Bullet Bullet="3"/><!--Hollow Bullet point-->
+                      <Line Bullet="3"><!--2nd Sub-line IN A SUB_LINE--><!--Hollow Bullet point-->
                         <span>
                           <RawText><![CDATA[Last Modified Sort]]></RawText>
                           <HTML><![CDATA[<span style='font-style:italic'>Last Modified Sort</span>]]></HTML>
@@ -89,8 +90,7 @@
                         </span>
                       </Line>
                     </Line>
-                    <Line><!--Second sub line (full bullet point 1 indent-->
-                      <Bullet Bullet="2"/>
+                    <Line Bullet="2"><!--Second sub line (full bullet point 1 indent-->
                       <span>
                         <RawText><![CDATA[Select specific cells of the table to add colour shading or other formats such as bold text.]]></RawText>
                         <HTML><![CDATA[<span>Select specific cells of the table to add colour shading or other formats such as bold text.</span>]]></HTML>
@@ -144,9 +144,9 @@
                 </Cell>
               </Row>
               <Row>
-                <Cell shadingColor="#FFD965" colIndex="0" alignment="left" fontFamily="Calibri" fontWeight="11" fontColor="#FEE599">
+                <Cell shadingColor="#FFD965" colIndex="0" alignment="left" fontColor="#FEE599">
                   <Line>
-                    <span customFontWeight="12">
+                    <span customFontWeight="12.0">
                       <RawText><![CDATA[Digital Security Insights]]></RawText>
                       <HTML><![CDATA[<span style='text-decoration:underline;font-size:12pt;'>Digital Security Insights</span>]]></HTML>
                     </span>
@@ -179,35 +179,30 @@
                       <RawText><![CDATA[These scores are calculated as follows: ]]></RawText>
                       <HTML><![CDATA[<span>These scores are calculated as follows: </span>]]></HTML>
                     </span>
-                    <Line>
-                      <Bullet Bullet="2"/>
+                    <Line Bullet="2">
                       <span>
                         <RawText><![CDATA[For passwords, the Hyve Systems Password Table 2023 is used, with additional points awarded if multi-factor authentication is used (2FA column). ]]></RawText>
                         <HTML><![CDATA[<span>For passwords, the <a href="https://www.hivesystems.io/password-table">Hyve Systems Password Table 2023</a> is used, with additional points awarded if multi-factor authentication is used (2FA column). </span>]]></HTML>
                       </span>
                     </Line>
-                    <Line>
-                      <Bullet Bullet="2"/>
+                    <Line Bullet="2">
                       <span>
                         <RawText><![CDATA[For PINs, strength scores increase based on the following factors: ]]></RawText>
                         <HTML><![CDATA[<span>For PINs, strength scores increase based on the following factors: </span>]]></HTML>
                       </span>
-                      <Line>
-                        <Bullet Bullet="3"/>
+                      <Line Bullet="3">
                         <span>
                           <RawText><![CDATA[Scarcity of use based on analysis from Data Genetics. ]]></RawText>
                           <HTML><![CDATA[<span>Scarcity of use based on analysis from <a href="http://www.datagenetics.com/blog/september32012/">Data Genetics</a> </span>]]></HTML>
                         </span>
                       </Line>
-                      <Line>
-                        <Bullet Bullet="3"/>
+                      <Line Bullet="3">
                         <span>
                           <RawText><![CDATA[Length (6 digits is more secure than 4). ]]></RawText>
                           <HTML><![CDATA[<span>Length (6 digits is more secure than 4). </span>]]></HTML>
                         </span>
                       </Line>
-                      <Line>
-                        <Bullet Bullet="3"/>
+                      <Line Bullet="3">
                         <span>
                           <RawText><![CDATA[Presence of multi-factor authentication. ]]></RawText>
                           <HTML><![CDATA[<span>Presence of multi-factor authentication. </span>]]></HTML>
@@ -224,4 +219,14 @@
       </Page>
     </Pages>
   </StaticCopy>
+  <RecursionTest>
+    <Item atty ="3">
+      <Item atty ="3">
+        <Item atty ="3">
+          <Item atty ="3">
+            </Item>
+          </Item>
+        </Item>
+      </Item>
+  </RecursionTest>
 </StaticAndTest>

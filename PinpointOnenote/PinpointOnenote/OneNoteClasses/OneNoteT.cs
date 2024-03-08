@@ -138,5 +138,60 @@ namespace PinpointOnenote.OneNoteClasses
                 return result + 15;
             }
         }
+
+        public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml, string inputBullet = null, bool defaultBold = false)
+        {
+            // Constructor for the OneNote T from page data as Static XML.
+            List<OneNoteSpan> lineSpans = new List<OneNoteSpan>();
+            InheritedFontWeight = IhFW;
+            InheritedFont = IhF;
+            indentCount = IndentCt;
+            Bullet = inputBullet;
+            if (InputSpansXml.FirstOrDefault() == null)
+            {
+                //throw new Exception("Attempt to build a OneNoteT line from XML with no <span> elements in it.");
+                // Give it one span with no text
+                OneNoteSpan spanObj = new OneNoteSpan();
+                string blankSpanEmptyText = "";
+                spanObj.HTML = blankSpanEmptyText;
+                spanObj.rawText = blankSpanEmptyText;
+                lineSpans.Add(spanObj);
+            }
+            else
+            {
+
+                foreach (XElement span in InputSpansXml)
+                {
+                    OneNoteSpan spanObj = new OneNoteSpan();
+                    spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                    spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                    if (span.Attribute("isBold") != null)
+                    {
+                        spanObj.isBold = bool.Parse(span.Attribute("isBold").Value);
+                    }
+                    if (spanObj.isBold == false & defaultBold)
+                    {
+                        spanObj.isBold = true;
+                    }
+                    if (span.Attribute("customFont") != null)
+                    {
+                        spanObj.customFont = span.Attribute("customFont").Value;
+                    }
+                    if (span.Attribute("customFontWeight") != null)
+                    {
+                        spanObj.customFontWeight = span.Attribute("customFontWeight").Value;
+                    }
+                    lineSpans.Add(spanObj);
+                }
+
+
+            }
+            textSpans = lineSpans;
+
+        }
+
+        public OneNoteT()
+        {
+        }
     }
 }

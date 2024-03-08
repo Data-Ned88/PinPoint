@@ -12,7 +12,6 @@ namespace PinpointOnenote.OneNoteClasses
         // ... and we skip processing of the textLine, and inherited indents is not added to.
         public OneNoteOEType oeType { get; set; }
         public bool isHeaderless { get; set; } = false;  
-        public bool treatAsCell { get; set; } = false; //if true, need to read as a table cell (optional shading color override)
         public OneNoteT textLine { get; set; } // main text with optional bullet point. Not used if section and isHeaderless, or if Oe Is Table.
         public OneNoteTable table { get; set; } // only use this if this is a OneNote table.
         //MANDATORY - give it the name of a custom tag you want to give it (section), or "p" for generic.
@@ -29,7 +28,6 @@ namespace PinpointOnenote.OneNoteClasses
                 return $"'font-family:{fontFamily};font-size:{fontWeight}pt;color:{fontColor}'";
             }
         }
-        public string cellShadingOverride { get; set; } //only looked at when treatAsCell is True
         public int inheritedIndents { get; set; } = 0; // THis is ONLY USED to ADD onto the indentation for column width calculation. OneNote controls indents itself by recognising OEChildren
 
         public List<OneNoteOE> OEChildren = new List<OneNoteOE>();

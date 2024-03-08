@@ -47,6 +47,7 @@
     <Compile Include="OneNoteClasses\OneNoteQuickStyleDef.cs" />
     <Compile Include="OneNoteClasses\OneNoteT.cs" />
     <Compile Include="OneNoteClasses\OneNoteTable.cs" />
+    <Compile Include="OneNoteClasses\OneNoteTableCell.cs" />
     <Compile Include="OneNotePageFmtMethods.cs" />
     <Compile Include="OneNoteClasses\OneNoteSection.cs" />
     <Compile Include="OnenoteMethods.cs" />
