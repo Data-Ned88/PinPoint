@@ -17,6 +17,9 @@ namespace PinpointOnenote.OneNoteClasses
         public string customFont { get; set; }
         public bool isBold { get; set; } // boldness of text can only be set at the CDATA/span level.
         public string HTML { get; set; } //MANDATORY - HTML formatted text to add to the XML.      
+        public string InternalLinkPageName { get; set; } = null; //so far this (and the one below) is optional, as we're handling spans with hyperlink in the T constructor, and not using these. But could change.
+        public string InternalLinkSectionName { get; set; } = null;
+
     }
 
 

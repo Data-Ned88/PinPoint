@@ -154,9 +154,17 @@
                   <Line></Line>
                   <Line>
                     <span>
-                      <RawText><![CDATA[The Insights page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.]]></RawText>
-                      <HTML><![CDATA[<span>The <a href="https://www.hivesystems.io/password-table">Insights</a> page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.</span>]]></HTML>
-                    </span>                  
+                      <RawText><![CDATA[The ]]></RawText>
+                      <HTML><![CDATA[<span>The </span>]]></HTML>
+                    </span>
+                    <span InternalLinkPageName="Insights" InternalLinkSectionName="Password Bank"> <!--- The data parser looks for these tags in each span, and if found, hydrates the relevant properties in the OneNoteSpan object so that a future function can look up the IDs and use the to call GetHyperLink on the HTML span property.-->
+                      <RawText><![CDATA[Insights]]></RawText>
+                      <HTML><![CDATA[<span>Insights</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.]]></RawText>
+                      <HTML><![CDATA[<span> page contains summary statistics on the PINs and passwords in your Password Bank. These are accurate as of the last time you ran Generate Insights in the UCOVI Pinpoint application, and show you how secure you are online by measuring the overall strength of the individual passwords you choose as well as the variation across all of them.</span>]]></HTML>
+                    </span>
                   </Line>
                   <Line></Line>
                   <Line></Line>

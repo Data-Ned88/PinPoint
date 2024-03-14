@@ -145,6 +145,7 @@ namespace PinpointOnenote
             }
 
             qsi = pageEl.Elements(ns + "QuickStyleDef");
+            
             foreach (XElement qsie in qsi)
             {
                 quickStylesDict.Add(qsie.Attribute("name").Value, qsie.Attribute("index").Value);
@@ -165,6 +166,7 @@ namespace PinpointOnenote
                 foreach (OneNoteOE sectionLoop in sectionsData)
                 {
                     XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
+                    // need to add a blankline section here.
                     outlineElChildrenWrapper.Add(sectionEl);
                 }
                 outlineEl.Add(outlineElChildrenWrapper);
@@ -172,7 +174,16 @@ namespace PinpointOnenote
             }
             else
             {
-                // TODO: What are we doing for existing pages that we're overriding? Look for the OEs with the section headings we're after, so taht we can just update those.
+                // TODO: What are we doing for existing pages that we're overriding? Look for the OEs with the section headings we're after, so that we can just update those.
+                // 1. Get all outlines.
+                // 1a.  If count all outliesn == 1: work on that.
+                // 1b.  else if count all outlines == 0: do the new page procedure ablove.
+                // 1c. else if more than one, work on the first one that doesn't have the selected attribute.
+                // 2. Select it's OEChildren. Loop through the OE Elements of it.
+                // 3. FOr each one, look at its quick style index. If it matches one in quickStylesDict that's not p or PageTitle, delete it.
+                // 4. You should now have deleted all the sections you want to.
+                // 5. Loop through sectionsData, and put all the sections at the start of OEChildren so taht all the user edits are pushed to the bottom.
+                //5a. THis is accomplished by selecting the first Element of OEChildren. if the iteration fo section data is 0, do AddBeforeSelf. Then do Addafterself method on the first iter.
             }
 
             app.UpdatePageContent(PageResult.ToString());
@@ -255,6 +266,7 @@ namespace PinpointOnenote
 
         public static string GetOneNoteHyperLinkHTML (string sectionId, string pageId, string pageName, string linkText = null)
         {
+            // We're making a decision here that all pages have to be created before any rendering can be done that includes links to those pages. (becuase the linable page ID is a mandatory property).
             if (linkText == null)
             {
                 // linkText parameter has not been supplied - default it to pageName.

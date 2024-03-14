@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-
+using System.Text.RegularExpressions;
 namespace PinpointOnenote.OneNoteClasses
 {
     /// <summary>
@@ -139,7 +139,9 @@ namespace PinpointOnenote.OneNoteClasses
             }
         }
 
-        public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml, string inputBullet = null, bool defaultBold = false)
+        public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml,
+            Dictionary<string,Dictionary<string, object>> linksLookup = null,
+            string inputBullet = null, bool defaultBold = false)
         {
             // Constructor for the OneNote T from page data as Static XML.
             List<OneNoteSpan> lineSpans = new List<OneNoteSpan>();
@@ -163,8 +165,65 @@ namespace PinpointOnenote.OneNoteClasses
                 foreach (XElement span in InputSpansXml)
                 {
                     OneNoteSpan spanObj = new OneNoteSpan();
-                    spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
-                    spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+
+                    // First thing to do is to check for internal hyperlinking
+                    bool hasInternalPageHL = span.Attribute("InternalLinkPageName") != null;
+                    bool hasInternalSectionHL = span.Attribute("InternalLinkSectionName") != null;
+                    bool existLinksLookup = linksLookup != null;
+                    if (existLinksLookup & hasInternalSectionHL & hasInternalPageHL)
+                    {
+                        // The T constructor has been given a OneNote apge links lookup from the XML data parser, and the span object in XML has attributes for internal link section and page names.
+                        // So attempt to bould a hyperlink and give it to the .HTML property
+                        //spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                        spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                        string pageNameLinkTo = span.Attribute("InternalLinkPageName").Value;
+                        string sectNameLinkTo = span.Attribute("InternalSectionPageName").Value;
+                        if (linksLookup.ContainsKey(sectNameLinkTo)) 
+                        {
+                            string sectLinkToID = (string)linksLookup[sectNameLinkTo]["sectionId"];
+                            Dictionary<string, object> linkToSectPagesDict = (Dictionary<string, object>)linksLookup[sectNameLinkTo]["pages"];
+                            if (linkToSectPagesDict.ContainsKey(pageNameLinkTo))
+                            {
+                                // We've found a page name/linkID value and the section ID, so we can do the link
+                                string RT = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                                string HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                                spanObj.rawText = RT;
+
+                                string pageLinkToID = (string)linkToSectPagesDict[pageNameLinkTo];
+                                string embedLink = OneNotePageFmtMethods.GetOneNoteHyperLinkHTML(sectLinkToID, pageLinkToID, pageNameLinkTo, RT);
+                                Regex rx = new Regex(@"<span\s+style\s*=\s*[""'][^""']*[""']\s*>");
+                                Match match = rx.Match(HTML);
+                                if (match.Success)
+                                {
+                                    spanObj.HTML = match.Value + embedLink + "</span>";
+                                }
+                                else
+                                {
+                                    spanObj.HTML = "<span>" + embedLink + "</span>";
+                                }
+
+                            }
+                            else
+                            {
+                                //We found the section ID, but not an id for the page asked for, so don't attempt the hyperlink.
+                                spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                                spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                            }
+                        }
+                        else 
+                        {
+                            // The section Link to tag wasn't found in the lookup keys, so don't attempt the hyerlink
+                            spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                            spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                        }
+                    }
+                    else
+                    {
+                        // T constructor doesn't ahve enough info to build a hyperlink.
+                        spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
+                        spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
+                    }
+                    
                     if (span.Attribute("isBold") != null)
                     {
                         spanObj.isBold = bool.Parse(span.Attribute("isBold").Value);

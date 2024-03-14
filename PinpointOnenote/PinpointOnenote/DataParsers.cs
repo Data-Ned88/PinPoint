@@ -42,7 +42,8 @@ namespace PinpointOnenote
             return output;
         }
 
-        public static List<OneNoteOE> BuildPageDataFromXml (XElement pageXML, XElement sizingOptions, XElement tableCol, AllowableFonts defaultFont)
+        public static List<OneNoteOE> BuildPageDataFromXml (XElement pageXML, XElement sizingOptions, XElement tableCol, AllowableFonts defaultFont,
+            Dictionary<string,Dictionary<string, object>> linksLookup)
         //XElement param pageXML should be a "Page" element from StaticAndTestData.xml
         // The page is made up of sections.
         {
@@ -56,19 +57,22 @@ namespace PinpointOnenote
             }
             foreach (XElement sectionXml in sectionsList)
             {
-                output.Add(BuildOEWithChildrenFromXml(sectionXml,sizingOptions,tableCol,defaultFont));
+                output.Add(BuildOEWithChildrenFromXml(sectionXml,sizingOptions,tableCol,defaultFont, linksLookup));
             }
             return output;
 
         }
 
-        public static OneNoteTable BuildTableFromXml(XElement nodeXml, XElement sizingOptions, XElement tableCol, AllowableFonts defaultFont)
+        public static OneNoteTable BuildTableFromXml(XElement nodeXml, XElement sizingOptions, XElement tableCol, AllowableFonts defaultFont, Dictionary<string, 
+            Dictionary<string, object>> linksLookup)
         {
             // Params:
             // 1. XElement nodeXml - this is the <Table> XElement from a page xml from StaticAndTestData.xml or something with the same structure.
             // 2. sizingOptions - a <TableSizing> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
             // 3. tableCol - a <ColorTheme> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
             // 4. defaultFont - font which is either Arial,Calibri or Times New Roman
+            // 5.Dictionary<string, Dictionary<string, object>> linksLookup - this is all the onenote section names/linkableIds + nested dict of ...
+            // ... their pages name/linableId key/value pairs in play. THis is needed to build internal linking spans if needed.
             OneNoteTable output = new OneNoteTable();
 
             string defaultFontStr = GetAllowableFontAsStr(defaultFont);
@@ -167,7 +171,7 @@ namespace PinpointOnenote
                         // there are lines to work throguh - so do the full line procedure and their children.
                         foreach (XElement cellLine in cellLinesXml)
                         {
-                            OneNoteOE lineOE = BuildOEWithChildrenFromXml(cellLine, sizingOptions,tableCol, defaultFont,0, cellFontColor, BoldRow);
+                            OneNoteOE lineOE = BuildOEWithChildrenFromXml(cellLine, sizingOptions,tableCol, defaultFont, linksLookup,0, cellFontColor, BoldRow);
                             cellOE.cellLines.Add(lineOE);
                         }
                     }
@@ -271,7 +275,8 @@ namespace PinpointOnenote
 
 
         public static OneNoteOE BuildOEWithChildrenFromXml (XElement nodeXml, XElement sizingOptions, XElement tableCol, 
-            AllowableFonts defaultFont, int inheritedIndents = 0, string inheritedFontColor = "black", bool boldByDefault = false,string inheritedAlignment = "left")
+            AllowableFonts defaultFont, Dictionary<string, Dictionary<string, object>> linksLookup, int inheritedIndents = 0,
+            string inheritedFontColor = "black", bool boldByDefault = false,string inheritedAlignment = "left")
         {
             //TODO build out the 2 recursive functions to make class data from static XML, and onenote XML from class object.
             //This should be recursive and take in a Section element from a page from StaticAndTestData.xml, or anything more granular. //THIS IS UNFINISHED
@@ -285,6 +290,8 @@ namespace PinpointOnenote
             // 2. sizingOptions - a <TableSizing> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
             // 3. tableCol - a <ColorTheme> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
             // 4. defaultFont - font which is either Arial,Calibri or Times New Roman
+            // 5.Dictionary<string, Dictionary<string, object>> linksLookup - this is all the onenote section names/linkableIds + nested dict of ...
+            // ... their pages name/linableId key/value pairs in play. THis is needed to build internal linking spans if needed.
             // 5. inheritedIndents - default 0, incrementable for child sections
             // 6. inheritedFontColor - if this is populated, the OneNoteOE output's default font color of bklack will be overriden by this hexcode as string.
             // 7. boldByDefault - default false, give this a true if you want any Line elements to ahve all their spans set to bold by default.
@@ -307,6 +314,7 @@ namespace PinpointOnenote
             string[] lineChildrenOk = { "Line" }; // Lines can only contain lines as sub bullets. A line containing a table has to be a section.
 
             string defaultFontStr = GetAllowableFontAsStr(defaultFontSel);
+            Dictionary<string, Dictionary<string, object>> linksLookupPassOn = linksLookup;
             output.fontFamily = defaultFontStr;
             output.alignment = oeAlignment;
             
@@ -336,7 +344,7 @@ namespace PinpointOnenote
                     else if (firstElement.Name == "Table")
                     {
                         //TODO Table behaviour - the table is output.table 
-                        OneNoteTable table = BuildTableFromXml(firstElement, sizingOptionsSel, tableColSel, defaultFontSel);
+                        OneNoteTable table = BuildTableFromXml(firstElement, sizingOptionsSel, tableColSel, defaultFontSel, linksLookupPassOn);
                         //output.oeType = OneNoteOEType.Table;
                         output.table = table;
                     }
@@ -352,7 +360,7 @@ namespace PinpointOnenote
                             lineBullet =  firstElement.Attribute("Bullet").Value;
                         }
 
-                        OneNoteT lineData = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml, lineBullet,boldByDefault);
+                        OneNoteT lineData = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml, linksLookup, lineBullet,boldByDefault);
                         output.textLine = lineData;
                       
                         // DO the child procedure on the line (which can only apply to lines within lines. So this would be bullets within a line in a headerless section.).
@@ -361,7 +369,7 @@ namespace PinpointOnenote
                         {
                             OneNoteOE childOE = BuildOEWithChildrenFromXml(child,
                                                     sizingOptionsSel,
-                                                    tableColSel, defaultFontSel, inputIndents+1, oeFontColor, makeBold, oeAlignment);
+                                                    tableColSel, defaultFontSel, linksLookupPassOn, inputIndents +1, oeFontColor, makeBold, oeAlignment);
                             output.OEChildren.Add(childOE);
                         }
                     }
@@ -380,14 +388,14 @@ namespace PinpointOnenote
                             {
                                 // Make the line input from the XElement. It has to be childless and bulletless, because its the header of a section so it cant contain bullet points. or be multi line.
                                 IEnumerable<XElement> spansXml = child.Elements("span");
-                                output.textLine = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml,null,boldByDefault);
+                                output.textLine = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml, linksLookup, null, boldByDefault);
                             }
                             else
                             {
                                 // Its a line after lineInc 0, so it's text in the main section. We want this indented and OeCHildrenWrapped so that it can be collapsed.
                                 output.OEChildren.Add(BuildOEWithChildrenFromXml(child,
                                                     sizingOptionsSel,
-                                                    tableColSel, defaultFontSel, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
+                                                    tableColSel, defaultFontSel, linksLookupPassOn, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
                             }
                             lineInc++;
                         }
@@ -396,7 +404,7 @@ namespace PinpointOnenote
                             // Its a table, which again we want indented so that it can be collapsed. But let the recursive function call handle this.
                             output.OEChildren.Add(BuildOEWithChildrenFromXml(child,
                                                     sizingOptionsSel,
-                                                    tableColSel, defaultFontSel, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
+                                                    tableColSel, defaultFontSel, linksLookupPassOn, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
                         }
                     }
                 }
@@ -419,7 +427,7 @@ namespace PinpointOnenote
                 {
                     lineBullet = nodeXml.Attribute("Bullet").Value;
                 }
-                output.textLine = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml, lineBullet, boldByDefault);
+                output.textLine = new OneNoteT(output.fontWeight, output.fontFamily, inputIndents, spansXml, linksLookup, lineBullet, boldByDefault);
 
                 // Children.
                 IEnumerable<XElement> children = nodeXml.Elements().Where(x => lineChildrenOk.Contains(x.Name.ToString()));
@@ -428,7 +436,7 @@ namespace PinpointOnenote
                     // The children of a line have to be lines, so this is simple.
                     output.OEChildren.Add(BuildOEWithChildrenFromXml(child,
                                                     sizingOptionsSel,
-                                                    tableColSel, defaultFontSel, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
+                                                    tableColSel, defaultFontSel, linksLookupPassOn, inputIndents + 1, oeFontColor, makeBold, oeAlignment));
                 }
 
 
@@ -440,7 +448,7 @@ namespace PinpointOnenote
                 //. You will need a table function to loop the columns and cells, called from here. This table function should produce lines in the cells, ...
                 // ... which may have their own lines, which will therefore call this function.
                 output.oeType = OneNoteOEType.Table;
-                OneNoteTable table = BuildTableFromXml(nodeXml, sizingOptionsSel, tableColSel, defaultFontSel);
+                OneNoteTable table = BuildTableFromXml(nodeXml, sizingOptionsSel, tableColSel, defaultFontSel, linksLookupPassOn);
                 output.table = table;
             }
 
