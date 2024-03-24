@@ -44,7 +44,6 @@
     <Compile Include="DataParsers.cs" />
     <Compile Include="OneNoteClasses\OneNoteOE.cs" />
     <Compile Include="OneNoteClasses\OneNoteOEChild.cs" />
-    <Compile Include="OneNoteClasses\OneNoteQuickStyleDef.cs" />
     <Compile Include="OneNoteClasses\OneNoteT.cs" />
     <Compile Include="OneNoteClasses\OneNoteTable.cs" />
     <Compile Include="OneNoteClasses\OneNoteTableCell.cs" />

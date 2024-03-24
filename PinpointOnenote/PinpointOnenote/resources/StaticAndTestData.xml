@@ -14,10 +14,13 @@
     <!--Pages>Page>Sections>Section> Line>Line||Span> || Table>Columns>Column>,Row>Cell>Line>Line||Span-->
     <!--Bullet is an attribute of line."2" for filled, "3" for hollow-->
     <!--An empty line is treated as a linebreak, and inherits the same font family as the OE and the 'fontsizelibebreak' value as its fontsize-->
-    <!--All text references to font sizes in Attributes MUST BE DECIMALIZED.-->
+    <!--All text references to sizes in Attributes MUST BE DECIMALIZED.-->
     <Pages>
       <Page name="Notes and Instructions">
-        <Sections>
+        <Sections> 
+          <!--Each section get's treated as an Outline, with the aim of tring to get all the automated content into the sam etight-packed outline so taht users can maek notes around it in other Outlines-->
+          <!--If you have a second outline, there's a small risk of it getting pushed downwards on update if the user has made notes at the same horizontal level as the outline-->
+          <!--You can achieve the effect of collabsible sections within each outline, by setting a Line as "subHead"="true" and having everything else as its child. But these don't get uniquely tagged in the Outlien Author like the main sections.-->
           <Section name="DescriptiveTable" headerless="true"> <!--If headerless is true, only the first child is used. If it's false, the first line child is used as a header and all else used as a child.-->
             <Table ShowBorders="yes" HeaderRow="no">
               <Columns>
@@ -25,7 +28,7 @@
               </Columns>
               <Row>
                 <Cell shadingColor="#D66510" colIndex="0" alignment="left" fontColor="#FEE599"><!--Cell.Shading and font colour can be set from here, but not font size or family. THese are either at the span or the style selected.-->-
-                  <Line>
+                  <Line subHead="false"><!--you don't need subHead, but if it's there and "true", it promotes the fontsize to be what's specified for the section Head.-->
                     <span isBold="true">
                       <RawText><![CDATA[Welcome to your OneNote password storage bank - powered by UCOVI Pinpoint.]]></RawText>
                       <HTML><![CDATA[<span style='font-weight:bold'>Welcome to your OneNote password storage bank - powered by UCOVI Pinpoint.</span>]]></HTML>
@@ -230,19 +233,8 @@
               </Row>              
             </Table>
           </Section>
-        </Sections>
-        
+        </Sections>     
       </Page>
     </Pages>
   </StaticCopy>
-  <RecursionTest>
-    <Item atty ="3">
-      <Item atty ="3">
-        <Item atty ="3">
-          <Item atty ="3">
-            </Item>
-          </Item>
-        </Item>
-      </Item>
-  </RecursionTest>
 </StaticAndTest>

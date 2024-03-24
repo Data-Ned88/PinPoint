@@ -52,138 +52,68 @@ namespace PinpointOnenote
             //2. string pageID - page ID you are adding content to.
             // 3. List<OneNoteOE> sectionsData. List of OE Class objects from OneNoteClasses tahta represent page sections. This has come from Data Parsers, and its the OE ojects not the prepared XML. (This functioon calls that).
             // 4. bool newPage = false - is the page being rendered for the first time??
+
+            /*
+             SYNOPSIS:
+            This make an outline for each OneNoteOE in the sectionsData parameter. THe Outline has OECHildren has a first OE, which this 
+            script tags the author attribute of, which has the effect of permanently tagging the auhtor property of the outline, which is much less
+            at risk of erasure by users than the quickstyle defs, which we used before.
+
+            It also allows the script on update (newPage param = false) to preserve other outlines not tagged by this script, which may contain custom user notes.
+            On update, it deletes all outlines, saving the non-script tagged outlines and re-parsing them afresh.
+            It then recreates the section-specific outlines from the input param afresh, adds them to the pageElement, 
+                (setting the first one as Y-psition 90 px, 
+                so ideally try and make a page with 1 outline section if you can as it will be more likely to stay front and centre around any user-added notes),
+            then adds the user-specific notes, apart from any ink or images.
+
+            This has been tested to work on page XML data with 2 sections, adding text-only user notes, then reupdating.
+             
+             */
+
+
+
             string pageXML;
             app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
             XDocument PageResult = XDocument.Parse(pageXML);
 
-            List<OneNoteQuickStyleDef> requisiteDefs = new List<OneNoteQuickStyleDef>();
-            Dictionary<string,string> quickStylesDict = new Dictionary<string, string>();
-            List<string> quickStylesDictSectionSearcher = new List<string>();
-            requisiteDefs.Add(new OneNoteQuickStyleDef("p"));
-            requisiteDefs.Add(new OneNoteQuickStyleDef(new Dictionary<string, string> { {"name","PageTitle"},{"font", "Calibri Light"}, { "fontSize", "20.0"} }));
-
-            List<OneNoteQuickStyleDef> addQuickStyles = new List<OneNoteQuickStyleDef>();
-            List<string> sectionsListnonStandardFromData = new List<string>();
+            List<string> sectionsListAuthorProps = new List<string>();
             foreach (OneNoteOE section in sectionsData)
             {
-                string sectionQSI_ = section.quickStyleIndexName;
-                if (sectionQSI_ != "p" & sectionQSI_ != "PageTitle")
+                
+                if (section.author != null)
                 {
-                    sectionsListnonStandardFromData.Add(sectionQSI_);
+                    sectionsListAuthorProps.Add(section.author);
                 }
             }
-            if (sectionsListnonStandardFromData.Count != sectionsListnonStandardFromData.Distinct().Count())
+            if (sectionsListAuthorProps.Count != sectionsListAuthorProps.Distinct().Count())
             {
-                throw new Exception($"RenderOneNotePage ERROR: Your List<OneNoteOE> sectionsData input param value has 2 or more sections that share a quickStyleIndexName. THis is not allowed.");
-            }
-            foreach (string dataSectionName in sectionsListnonStandardFromData)
-            {
-                addQuickStyles.Add(new OneNoteQuickStyleDef(dataSectionName));
+                throw new Exception($"RenderOneNotePage ERROR: Your List<OneNoteOE> sectionsData input param value has 2 or more sections that share an author name. This is not allowed.");
             }
 
 
             XNamespace ns = PageResult.Root.Name.Namespace;
             XElement pageEl = PageResult.Elements(ns + "Page").First();
-            IEnumerable<XElement> qsi = pageEl.Elements(ns + "QuickStyleDef");
-            XElement qsiLast = qsi.LastOrDefault();
-            if (qsiLast == null)
-            {
-                // No QSDefs - add both and anything user-specified.
-                pageEl.AddFirst(new XElement(ns + "QuickStyleDef",
-                                     new XAttribute("index", "0"), new XAttribute("name", requisiteDefs[0].name),
-                                     new XAttribute("fontColor", requisiteDefs[0].fontColor), new XAttribute("highlightColor", requisiteDefs[0].highlightColor),
-                                     new XAttribute("font", requisiteDefs[0].font), new XAttribute("fontSize", requisiteDefs[0].fontSize),
-                                     new XAttribute("spaceBefore", requisiteDefs[0].spaceBefore), new XAttribute("spaceAfter", requisiteDefs[0].spaceAfter)
-                                            ));
-                XElement newQsi = pageEl.Elements(ns + "QuickStyleDef").Last();
-                newQsi.AddAfterSelf(new XElement(ns + "QuickStyleDef",
-                                     new XAttribute("index", "1"), new XAttribute("name", requisiteDefs[1].name),
-                                     new XAttribute("fontColor", requisiteDefs[1].fontColor), new XAttribute("highlightColor", requisiteDefs[1].highlightColor),
-                                     new XAttribute("font", requisiteDefs[1].font), new XAttribute("fontSize", requisiteDefs[1].fontSize),
-                                     new XAttribute("spaceBefore", requisiteDefs[1].spaceBefore), new XAttribute("spaceAfter", requisiteDefs[1].spaceAfter)
-                                            ));
-                int startInc = 2;
-                string IncIndex = startInc.ToString();
-                newQsi = pageEl.Elements(ns + "QuickStyleDef").Last();
-                foreach (OneNoteQuickStyleDef qsdef in addQuickStyles)
-                {
-                    newQsi.AddAfterSelf(new XElement(ns + "QuickStyleDef",
-                     new XAttribute("index", IncIndex), new XAttribute("name", qsdef.name),
-                     new XAttribute("fontColor", qsdef.fontColor), new XAttribute("highlightColor", qsdef.highlightColor),
-                     new XAttribute("font", qsdef.font), new XAttribute("fontSize", qsdef.fontSize),
-                     new XAttribute("spaceBefore", qsdef.spaceBefore), new XAttribute("spaceAfter", qsdef.spaceAfter)
-                            ));
-                    startInc++;
-                    IncIndex = startInc.ToString();
-                    newQsi = pageEl.Elements(ns + "QuickStyleDef").Last();
-                }
-            }
-            else
-            {
-                // There is at least one QuickStyleDef. First join both lists, and find the highest index and all tag names from the existing qsi (already assigned)
-                requisiteDefs.AddRange(addQuickStyles);
-                int[] qsiIndexes = (from qsie in qsi select int.Parse(qsie.Attribute("index").Value)).ToArray();
-                string[] qsiTags = (from qsie in qsi select qsie.Attribute("name").Value).ToArray();
-                int startInc = qsiIndexes.Max() + 1;
-                string IncIndex = startInc.ToString();
-
-                foreach (OneNoteQuickStyleDef qsdef in requisiteDefs)
-                {
-                    //is it in there?
-                    if (!qsiTags.Contains(qsdef.name))
-                    {
-                        qsiLast.AddAfterSelf(new XElement(ns + "QuickStyleDef",
-                            new XAttribute("index", IncIndex), new XAttribute("name", qsdef.name),
-                            new XAttribute("fontColor", qsdef.fontColor), new XAttribute("highlightColor", qsdef.highlightColor),
-                            new XAttribute("font", qsdef.font), new XAttribute("fontSize", qsdef.fontSize),
-                            new XAttribute("spaceBefore", qsdef.spaceBefore), new XAttribute("spaceAfter", qsdef.spaceAfter)
-                               ));
-                        startInc++;
-                        IncIndex = startInc.ToString();
-                        qsiLast = pageEl.Elements(ns + "QuickStyleDef").Last();
-                    }
-                }
-            }
-
-            qsi = pageEl.Elements(ns + "QuickStyleDef");
-            
-            foreach (XElement qsie in qsi)
-            {
-                quickStylesDict.Add(qsie.Attribute("name").Value, qsie.Attribute("index").Value);
-
-                // we want a dict of quicksltyledef index/name for the sections in the data to use later to identify stuff that may or many not be in any existing outlines, if we are updating an existing page
-                if (sectionsListnonStandardFromData.Contains(qsie.Attribute("name").Value))
-                {
-                    quickStylesDictSectionSearcher.Add(qsie.Attribute("index").Value);
-                }
-                
-            }
-
-            
-
-            XElement titleEl = pageEl.Elements(ns + "Title").Last();
-
-            // THe below is not finalised yet. At the moment it just puts one line of test data on. What we want it to do is recursively build from the data object and "quickStylesDict".
 
             if (newPage) {
 
                 // Add the outline
-                XElement outlineEl = new XElement(ns + "Outline");
-
-                XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
+                
 
                 foreach (OneNoteOE sectionLoop in sectionsData)
                 {
-                    XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
+                    XElement outlineEl = new XElement(ns + "Outline");
+                    XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
+                    XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns);
                     outlineElChildrenWrapper.Add(sectionEl);
-                    // add blank line under section
-                    outlineElChildrenWrapper.Add(new XElement(ns + "OE",
-                                                new XAttribute("quickStyleIndex", quickStylesDict["p"]),
-                                                new XElement(ns + "T",
-                                                    new XCData(" "))));
+                    outlineEl.Add(outlineElChildrenWrapper);
+                    pageEl.Add(outlineEl);
                 }
-                outlineEl.Add(outlineElChildrenWrapper);
-                titleEl.AddAfterSelf(outlineEl);
+                app.UpdatePageContent(PageResult.ToString());
+                pageXML = "";
+                app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
+                PageResult = XDocument.Parse(pageXML);
+
+
             }
             else
             {
@@ -194,99 +124,107 @@ namespace PinpointOnenote
                     //Console.WriteLine("You have an existing page with no outlines. Unusual, but no harm in handling it.");
                     // You have an existing page with no outlines. Unusual, but no harm in handling it. Do the 'new' procedure.
                     // Add the outline
-                    XElement outlineEl = new XElement(ns + "Outline");
-                    XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
-
                     foreach (OneNoteOE sectionLoop in sectionsData)
                     {
-                        XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
-                        
+                        XElement outlineEl = new XElement(ns + "Outline");
+                        XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
+                        XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns);
                         outlineElChildrenWrapper.Add(sectionEl);
-                        // add blank line under section
-                        outlineElChildrenWrapper.Add(new XElement(ns + "OE",
-                                                    new XAttribute("quickStyleIndex", quickStylesDict["p"]),
-                                                    new XElement(ns + "T",
-                                                        new XCData(" "))));
+                        outlineEl.Add(outlineElChildrenWrapper);
+                        pageEl.Add(outlineEl);
                     }
-                    outlineEl.Add(outlineElChildrenWrapper);
-                    titleEl.AddAfterSelf(outlineEl);
-                }
-                else if (outlines.Count() == 1)
-                {
 
-                    //There is a single outline that we look through.
-                    XElement SingleOutlineExisting = outlines.First(); // edit this
-                    XElement outlineChildrenNew = new XElement(ns + "OEChildren");
-                    foreach (OneNoteOE sectionLoop in sectionsData)
-                    {
-                        XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
-
-                        outlineChildrenNew.Add(sectionEl);
-                        // add blank line under section
-                        outlineChildrenNew.Add(new XElement(ns + "OE",
-                                                    new XAttribute("quickStyleIndex", quickStylesDict["p"]),
-                                                    new XElement(ns + "T",
-                                                        new XCData(" "))));
-                    }
-                    SingleOutlineExisting.Element(ns + "OEChildren").ReplaceWith(outlineChildrenNew);
+                    app.UpdatePageContent(PageResult.ToString());
+                    pageXML = "";
+                    app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
+                    PageResult = XDocument.Parse(pageXML);
                 }
                 else
                 {
-                    bool outlineFound = false;
-                    //Console.WriteLine("Looping.");
+                    //1. Remove everything from the outlines that matches one of the author names, and preserve in an array everything that doesn't.
+                    List<XElement> userOutlines = new List<XElement>();
+                    List<string> OutlinesToDelete = new List<string>();
                     foreach (XElement outline in outlines)
                     {
-                        
-                        // A list of the OEs in this outline's OEChildren Descendants that have a quickstyle index that is in the data sectiosn quickstlye indexes.
-                        IEnumerable<XElement> taggedOEs = outline.Element(ns + "OEChildren").Descendants(ns + "OE")
-                            .Where(x => x.Attribute("quickStyleIndex") != null && quickStylesDictSectionSearcher.Contains(x.Attribute("quickStyleIndex").Value));
-                        if (taggedOEs.Count() > 0)
+                        if (outline.Attribute("author") != null && sectionsListAuthorProps.Contains(outline.Attribute("author").Value))
                         {
-                            outlineFound = true;
-                            XElement outlineChildrenNew = new XElement(ns + "OEChildren");
-                            foreach (OneNoteOE sectionLoop in sectionsData)
-                            {
-                                XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
-                                
-                                outlineChildrenNew.Add(sectionEl);
-                                // add blank line under section
-                                outlineChildrenNew.Add( new XElement(ns + "OE", 
-                                                            new XAttribute("quickStyleIndex", quickStylesDict["p"]),
-                                                            new XElement(ns + "T",
-                                                                new XCData(" "))));
-                            }
-                            outline.Element(ns + "OEChildren").ReplaceWith(outlineChildrenNew);
-                            break;
-                        }
-
-                    }
-                    if (!outlineFound) {
-                        XElement firstOutline = outlines.First(); // edit this
-                        XElement outlineChildrenNew = new XElement(ns + "OEChildren");
-                        foreach (OneNoteOE sectionLoop in sectionsData)
-                        {
-                            XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
                             
-                            outlineChildrenNew.Add(sectionEl);
-                            // add blank line under section
-                            outlineChildrenNew.Add(new XElement(ns + "OE",
-                                                    new XAttribute("quickStyleIndex", quickStylesDict["p"]),
-                                                    new XElement(ns + "T",
-                                                        new XCData(" "))));
+                            OutlinesToDelete.Add(outline.Attribute("objectID").Value);
                         }
-                        firstOutline.Element(ns + "OEChildren").ReplaceWith(outlineChildrenNew);
+                        else
+                        {
+                            userOutlines.Add(outline);
+                            OutlinesToDelete.Add(outline.Attribute("objectID").Value);
+                        }
+                    }
+                    foreach (string id in OutlinesToDelete)
+                    {
+                        app.DeletePageContent(pageID,id);
+                    }
+                    pageXML = "";
+                    app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
+                    PageResult = XDocument.Parse(pageXML);
+                    ns = PageResult.Root.Name.Namespace;
+                    pageEl = PageResult.Elements(ns + "Page").First();
+
+                    // refill using the data
+                    int sectionDataInc = 0;
+                    foreach (OneNoteOE sectionLoop in sectionsData)
+                    {
+                        XElement outlineEl = new XElement(ns + "Outline");
+                        if (sectionDataInc == 0)
+                        {
+                            outlineEl.Add(
+                                new XElement(ns + "Position", new XAttribute("x", "36.0"), new XAttribute("y", "90.0"), new XAttribute("z", "0"))
+                            );
+                        }
+                        XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
+                        XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns);
+                        outlineElChildrenWrapper.Add(sectionEl);
+                        outlineEl.Add(outlineElChildrenWrapper);
+                        pageEl.Add(outlineEl);
+                        sectionDataInc++;
+                    }
+                    //reload the custom user outlines
+                    foreach(XElement uo in userOutlines)
+                    {
+                        XElement newOutlineEl = new XElement(ns + "Outline");
+                        string _x = uo.Element(ns + "Position").Attribute("x").Value;
+                        string _y = uo.Element(ns + "Position").Attribute("y").Value;
+                        string _width = uo.Element(ns + "Size").Attribute("width").Value;
+                        string _height = uo.Element(ns + "Size").Attribute("height").Value;
+                        newOutlineEl.Add(
+                            new XElement(ns + "Position", new XAttribute("x", _x), new XAttribute("y", _y), new XAttribute("z", "2"))
+                            );
+                        newOutlineEl.Add(
+                            new XElement(ns + "Size", new XAttribute("width", _width), new XAttribute("height", _height))
+                               );
+                        XElement newOutlineChildren = new XElement(ns + "OEChildren");
+
                         
+                        IEnumerable<XElement> OEs = uo.Element(ns + "OEChildren").Elements(ns + "OE");
+                        
+                        foreach (XElement oec in OEs)
+                        {
+                            XElement newOE = DataParsers.ParseOeToNew(oec, ns);
+                            newOutlineChildren.Add(newOE);
+                        }
+                        
+                        newOutlineEl.Add(newOutlineChildren);
+                        pageEl.Add(newOutlineEl);
                     }
 
-                    // There is more than one outline, we need to find the right one based on it containing sections we are looking for, and edit that.
-                    // If we don't find any, just use the first one.
+                    app.UpdatePageContent(PageResult.ToString());
+                    pageXML = "";
+                    app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
+                    PageResult = XDocument.Parse(pageXML);
                 }
             }
 
-            app.UpdatePageContent(PageResult.ToString());
-            pageXML = "";
-            app.GetPageContent(pageID, out pageXML, OneNoteInterop.PageInfo.piAll);
-            PageResult = XDocument.Parse(pageXML);
+
+
+
+
             return PageResult;
 
         }

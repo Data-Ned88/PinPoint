@@ -16,7 +16,7 @@ namespace PinpointOnenote.OneNoteClasses
         public OneNoteTable table { get; set; } // only use this if this is a OneNote table.
         //MANDATORY - give it the name of a custom tag you want to give it (section), or "p" for generic.
         //As a strategy, we're just using this for tagging. We'll override with style CSS proeprties on the OE at all times for ease of lineage tracking.
-        public string quickStyleIndexName { get; set; }
+        public string author { get; set; } // author property as as proxy for tagging sections.
         public string alignment { get; set; } = "left"; //(left/center/right)
         public string fontFamily { get; set; } //MANDATORY> This contributes to InheritedFont in textLine and to the CssStyle
         public string fontWeight { get; set; } //MANDATORY> This contributes to InheritedFontWeight in textLine and to the CssStyle

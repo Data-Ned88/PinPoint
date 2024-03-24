@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
@@ -159,7 +161,6 @@ namespace PinpointOnenote
                         // add a blank line if there are no lines in the cell.
                         OneNoteOE emptyOE = new OneNoteOE();
                         emptyOE.oeType = OneNoteOEType.BaseOE;
-                        emptyOE.quickStyleIndexName = "p";
                         emptyOE.fontFamily = defaultFontStr;
                         emptyOE.fontWeight = sizingOptions.Attribute("fontSizeLineBreak").Value;
                         emptyOE.textLine = new OneNoteT(emptyOE.fontWeight, emptyOE.fontFamily, 0, cellLinesXml); // we can recycle cellLinesXml as the spansXml because they are both empty.
@@ -325,7 +326,7 @@ namespace PinpointOnenote
 
             if (nodeXml.Name == "Section")
             {
-                output.quickStyleIndexName = nodeXml.Attribute("name").Value;
+                output.author = nodeXml.Attribute("name").Value;
                 output.isHeaderless = bool.Parse(nodeXml.Attribute("headerless").Value); // script will fail if you don't have this attribute in your XML.
                 output.inheritedIndents = inputIndents;
                 output.fontWeight = sizingOptionsSel.Attribute("fontSizeSectionHead").Value;
@@ -414,9 +415,16 @@ namespace PinpointOnenote
             else if (nodeXml.Name == "Line")
             {
                 // The line itself.
-                output.quickStyleIndexName = "p";
                 output.oeType = OneNoteOEType.BaseOE;
-                output.fontWeight = sizingOptionsSel.Attribute("fontSizeText").Value;
+                if (nodeXml.Attribute("subHead") != null && nodeXml.Attribute("subHead").Value == "true")
+                {
+                    output.fontWeight = sizingOptionsSel.Attribute("fontSizeSectionHead").Value;
+                }
+                else
+                {
+                    output.fontWeight = sizingOptionsSel.Attribute("fontSizeText").Value;
+                }
+                
                 output.inheritedIndents = inputIndents;
                 IEnumerable<XElement> spansXml = nodeXml.Elements("span");
                 if (spansXml.FirstOrDefault() == null) // Make the node font weight the blankLine value if there are no spans.
@@ -459,23 +467,19 @@ namespace PinpointOnenote
         }
 
 
-        public static XElement BuildOneNoteXmlOeFromClassObject(OneNoteOE OeClassObject, XNamespace nameSpaceInput, Dictionary<string, string> quickStylesDict = null)
+        public static XElement BuildOneNoteXmlOeFromClassObject(OneNoteOE OeClassObject, XNamespace nameSpaceInput)
         {
             XNamespace ns = nameSpaceInput;
-            if (quickStylesDict == null)
-            {
-                quickStylesDict = new Dictionary<string, string> { { "p", "0" }, { "PageTitle", "1" }, { "DescriptiveTable", "2" } };
-            }
+
             XElement output = new XElement(ns + "OE");
             // Make an OE in Onenote Xml with the OneNoteOE OeClassObject param, and if it has children, recursively add these to the OE node target, passing it down.
 
             // Start by setting all the attributes that can be set at the OE level from the OE Class object properties.
             output.SetAttributeValue("alignment", OeClassObject.alignment);
-            if (OeClassObject.quickStyleIndexName != null)
+            if (OeClassObject.author != null)
             {
-                //output.SetAttributeValue("quickStyleIndex",quickStylesDict[OeClassObject.quickStyleIndexName]);
-                output.SetAttributeValue("author", "AutomationOneNoteNotesPage");
-                //output.AddFirst(new XComment("This is a comment."));
+
+                output.SetAttributeValue("author", OeClassObject.author);
             }
             
 
@@ -489,7 +493,7 @@ namespace PinpointOnenote
             if (OeClassObject.table != null)
             {
                 // BuildOneNoteXmlTableFromClassObject build this function. Add the return result to the output. TABLES DO NOT HAVE CHILDREN.
-                XElement tableXml = BuildOneNoteXmlTableFromClassObject(OeClassObject.table, ns, quickStylesDict);
+                XElement tableXml = BuildOneNoteXmlTableFromClassObject(OeClassObject.table, ns);
                 output.Add(tableXml);
             }
             if (OeClassObject.textLine != null)
@@ -519,7 +523,7 @@ namespace PinpointOnenote
                 
                 foreach (OneNoteOE child in OeClassObject.OEChildren)
                 {
-                    XElement childXele = BuildOneNoteXmlOeFromClassObject(child, ns, quickStylesDict);
+                    XElement childXele = BuildOneNoteXmlOeFromClassObject(child, ns);
                     OeChildrenWrapper.Add(childXele);
                 }
                 output.Add(OeChildrenWrapper);
@@ -528,13 +532,10 @@ namespace PinpointOnenote
             return output;
         }
 
-        public static XElement BuildOneNoteXmlTableFromClassObject(OneNoteTable TableClassObject, XNamespace nameSpaceInput, Dictionary<string, string> quickStylesDict = null)
+        public static XElement BuildOneNoteXmlTableFromClassObject(OneNoteTable TableClassObject, XNamespace nameSpaceInput)
         {
             XNamespace ns = nameSpaceInput;
-            if (quickStylesDict == null)
-            {
-                quickStylesDict = new Dictionary<string, string> { { "p", "0" }, { "PageTitle", "1" }, { "DescriptiveTable", "2" } };
-            }
+
             XElement outputTable = new XElement(ns + "Table");
 
             // Set table-level attributes
@@ -593,7 +594,7 @@ namespace PinpointOnenote
                     }
                     foreach (OneNoteOE line in cell.cellLines)
                     {
-                        XElement cellLineXml = BuildOneNoteXmlOeFromClassObject(line, ns, quickStylesDict);
+                        XElement cellLineXml = BuildOneNoteXmlOeFromClassObject(line, ns);
                         cellChildrenWrapper.Add(cellLineXml);
                     }
 
@@ -606,5 +607,151 @@ namespace PinpointOnenote
             }
             return outputTable;
         }
+
+        public static XElement ParseOeToNew (XElement OeInput, XNamespace ns)
+        {
+            XElement output = new XElement(ns + "OE");
+            if (OeInput.Attribute("alignment") != null)
+            {
+                output.SetAttributeValue("alignment", OeInput.Attribute("alignment").Value);
+            }
+            else
+            {
+                output.SetAttributeValue("alignment", "left");
+            }
+            if (OeInput.Attribute("style") != null)
+            {
+                output.SetAttributeValue("style", OeInput.Attribute("style").Value);
+            }
+            IEnumerable<XElement> lists = OeInput.Elements(ns + "List");
+            IEnumerable<XElement> Ts = OeInput.Elements(ns + "T");
+            IEnumerable<XElement> Tables = OeInput.Elements(ns + "Table");
+            IEnumerable<XElement> children = OeInput.Elements(ns + "OEChildren");
+            if (lists.Any())
+            {
+                XElement list = lists.First();
+                XElement newlist = new XElement(ns + "List");
+                IEnumerable<XElement> numbers = list.Elements(ns + "Number");
+                IEnumerable<XElement> bullets = list.Elements(ns + "Bullet");
+                if (numbers.Any())
+                {
+                    foreach (XElement n in numbers)
+                    {
+                        XElement newNumber = new XElement(ns + "Number");
+                        IEnumerable<XAttribute> attribs = n.Attributes();
+                        foreach (XAttribute attr in attribs)
+                        {
+                            newNumber.SetAttributeValue(attr.Name, attr.Value);
+                        }
+                        newlist.Add(newNumber);
+                    }
+                }
+                if (bullets.Any())
+                {
+                    foreach (XElement b in bullets)
+                    {
+                        XElement newBullet = new XElement(ns + "Bullet");
+                        IEnumerable<XAttribute> attribs = b.Attributes();
+                        foreach (XAttribute attr in attribs)
+                        {
+                            newBullet.SetAttributeValue(attr.Name, attr.Value);
+                        }
+                        newlist.Add(newBullet);
+                    }
+                }
+                output.Add(newlist);
+            }
+
+            if (Ts.Any())
+            {
+                foreach (XElement tee in Ts)
+                {
+                    if (tee.Nodes().OfType<XCData>().FirstOrDefault() == null)
+                    {
+                        output.Add(
+                            new XElement(ns + "T",
+                                new XCData(" ")
+                            )
+                        );
+                    }
+                    else
+                    {
+                        output.Add(
+                            new XElement(ns + "T",
+                                new XCData(tee.Nodes().OfType<XCData>().First().Value)
+                            )
+                        );
+                    }
+                }
+            }
+
+            if (Tables.Any())
+            {
+                XElement newTable = new XElement(ns + "Table");
+                
+                XElement oldTable = Tables.First();
+                newTable.SetAttributeValue("bordersVisible", oldTable.Attribute("bordersVisible").Value);
+                newTable.SetAttributeValue("hasHeaderRow", oldTable.Attribute("hasHeaderRow").Value);
+                XElement newColumns = new XElement(ns + "Columns");
+                IEnumerable<XElement> oldColumns = oldTable.Element(ns + "Columns").Elements(ns + "Column");
+                foreach (XElement column in oldColumns) 
+                {
+                    newColumns.Add(
+                        new XElement(ns + "Column",
+                            new XAttribute("index", column.Attribute("index").Value),
+                            new XAttribute("width", column.Attribute("width").Value),
+                            new XAttribute("isLocked", column.Attribute("isLocked").Value)
+                            )
+                        );
+                }
+                newTable.Add(newColumns);
+                IEnumerable<XElement> rows = oldTable.Elements(ns + "Row");
+                foreach (XElement row in rows)
+                {
+                    XElement newRow = new XElement(ns + "Row");
+                    IEnumerable<XElement> oldRowCells = row.Elements(ns + "Cell");
+                    foreach (XElement oldCell in oldRowCells)
+                    {
+                        XElement newCell = new XElement(ns + "Cell");
+                        if (oldCell.Attribute("shadingColor") != null)
+                        {
+                            newCell.SetAttributeValue("shadingColor", oldCell.Attribute("shadingColor").Value);
+                        }
+                        IEnumerable<XElement> oldCellChildren = oldCell.Elements(ns + "OEChildren");
+                        if (oldCellChildren.Any())
+                        {
+                            IEnumerable<XElement> oldCellOEs = oldCellChildren.First().Elements(ns + "OE");
+                            XElement newCellChildren = new XElement(ns + "OEChildren");
+                            foreach (XElement cellChild in oldCellOEs)
+                            {
+                                XElement newCellOE = ParseOeToNew(cellChild, ns);
+                                newCellChildren.Add(newCellOE);
+                            }
+                            newCell.Add(newCellChildren);
+                        }
+                        newRow.Add(newCell);
+                    }
+                    newTable.Add(newRow);
+                }
+                output.Add(newTable);
+
+
+            }
+
+            if (children.Any())
+            {
+                XElement newChildren = new XElement(ns + "OEChildren");
+                IEnumerable<XElement> oldchildren = children.First().Elements(ns + "OE");
+                foreach (XElement oldchild in oldchildren)
+                {
+                    XElement newOE = ParseOeToNew(oldchild, ns);
+                    newChildren.Add(newOE);
+                }
+                output.Add(newChildren);
+            }
+
+            return output;
+        }
     }
+
 }
