@@ -139,7 +139,7 @@ namespace PinpointOnenote.OneNoteClasses
             }
         }
 
-        public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml,
+        public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml = null,
             Dictionary<string,Dictionary<string, object>> linksLookup = null,
             string inputBullet = null, bool defaultBold = false)
         {
@@ -149,7 +149,7 @@ namespace PinpointOnenote.OneNoteClasses
             InheritedFont = IhF;
             indentCount = IndentCt;
             Bullet = inputBullet;
-            if (InputSpansXml.FirstOrDefault() == null)
+            if (InputSpansXml == null || InputSpansXml.FirstOrDefault() == null)
             {
                 //throw new Exception("Attempt to build a OneNoteT line from XML with no <span> elements in it.");
                 // Give it one span with no text
@@ -177,19 +177,33 @@ namespace PinpointOnenote.OneNoteClasses
                         //spanObj.HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
                         spanObj.rawText = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
                         string pageNameLinkTo = span.Attribute("InternalLinkPageName").Value;
-                        string sectNameLinkTo = span.Attribute("InternalSectionPageName").Value;
+                        string sectNameLinkTo = span.Attribute("InternalLinkSectionName").Value;
                         if (linksLookup.ContainsKey(sectNameLinkTo)) 
                         {
                             string sectLinkToID = (string)linksLookup[sectNameLinkTo]["sectionId"];
                             Dictionary<string, object> linkToSectPagesDict = (Dictionary<string, object>)linksLookup[sectNameLinkTo]["pages"];
-                            if (linkToSectPagesDict.ContainsKey(pageNameLinkTo))
+
+                            HashSet<string> linkToSectPagesDictUniqueValues = new HashSet<string>();
+                            foreach (var pair in linkToSectPagesDict)
+                            {
+                                if (pair.Value != null)
+                                {
+                                    string stringValue = pair.Value.ToString();
+                                    linkToSectPagesDictUniqueValues.Add(stringValue);
+                                }
+                            }
+                            string[] uniquePageNames = linkToSectPagesDictUniqueValues.ToArray();
+
+
+
+                            if (uniquePageNames.Contains(pageNameLinkTo))
                             {
                                 // We've found a page name/linkID value and the section ID, so we can do the link
                                 string RT = ((XCData)span.Element("RawText").FirstNode).Value.ToString();
                                 string HTML = ((XCData)span.Element("HTML").FirstNode).Value.ToString();
                                 spanObj.rawText = RT;
 
-                                string pageLinkToID = (string)linkToSectPagesDict[pageNameLinkTo];
+                                string pageLinkToID = linkToSectPagesDict.First(x => x.Value.ToString() == pageNameLinkTo).Key; //(string)linkToSectPagesDict[pageNameLinkTo];
                                 string embedLink = OneNotePageFmtMethods.GetOneNoteHyperLinkHTML(sectLinkToID, pageLinkToID, pageNameLinkTo, RT);
                                 Regex rx = new Regex(@"<span\s+style\s*=\s*[""'][^""']*[""']\s*>");
                                 Match match = rx.Match(HTML);

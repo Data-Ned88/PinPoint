@@ -25,7 +25,7 @@ namespace PinpointOnenote.OneNoteClasses
         {
             get
             {
-                return $"'font-family:{fontFamily};font-size:{fontWeight}pt;color:{fontColor}'";
+                return $"font-family:{fontFamily};font-size:{fontWeight}pt;color:{fontColor}";
             }
         }
         public int inheritedIndents { get; set; } = 0; // THis is ONLY USED to ADD onto the indentation for column width calculation. OneNote controls indents itself by recognising OEChildren

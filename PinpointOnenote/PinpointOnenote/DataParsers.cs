@@ -317,6 +317,7 @@ namespace PinpointOnenote
             Dictionary<string, Dictionary<string, object>> linksLookupPassOn = linksLookup;
             output.fontFamily = defaultFontStr;
             output.alignment = oeAlignment;
+            output.fontColor = oeFontColor;
             
 
 
@@ -343,9 +344,9 @@ namespace PinpointOnenote
                     }
                     else if (firstElement.Name == "Table")
                     {
-                        //TODO Table behaviour - the table is output.table 
+
                         OneNoteTable table = BuildTableFromXml(firstElement, sizingOptionsSel, tableColSel, defaultFontSel, linksLookupPassOn);
-                        //output.oeType = OneNoteOEType.Table;
+                        output.oeType = OneNoteOEType.Table;
                         output.table = table;
                     }
                     else
@@ -469,12 +470,14 @@ namespace PinpointOnenote
             // Make an OE in Onenote Xml with the OneNoteOE OeClassObject param, and if it has children, recursively add these to the OE node target, passing it down.
 
             // Start by setting all the attributes that can be set at the OE level from the OE Class object properties.
-
+            output.SetAttributeValue("alignment", OeClassObject.alignment);
             if (OeClassObject.quickStyleIndexName != null)
             {
-                output.SetAttributeValue("quickStyleIndex", quickStylesDict[OeClassObject.quickStyleIndexName]);
+                //output.SetAttributeValue("quickStyleIndex",quickStylesDict[OeClassObject.quickStyleIndexName]);
+                output.SetAttributeValue("author", "AutomationOneNoteNotesPage");
+                //output.AddFirst(new XComment("This is a comment."));
             }
-            output.SetAttributeValue("alignment", OeClassObject.alignment);
+            
 
 
             if (OeClassObject.oeType == OneNoteOEType.BaseOE || OeClassObject.oeType == OneNoteOEType.Section)
@@ -559,7 +562,7 @@ namespace PinpointOnenote
             {
                 string istring = i.ToString();
                 string iwidth = TableClassObject.colWidths[i];
-                XElement colXml = new XElement(ns + "Column", new XAttribute("index", istring), new XAttribute("width", iwidth));
+                XElement colXml = new XElement(ns + "Column", new XAttribute("index", istring), new XAttribute("width", iwidth), new XAttribute("isLocked", "true"));
                 columnsWrapper.Add(colXml);
             }
             outputTable.Add(columnsWrapper);

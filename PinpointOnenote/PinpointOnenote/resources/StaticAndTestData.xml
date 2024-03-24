@@ -21,7 +21,7 @@
           <Section name="DescriptiveTable" headerless="true"> <!--If headerless is true, only the first child is used. If it's false, the first line child is used as a header and all else used as a child.-->
             <Table ShowBorders="yes" HeaderRow="no">
               <Columns>
-                <Column index="0" customWidth="500" customWidthType="cap_at"/>
+                <Column index="0" customWidth="500.00"  customWidthType="cap_at"/>
               </Columns>
               <Row>
                 <Cell shadingColor="#D66510" colIndex="0" alignment="left" fontColor="#FEE599"><!--Cell.Shading and font colour can be set from here, but not font size or family. THese are either at the span or the style selected.-->-
@@ -34,7 +34,7 @@
                 </Cell>
               </Row>
               <Row>
-                <Cell shadingColor="#FEE599" colIndex="0" alignment="left" fontColor="#FEE599"> 
+                <Cell shadingColor="#FEE599" colIndex="0" alignment="left"> 
                   <Line>
                     <span customFontWeight="12.0">
                       <RawText><![CDATA[How to Use and Update]]></RawText>
@@ -44,8 +44,16 @@
                   <Line></Line> <!--An empty line is treated as a linebreak, and inherits the same font family as the OE and the 'fontsizelibebreak' value as its fontsize-->
                   <Line>
                     <span>
-                      <RawText><![CDATA[This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the Password Bank page.]]></RawText>
-                      <HTML><![CDATA[<span>This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the <a href="https://www.hivesystems.io/password-table">Password Bank page.</a></span>]]></HTML>
+                      <RawText><![CDATA[This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the ]]></RawText>
+                      <HTML><![CDATA[<span>This OneNote section is password-protected by you and stores all of your important passwords and PINs in the table in the </span>]]></HTML>
+                    </span>
+                    <span InternalLinkPageName="Password Bank" InternalLinkSectionName="Passwords">
+                      <RawText><![CDATA[Password Bank]]></RawText>
+                      <HTML><![CDATA[<span>Password Bank</span>]]></HTML>
+                    </span>
+                    <span>
+                      <RawText><![CDATA[ page.]]></RawText>
+                      <HTML><![CDATA[<span> page.</span>]]></HTML>
                     </span>
                   </Line>
                   <Line>
@@ -144,7 +152,7 @@
                 </Cell>
               </Row>
               <Row>
-                <Cell shadingColor="#FFD965" colIndex="0" alignment="left" fontColor="#FEE599">
+                <Cell shadingColor="#FFD965" colIndex="0" alignment="left">
                   <Line>
                     <span customFontWeight="12.0">
                       <RawText><![CDATA[Digital Security Insights]]></RawText>
@@ -157,7 +165,7 @@
                       <RawText><![CDATA[The ]]></RawText>
                       <HTML><![CDATA[<span>The </span>]]></HTML>
                     </span>
-                    <span InternalLinkPageName="Insights" InternalLinkSectionName="Password Bank"> <!--- The data parser looks for these tags in each span, and if found, hydrates the relevant properties in the OneNoteSpan object so that a future function can look up the IDs and use the to call GetHyperLink on the HTML span property.-->
+                    <span InternalLinkPageName="Insights" InternalLinkSectionName="Passwords"> <!--- The data parser looks for these tags in each span, and if found, hydrates the relevant properties in the OneNoteSpan object so that a future function can look up the IDs and use the to call GetHyperLink on the HTML span property.-->
                       <RawText><![CDATA[Insights]]></RawText>
                       <HTML><![CDATA[<span>Insights</span>]]></HTML>
                     </span>

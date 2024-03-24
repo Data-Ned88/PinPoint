@@ -169,6 +169,7 @@ namespace PinpointOnenote
 
                 // Add the outline
                 XElement outlineEl = new XElement(ns + "Outline");
+
                 XElement outlineElChildrenWrapper = new XElement(ns + "OEChildren");
 
                 foreach (OneNoteOE sectionLoop in sectionsData)
@@ -187,8 +188,10 @@ namespace PinpointOnenote
             else
             {
                 IEnumerable<XElement> outlines = pageEl.Elements(ns + "Outline"); // iterable of all outlines on existing page (if there are any)
+                
                 if (outlines.FirstOrDefault() == null)
                 {
+                    //Console.WriteLine("You have an existing page with no outlines. Unusual, but no harm in handling it.");
                     // You have an existing page with no outlines. Unusual, but no harm in handling it. Do the 'new' procedure.
                     // Add the outline
                     XElement outlineEl = new XElement(ns + "Outline");
@@ -210,13 +213,14 @@ namespace PinpointOnenote
                 }
                 else if (outlines.Count() == 1)
                 {
+
                     //There is a single outline that we look through.
                     XElement SingleOutlineExisting = outlines.First(); // edit this
                     XElement outlineChildrenNew = new XElement(ns + "OEChildren");
                     foreach (OneNoteOE sectionLoop in sectionsData)
                     {
                         XElement sectionEl = DataParsers.BuildOneNoteXmlOeFromClassObject(sectionLoop, ns, quickStylesDict);
-                        
+
                         outlineChildrenNew.Add(sectionEl);
                         // add blank line under section
                         outlineChildrenNew.Add(new XElement(ns + "OE",
@@ -229,6 +233,7 @@ namespace PinpointOnenote
                 else
                 {
                     bool outlineFound = false;
+                    //Console.WriteLine("Looping.");
                     foreach (XElement outline in outlines)
                     {
                         

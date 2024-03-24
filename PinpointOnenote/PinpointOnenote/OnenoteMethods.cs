@@ -7,6 +7,7 @@ using System.Diagnostics;
 using OneNoteInterop = Microsoft.Office.Interop.OneNote;
 using System.Xml;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace PinpointOnenote
 {        
@@ -256,5 +257,44 @@ namespace PinpointOnenote
         }
 
 
+        public static Dictionary<string, Dictionary<string, object>> GetSectionPagesLookup(OneNoteInterop.Application app, XmlNode sectionXml)
+        {
+            XElement sectionXMLX = XElement.Load(sectionXml.CreateNavigator().ReadSubtree());
+            Dictionary<string, Dictionary<string, object>> pagesLookup = GetSectionPagesLookup(app, sectionXMLX);
+            return pagesLookup;
+        }
+        public static Dictionary<string, Dictionary<string, object>> GetSectionPagesLookup (OneNoteInterop.Application app,XElement sectionXml)
+        {
+            Dictionary<string, Dictionary<string, object>> pagesLookup = new Dictionary<string, Dictionary<string, object>>();
+            string sectionName = sectionXml.Attribute("name").Value;
+            string sectionID = sectionXml.Attribute("ID").Value;
+
+
+            string sectionIDLink;
+            string pageIDLink;
+
+            app.GetHyperlinkToObject(sectionID, "", out sectionIDLink);
+            Regex rxSect = new Regex(@"(section-id=)(\{[\-A-Za0z0-9]{0,65}\})");
+            Regex rxPage = new Regex(@"(page-id=)(\{[\-A-Za0z0-9]{0,65}\})");
+
+            Dictionary<string, object> SectionDict = new Dictionary<string, object>();
+            SectionDict.Add("sectionId", rxSect.Match(sectionIDLink).Groups[2].Value);
+
+            IEnumerable<XElement> pages = sectionXml.Elements(sectionXml.Name.Namespace + "Page");
+
+            if (pages.FirstOrDefault() !=null)
+            {
+                Dictionary<string, object> pagesDict = new Dictionary<string, object>();
+                foreach (XElement page in pages)
+                {
+                    app.GetHyperlinkToObject(page.Attribute("ID").Value, "", out pageIDLink);
+                    pagesDict.Add(rxPage.Match(pageIDLink).Groups[2].Value, page.Attribute("name").Value);
+                    pageIDLink = "";
+                }
+                SectionDict.Add("pages", pagesDict);
+            }
+            pagesLookup.Add(sectionName, SectionDict);
+            return pagesLookup;
+        }
     }
 }
