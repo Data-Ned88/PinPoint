@@ -15,7 +15,13 @@
         </Grid.RowDefinitions>
         <Rectangle Fill="LightGray"/>
         <Rectangle Grid.Row="3" Fill="LightGray"/>
-        <Button x:Name="OneNoteTabBackToWelcome" Content="&lt;&lt; Back to Welcome Page" Margin="20,0,0,0" Width="200" Height="23" HorizontalAlignment="Left" Click="OneNoteTabBackToWelcome_Click"/>
+        <Button x:Name="OneNoteTabBackToWelcome" Content="&lt;&lt; Back to Welcome Page" Margin="20,0,0,0" Width="200" Height="23" HorizontalAlignment="Left" Click="OneNoteTabBackToWelcome_Click">
+            <Button.ToolTip>
+                <ToolTip>
+                    Click to go back to the last screen
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
         <Grid Name="OneNoteTabSecondRow" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="40*"/>

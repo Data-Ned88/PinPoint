@@ -24,5 +24,70 @@ namespace PinpointUI.tabs
         {
             InitializeComponent();
         }
+
+        private void PwordTabBackToSections_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PwordTabSave_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PwordTabClear_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PwordTabExit_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void existingPasswords_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void btnNewPassInExisting_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnImportFromFile_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnAddNew_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnUndoChanges_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnDeleteSelected_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnPassPinAuto_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
