@@ -241,6 +241,7 @@ namespace PinpointUI.tabs
                 //...Pass through the MainWIndowcalling button name (which should suffice for new/existing),
                 //...the section name
                 //... the notebook name
+                //... isNew bool
                 //... the app object. I think probs best (or at the very least quite easy to reninitilize the heirarchy and namespacemanager)
                 //... this(just in case)
                 // callingWindow (MainWindow object) - so that you can manipulate which tab is visible.

@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -752,6 +754,294 @@ namespace PinpointOnenote
 
             return output;
         }
-    }
 
+
+        public static string ParseTextFromOneNoteCData(string inputString)
+        {
+
+            string returnString;
+            Regex rx = new Regex(@"(<span\s+style\s*=\s*[""'][^""']*[""']\s*>)(.+)(</span>)");
+
+
+            int endSpans = inputString.Split(new[] { "</span>" }, StringSplitOptions.None).Length - 1;
+
+            if (endSpans > 1) // There is more than one span end. split it up by the span ends.
+            {
+                List<int> indexes = new List<int>();
+                // find the places where </span> starts and put them in an index list.
+                int index = -1;
+                do
+                {
+                    index = inputString.IndexOf("</span>", index + 1);
+                    if (index != -1)
+                    {
+                        indexes.Add(index);
+                    }
+                } while (index != -1);
+                List<string> spanSplits = new List<string>();
+                int indexStartOff = 0;
+                int subStringLength;
+                foreach (int ind in indexes)
+                {
+                    subStringLength = (ind + 7) - indexStartOff; //45-0 - //91-45
+                    string spanSubString = inputString.Substring(indexStartOff, subStringLength); //45,45
+                    indexStartOff += (ind + 7); //45
+                    spanSplits.Add(spanSubString);
+                }
+
+                StringBuilder spansSB = new StringBuilder();
+                returnString = "";
+                foreach (string subSpan in spanSplits)
+                {
+                    Match match = rx.Match(subSpan);
+                    if (match.Success)
+                    {
+                        List<Group> groups = match.Groups.Cast<Group>().ToList();
+                        spansSB.Append(groups[2].Value.Trim());
+                    }
+                    else
+                    {
+                        spansSB.Append(subSpan.Trim());
+                    }
+                }
+                if (spansSB.Length > 0)
+                {
+                    returnString = spansSB.ToString();
+                }
+
+                
+            }
+            else if (endSpans == 1) //There is one span end. Try the regex once.
+            {
+                Match match = rx.Match(inputString);
+                if (match.Success)
+                {
+                    List<Group> groups = match.Groups.Cast<Group>().ToList();
+                    returnString = groups[2].Value.Trim();
+                }
+                else
+                {
+                    returnString = inputString.Trim();
+                }
+            }
+            else // There are no span ends. Send back the raw value.
+            {
+                returnString = inputString.Trim();
+            }
+
+               
+            return returnString;
+        }
+
+
+        public static bool TestTableIsValidPasswordTable (XElement table, XNamespace ns)
+        {
+            bool outputbool = false;
+            List<string> expectedHeaders = new List<string> { "Description", "Type", "URL",
+                    "Username", "Password/PIN", "2FA", "2FA Method", "Date Last Modified", "Last Modified Sort", "Strength"};
+            
+            
+            XElement headerRow = table.Elements(ns + "Row").First();
+            IEnumerable<XElement> hrCells = headerRow.Elements(ns + "Cell");
+            HashSet<string> uniqueValuesFound = new HashSet<string>();
+            int countFound = 0;
+            foreach (XElement cell in hrCells)
+            {
+                XElement cellFirstOe = cell.Element(ns + "OEChildren").Elements(ns + "OE").First();
+                XElement cfoeFirstT = cellFirstOe.Elements(ns + "T").FirstOrDefault();
+
+                if (cfoeFirstT != null) //There is a T value in the Header Cell's first OE
+                {
+                    string headerValueFound = ParseTextFromOneNoteCData(cfoeFirstT.Nodes().OfType<XCData>().First().Value);
+                    uniqueValuesFound.Add(headerValueFound);
+                }
+            }
+            foreach (string f in uniqueValuesFound)
+            {
+                if (expectedHeaders.Contains(f))
+                {
+                    countFound++;
+                }
+            }
+            if (countFound >= expectedHeaders.Count)
+            {
+                outputbool = true;
+            }
+            
+            return outputbool;
+        }
+
+
+
+        /// <summary>
+        /// Tests that a One Note page is valid Password Bank Page, based on:
+        /// 1. It has an outline where the author attribute value is "PasswordBank"
+        /// 2. This outline has a table where the first row contains all the expected headers for the Password bank table.
+        /// No checks are done on the data rows - the GetPasswordsFromValidPage parser below does this.
+        /// </summary>
+        /// <param name="pageContent"></param>
+        /// <param name="ns"></param>
+        /// <returns></returns>
+        public static bool TestOneNotePageValidPasswordBank(XDocument pageContent, XNamespace ns)
+        {
+            bool outputBool = false;
+            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBank").FirstOrDefault();
+            if (passwordBankOutline != null)
+            {
+                IEnumerable<XElement> tablesinOutline = passwordBankOutline.Descendants(ns + "Table");
+
+                foreach (XElement vt in tablesinOutline)
+                {
+                    if (TestTableIsValidPasswordTable(vt,ns))
+                    {
+                        outputBool = true;
+                        break;
+                    }
+
+                }
+
+            }
+            
+            return outputBool;
+        }
+
+        /// <summary>
+        /// Gets a PasswordBank (List<LoginEntry>) from a OneNote page.
+        /// ONLY RUN THIS AFTER YOU@VE TESTED THE PAGE for having valid password bank table using TestOneNotePageValidPasswordBank.
+        /// It doesn't hydrate the LoginEntry class instances with Strength or LastModifiedSort property values, defaults are left in for these.
+        /// A different function should caclualte the stringths, once the algorithm has been decided.
+        /// </summary>
+        /// <param name="pageContent"></param>
+        /// <param name="ns"></param>
+        /// <returns></returns>
+        public static List<LoginEntry> GetPasswordsFromValidPage (XDocument pageContent, XNamespace ns)
+        {
+            Dictionary<string, string> propsToHeaders = new Dictionary<string, string> { 
+                {"LoginType","Type" },{ "LoginDescription", "Description"},
+                {"LoginUrl","URL" },{ "LoginUsername", "Username"},
+                {"LoginPass","Password/PIN" },{ "HasTwoFa", "2FA"},
+                {"TwoFaMethod","2FA Method" },{ "LastModified", "Date Last Modified"}
+            };
+            List<string> headers = propsToHeaders.Values.ToList();
+            // Above list is the headers of the columns we want to parse from the OneNote page data. (all bar last modified sort and strength - these will be recalculated.)
+
+            List<LoginEntry> passwordBank = new List<LoginEntry>();
+            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBank").First();
+            XElement passwordTableInData = passwordBankOutline.Descendants(ns + "Table").Where(x => TestTableIsValidPasswordTable(x, ns)).First();
+
+            Dictionary<string, int> headerColIndex = new Dictionary<string, int>();
+            Dictionary<int,string> dataHeadersPositionsValues = new Dictionary<int, string>();
+            XElement headerRow = passwordTableInData.Elements(ns + "Row").First();
+            IEnumerable<XElement> hrCells = headerRow.Elements(ns + "Cell");
+            int headerRowCellIncr = 0;
+            //Loop through the cells in the headerRow (incrementing the counter by 1 each time),
+            //and hydrate dataHeadersPositionsValues Dict with the counter and the text value found in CData.
+            foreach (XElement cell in hrCells)
+            {
+                XElement cellFirstOe = cell.Element(ns + "OEChildren").Elements(ns + "OE").First();
+                XElement cfoeFirstT = cellFirstOe.Elements(ns + "T").FirstOrDefault();
+                string headerValueFound;
+                if (cfoeFirstT != null) //There is a T value in the Header Cell's first OE
+                {
+                    headerValueFound = ParseTextFromOneNoteCData(cfoeFirstT.Nodes().OfType<XCData>().First().Value);
+                    
+                }
+                else
+                {
+                    headerValueFound = "";
+                }
+                dataHeadersPositionsValues.Add(headerRowCellIncr, headerValueFound);
+                headerRowCellIncr++;
+            }
+            //Loop through the headers we're interested in, and hydrate headerColIndex Dict with the headername and the first Index from dataHeadersPositionsValues Dict Keys where its value is the target header.
+            foreach (string targHeader in headers)
+            {
+                int firstIndex = dataHeadersPositionsValues.Where(x => x.Value == targHeader).Select(y => y.Key).Min();
+                headerColIndex.Add(targHeader, firstIndex);
+            }
+            // Now we have a dictionary of headers we're interested in, and the column indexes of the data table where they first occur (should only be once, but no harm.)
+            // We use this to direct a loop through the rest of the table to exampine the data rows and hydrate the List<LoginEntry> passwordBank
+
+            IEnumerable<XElement> dataRows = passwordTableInData.Elements(ns + "Row").Skip(1);
+
+            foreach (XElement dataRow in dataRows)
+            {
+                LoginEntry login = new LoginEntry();
+                List<XElement> cellsInRow = dataRow.Elements(ns + "Cell").ToList();
+
+                foreach (var loginProp in login.GetType().GetProperties())
+                {
+                    string loginPropName = loginProp.Name;
+                    if (propsToHeaders.ContainsKey(loginPropName)) // We're looking at a property that we actually want to set from data.
+                    {
+                        string headerTarget = propsToHeaders[loginPropName];
+                        int cellIndex = headerColIndex[headerTarget];
+
+                        XElement targetCell = cellsInRow[cellIndex];
+
+                        // At this point, we have identified the cell in the row that contains the right data based on the LoginEntry proeprty name in the loop.
+
+                        IEnumerable<XElement> OesWithT = targetCell.Elements(ns + "OEChildren").Elements(ns + "OE").Where(x => x.Elements(ns + "T").Any()); // OEs in the target cell with a T
+
+                        StringBuilder allTextfromOEs = new StringBuilder();
+                        string allTextConcatenated = "";
+
+                        foreach (XElement oe in OesWithT)
+                        {
+                            allTextfromOEs.Append(
+                                ParseTextFromOneNoteCData(oe.Elements(ns + "T").First().Nodes().OfType<XCData>().First().Value)
+                                );
+                        }
+                        if (allTextfromOEs.Length > 0)
+                        {
+                            allTextConcatenated = allTextfromOEs.ToString();
+                        }
+
+                        // At this point, allTextConcatenated contains all the Cdata text in the OE>Ts of the cell.
+                        // Now we decide what to do with it based on its data type/property name. booleans first, then dates, then enums, then standard strings.
+
+                        if (loginPropName == "HasTwoFa")
+                        {
+                            if (allTextConcatenated.Trim() == "Y")
+                            {
+                                loginProp.SetValue(login, true);
+                            }
+                            else
+                            {
+                                loginProp.SetValue(login, false);
+                            }
+                        }
+                        else if (loginPropName == "LastModified")
+                        {
+                            DateTime? dlm; //date last modified
+                            if (DateTime.TryParseExact(allTextConcatenated, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                            {
+                                dlm = parsedDate;
+                            }
+                            else
+                            {
+                                dlm = null;
+                            }
+                            loginProp.SetValue(login, dlm);
+                        }
+                        else if (loginPropName == "LoginType")
+                        {
+                            if (allTextConcatenated.Trim() == "PIN (4)") { loginProp.SetValue(login, LoginTypes.PinFour); }
+                            else if (allTextConcatenated.Trim() == "PIN (6)") { loginProp.SetValue(login, LoginTypes.PinSix); }
+                            else if (allTextConcatenated.Trim() == "Password") { loginProp.SetValue(login, LoginTypes.Password); }
+                            // no need for an else here as this property comes with a default of "not set".
+                        }
+                        else
+                        {
+                            // Bog standard string
+                            loginProp.SetValue(login, allTextConcatenated.Trim());
+                        }
+                    }
+                }
+                passwordBank.Add(login);
+            }
+
+            return passwordBank;
+        }
+    }
 }

@@ -11,7 +11,8 @@ namespace PinpointOnenote
     {
         Password,
         PinSix,
-        PinFour
+        PinFour,
+        NotSet
     }
     public enum  OneNoteOEType
     {
