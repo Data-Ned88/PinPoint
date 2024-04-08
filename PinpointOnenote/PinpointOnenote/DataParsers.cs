@@ -759,77 +759,28 @@ namespace PinpointOnenote
         public static string ParseTextFromOneNoteCData(string inputString)
         {
 
-            string returnString;
-            Regex rx = new Regex(@"(<span\s+style\s*=\s*[""'][^""']*[""']\s*>)(.+)(</span>)");
+            string returnString = "";
+            Regex rx = new Regex(@"(<span\s+style\s*=\s*[""'][^""']*[""']\s*>)(.*?)</span>"); // non greedy match for spans.
+            
+            List<Match> tries = rx.Matches(inputString).Cast<Match>().ToList();
 
-
-            int endSpans = inputString.Split(new[] { "</span>" }, StringSplitOptions.None).Length - 1;
-
-            if (endSpans > 1) // There is more than one span end. split it up by the span ends.
+            if (tries.Count == 0)
             {
-                List<int> indexes = new List<int>();
-                // find the places where </span> starts and put them in an index list.
-                int index = -1;
-                do
-                {
-                    index = inputString.IndexOf("</span>", index + 1);
-                    if (index != -1)
-                    {
-                        indexes.Add(index);
-                    }
-                } while (index != -1);
-                List<string> spanSplits = new List<string>();
-                int indexStartOff = 0;
-                int subStringLength;
-                foreach (int ind in indexes)
-                {
-                    subStringLength = (ind + 7) - indexStartOff; //45-0 - //91-45
-                    string spanSubString = inputString.Substring(indexStartOff, subStringLength); //45,45
-                    indexStartOff += (ind + 7); //45
-                    spanSplits.Add(spanSubString);
-                }
-
+                returnString = inputString.Trim();
+            }
+            else
+            {
                 StringBuilder spansSB = new StringBuilder();
-                returnString = "";
-                foreach (string subSpan in spanSplits)
+                foreach (Match m in tries)
                 {
-                    Match match = rx.Match(subSpan);
-                    if (match.Success)
-                    {
-                        List<Group> groups = match.Groups.Cast<Group>().ToList();
-                        spansSB.Append(groups[2].Value.Trim());
-                    }
-                    else
-                    {
-                        spansSB.Append(subSpan.Trim());
-                    }
+                    spansSB.Append(m.Groups[2].Value.Trim());
                 }
                 if (spansSB.Length > 0)
                 {
                     returnString = spansSB.ToString();
                 }
-
                 
             }
-            else if (endSpans == 1) //There is one span end. Try the regex once.
-            {
-                Match match = rx.Match(inputString);
-                if (match.Success)
-                {
-                    List<Group> groups = match.Groups.Cast<Group>().ToList();
-                    returnString = groups[2].Value.Trim();
-                }
-                else
-                {
-                    returnString = inputString.Trim();
-                }
-            }
-            else // There are no span ends. Send back the raw value.
-            {
-                returnString = inputString.Trim();
-            }
-
-               
             return returnString;
         }
 
@@ -1002,7 +953,7 @@ namespace PinpointOnenote
 
                         if (loginPropName == "HasTwoFa")
                         {
-                            if (allTextConcatenated.Trim() == "Y")
+                            if (allTextConcatenated.Replace("&nbsp;", " ").Trim() == "Y")
                             {
                                 loginProp.SetValue(login, true);
                             }
@@ -1014,7 +965,7 @@ namespace PinpointOnenote
                         else if (loginPropName == "LastModified")
                         {
                             DateTime? dlm; //date last modified
-                            if (DateTime.TryParseExact(allTextConcatenated, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                            if (DateTime.TryParseExact(allTextConcatenated.Replace("&nbsp;", " ").Trim(), "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
                             {
                                 dlm = parsedDate;
                             }
@@ -1026,9 +977,9 @@ namespace PinpointOnenote
                         }
                         else if (loginPropName == "LoginType")
                         {
-                            if (allTextConcatenated.Trim() == "PIN (4)") { loginProp.SetValue(login, LoginTypes.PinFour); }
-                            else if (allTextConcatenated.Trim() == "PIN (6)") { loginProp.SetValue(login, LoginTypes.PinSix); }
-                            else if (allTextConcatenated.Trim() == "Password") { loginProp.SetValue(login, LoginTypes.Password); }
+                            if (allTextConcatenated.Replace("&nbsp;", " ").Trim() == "PIN (4)") { loginProp.SetValue(login, LoginTypes.PinFour); }
+                            else if (allTextConcatenated.Replace("&nbsp;", " ").Trim() == "PIN (6)") { loginProp.SetValue(login, LoginTypes.PinSix); }
+                            else if (allTextConcatenated.Replace("&nbsp;", " ").Trim() == "Password") { loginProp.SetValue(login, LoginTypes.Password); }
                             // no need for an else here as this property comes with a default of "not set".
                         }
                         else
