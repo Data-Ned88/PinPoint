@@ -11,10 +11,11 @@ This is a *work in progress* .NET Framework app written in C# with a WPF GUI tha
 ## Work done so far
 - Built generic classes and functions to interact with the OneNote desktop app using LINQ, and to save text updates to a OneNote page in various fonts and font sizes.
 - Built the frame and 2 tabs of a GUI in XAML to point the user to the OneNote notebook they would like to use and section within said notebook they would like to edit.
+- GUI 3rd tab to edit, delete, and add new password entries to a OneNote Section
+- Built advanced C# classes to publish pages to OneNote with sophisticated table styling and customisable font and font-sizes using an XML template or user input from a GUI.
 
 ## Work to do
-- GUI 3rd tab to edit, delete, and add new password entries to a OneNote Section
-- Advanced C# classes to publish pages to OneNote with sophisticated table styling
+- Wire-up GUI 3rd tab to OneNote classes and functions so taht it takes user input and publishes it to Onenote pages, and updates user inteface with data from selected OneNote section and page.
 - Functionality for password strength reporting
 - List import via CSV
 - Password auto-generator
