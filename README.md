@@ -1,7 +1,9 @@
 # Proof of Concept/Idea
 
 A constant in modern life and work is logging into things (online banking, Amazon, work computer), and the concomitant need to store, create new, reset, and remember passwords and usernames.
+
 Some people approach this insecurely, by writing them down, or storing them in spreadsheets or Word docs. Even a password protected spreadsheet or Word doc provides insufficient security. (Did you know you can copy and resave an Excel spreadsheet as a .zip, and then extract sheet passwords from that?)
+
 Other security-deficient convenience methods for password management include:
 - the repetition of stems in passwords across multiple logins (Arsenal1956 for your Amazon, Ar5enal1956! for Facebook etc)
 - the choice of predicatable 4-digit pins on banking apps or debit cards (1234, 4321 or 2580 (straight down the middle)).
