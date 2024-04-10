@@ -117,15 +117,17 @@ namespace PinpointOnenote
 
 
 
-        public static List<OneNoteSection> GetSectionsInNotebook(XmlDocument hier, XmlNamespaceManager nsmgr, string notebookname)
+        public static List<OneNoteSection> GetSectionsInNotebook(OneNoteInterop.Application app, XmlDocument hier, XmlNamespaceManager nsmgr, string notebookname)
         {
             string selector = $"//one:Notebook[@name=\"{notebookname}\"]";
             XmlNode notebookXml = hier.SelectSingleNode(selector, nsmgr);
-            return GetSectionsInNotebook(notebookXml);
+            return GetSectionsInNotebook(app,notebookXml);
 
         }
-        public static List<OneNoteSection> GetSectionsInNotebook(XmlNode nbXml)
-        {
+        public static List<OneNoteSection> GetSectionsInNotebook(OneNoteInterop.Application app, XmlNode nbXml)
+        { 
+            //TODO: Move this (and its overload) into a dedicated section for PinPoint Logic. It's not ubiqutous OneNote admin and dependent on the interface, making explicit reference
+            // to the Refresh button on the OneNoteManagementTab.xaml
             List<OneNoteSection> output = new List<OneNoteSection>();
             foreach (XmlNode cn in nbXml.ChildNodes)
             {
@@ -139,7 +141,12 @@ namespace PinpointOnenote
                     SectionListEntry.IsLocked = IsLocked(cn);
                     if (!IsLocked(cn))
                     {
-                        SectionListEntry.IsValidPinPointInstance = false; // Eventually replace the hardcode false with Valid pinpoint eval function call
+                        SectionListEntry.IsValidPinPointInstance = DataParsers.TestOneNoteSectionValidPasswordBank(app, cn);
+                        SectionListEntry.IsValidTooltip = DataParsers.InvalidPasswordBankReason(app, cn);
+                    }
+                    else
+                    {
+                        SectionListEntry.IsValidTooltip = "This section is locked.\n\nGo to OneNote and unlock this section,\nthen click 'Refresh Sections' below.";
                     }
                     //TODO Parser function to determine if it's a valid PinPoint Existing Section. Would we have this here??
                     output.Add(SectionListEntry);
@@ -161,7 +168,12 @@ namespace PinpointOnenote
                             SectionListEntry.IsLocked = IsLocked(sg_s);
                             if (!IsLocked(sg_s))
                             {
-                                SectionListEntry.IsValidPinPointInstance = false; // TODO Eventually replace the hardcode false with Valid pinooint eval function call
+                                SectionListEntry.IsValidPinPointInstance = DataParsers.TestOneNoteSectionValidPasswordBank(app,sg_s);
+                                SectionListEntry.IsValidTooltip = DataParsers.InvalidPasswordBankReason(app, sg_s);
+                            }
+                            else
+                            {
+                                SectionListEntry.IsValidTooltip = "This section is locked.\n\nGo to OneNote and unlock this section,\nthen click 'Refresh Sections' below.";
                             }
                             output.Add(SectionListEntry);
                         }
@@ -250,7 +262,7 @@ namespace PinpointOnenote
             // Refresh the working heirarchy (all notebooks) and return new section ID.
             hierarchy = GetOneNoteHierarchy(app);
             namespaceMgr = GetOneNoteNSMGR(hierarchy);
-            existingSectionsList = GetSectionsInNotebook(hierarchy, namespaceMgr, notebookName);
+            existingSectionsList = GetSectionsInNotebook(app,hierarchy, namespaceMgr, notebookName);
 
             string output = GetSectionID(existingSectionsList, sectionName);
             return output;

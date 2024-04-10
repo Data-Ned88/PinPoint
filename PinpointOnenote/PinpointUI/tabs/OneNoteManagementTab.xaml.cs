@@ -103,7 +103,7 @@ namespace PinpointUI.tabs
             }
             else
             {
-                sectionsList = OnenoteMethods.GetSectionsInNotebook(selectedNotebook);
+                sectionsList = OnenoteMethods.GetSectionsInNotebook(app,selectedNotebook);
                 colTwoHeaderPlacehold = "Sections in your selected notebook ({0})";
             }
             
@@ -156,7 +156,7 @@ namespace PinpointUI.tabs
                 }
                 if (callingButtonName == "LandingLoad_Click")
                 {
-                    SectionsList = OnenoteMethods.GetSectionsInNotebook(selectedNotebook);
+                    SectionsList = OnenoteMethods.GetSectionsInNotebook(app,selectedNotebook);
                 }
             }
         }
@@ -168,7 +168,7 @@ namespace PinpointUI.tabs
             Notebookslist = OnenoteMethods.GetAvailableNotebooks(hier, nsmgr);
             selectedNotebook = notebookslist[notebookSelIndex];
             listAvailableNotebooks.SelectedIndex = notebookSelIndex;
-            SectionsList = OnenoteMethods.GetSectionsInNotebook(selectedNotebook);
+            SectionsList = OnenoteMethods.GetSectionsInNotebook(app,selectedNotebook);
             txthdrAvailableSections.Text = string.Format(colTwoHeaderPlacehold, selectedNotebook.Attributes["name"].Value);
 
         }

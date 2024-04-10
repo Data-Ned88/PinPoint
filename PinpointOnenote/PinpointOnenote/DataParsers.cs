@@ -15,10 +15,14 @@ using System.Xml;
 using System.Xml.Linq;
 using PinpointOnenote.OneNoteClasses;
 using PinpointOnenote.Properties;
+using OneNoteInterop = Microsoft.Office.Interop.OneNote;
 
 
 namespace PinpointOnenote
 {
+    /// <summary>
+    /// Eventually I want to moave all the PinPoint-specific functionality out of here and into a separate class.
+    /// </summary>
     public static class DataParsers
     {
         
@@ -833,9 +837,10 @@ namespace PinpointOnenote
         /// <param name="pageContent"></param>
         /// <param name="ns"></param>
         /// <returns></returns>
-        public static bool TestOneNotePageValidPasswordBank(XDocument pageContent, XNamespace ns)
+        public static bool TestOneNotePageValidPasswordBank(XDocument pageContent)
         {
             bool outputBool = false;
+            XNamespace ns = pageContent.Root.Name.Namespace;
             XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBank").FirstOrDefault();
             if (passwordBankOutline != null)
             {
@@ -993,6 +998,129 @@ namespace PinpointOnenote
             }
 
             return passwordBank;
+        }
+
+
+
+        public static bool TestOneNoteSectionValidPasswordBank(OneNoteInterop.Application app, XmlNode SectionXML)
+        {
+            XElement sectionXMLX = XElement.Load(SectionXML.CreateNavigator().ReadSubtree());
+            return TestOneNoteSectionValidPasswordBank(app, sectionXMLX);
+        }
+        public static bool TestOneNoteSectionValidPasswordBank (OneNoteInterop.Application app, XElement SectionXML)
+        {
+            bool outputBool = false;
+            XNamespace ns = SectionXML.Name.Namespace;
+            List<XElement> pbPages = SectionXML.Elements(ns + "Page").Where( x => x.Attribute("name").Value == "Password Bank").ToList();
+            
+            if (pbPages.Count == 1) // There is one page in the section where the name is Password Bank. Try the content of this page against the tester.
+            {
+                string pageId = pbPages.First().Attribute("ID").Value;
+                XDocument pbPageContent = OneNotePageFmtMethods.GetPageXmlLinq(app, pageId);
+                outputBool = TestOneNotePageValidPasswordBank(pbPageContent);
+            }
+            return outputBool;
+        }
+        public static string InvalidPasswordBankReason(OneNoteInterop.Application app, XmlNode SectionXML)
+        {
+            XElement sectionXMLX = XElement.Load(SectionXML.CreateNavigator().ReadSubtree());
+            return InvalidPasswordBankReason(app, sectionXMLX);
+        }
+        public static string InvalidPasswordBankReason(OneNoteInterop.Application app, XElement SectionXML)
+        {
+            string outputMessage;
+            XNamespace ns = SectionXML.Name.Namespace;
+            List<XElement> pbPages = SectionXML.Elements(ns + "Page").Where(x => x.Attribute("name").Value == "Password Bank").ToList();
+            if (pbPages.Count == 1)
+            {
+                
+                string pageId = pbPages.First().Attribute("ID").Value;
+                XDocument pbPageContent = OneNotePageFmtMethods.GetPageXmlLinq(app, pageId);
+                if (TestOneNotePageValidPasswordBank(pbPageContent))
+                {
+                    outputMessage = "Valid Password Bank Section";
+                } 
+                else
+                {
+                    outputMessage = "There is a page called Password Bank, but it does not have a password table with the correct columns." +
+                        "\n(Description, Type, URL, Username, Password/PIN, 2FA, 2FA Method, Date Last Modified, Last Modified Sort, Strength)" +
+                        "\n\n If this page has a password table, correct any accidental typos in the column headers on this page and refresh.";
+                }
+            }
+            else if (pbPages.Count > 1)
+            {
+                outputMessage = "There is more than one page in this section called Password Bank.\n Delete or rename at least one so that only one page has this name." +
+                    "\n(Don't delete/rename the page that has your password table!)";
+            }
+            else
+            {
+                outputMessage = "This section has no Password Bank page.";
+            }
+
+
+            return outputMessage;
+        }
+
+        public static List<LoginEntry> PasswordBankFromStaticXml (int nSkip = 0)
+        {
+            List<LoginEntry> pBank = new List<LoginEntry>();
+            XElement xmlBank;
+            XElement resource = XElement.Parse(Properties.Resources.StaticAndTestData);
+            
+            if (nSkip == 0 || resource.Elements("TestRecords").Count() == 1) // You are not electing to skip, or you only have 1 set of test records
+            {
+                xmlBank = resource.Elements("TestRecords").First();
+            }
+            else
+            {
+                xmlBank = resource.Elements("TestRecords").Skip(nSkip).First();
+            }
+
+
+            IEnumerable<XElement> enBank = xmlBank.Elements("LoginRecord");
+            foreach (XElement lr in enBank)
+            {
+                LoginEntry login = new LoginEntry();
+                login.LoginDescription = lr.Attribute("LoginDescription").Value;
+                login.LoginPass = lr.Attribute("LoginPass").Value;
+                login.LoginUsername = lr.Attribute("LoginUsername").Value;
+                login.LoginUrl = lr.Attribute("LoginURL").Value;
+                login.TwoFaMethod = lr.Attribute("TwoFaMethod").Value;
+                login.HasTwoFa = bool.Parse(lr.Attribute("HasTwoFa").Value);
+
+                string lType = lr.Attribute("LoginType").Value;
+                if (lType == "Password")
+                {
+                    login.LoginType = LoginTypes.Password;
+                }
+                else if (lType == "PinSix")
+                {
+                    login.LoginType = LoginTypes.PinSix;
+                }
+                else if (lType == "PinFour")
+                {
+                    login.LoginType = LoginTypes.PinFour;
+                }
+                else
+                {
+                    login.LoginType = LoginTypes.NotSet;
+                }
+                DateTime? dlm; //date last modified
+                if (DateTime.TryParseExact(lr.Attribute("LastModified").Value.Trim(), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                {
+                    dlm = parsedDate;
+                }
+                else
+                {
+                    dlm = null;
+                }
+                login.LastModified = dlm;
+
+
+                pBank.Add(login);
+            }
+
+            return pBank;
         }
     }
 }

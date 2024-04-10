@@ -30,21 +30,8 @@ namespace PinpointOnenote
                 else { return "No"; }
             } 
         }
-        public string IsValidTooltip
-        {
-            get
-            {
-                if (IsValidPinPointInstance == null)
-                {
-                    return "This section is locked.\n\nGo to OneNote and unlock this section,\nthen click 'Refresh Sections' below.";
-                }
-                else if (IsValidPinPointInstance == true)
-                {
-                    return "This section is a valid PinPoint password section.";
-                }
-                else { return "This section is not a valid PinPoint password section."; }
-            }
-        }
+        public string IsValidTooltip { get; set; }
+
         public XmlNode SectionXML { get; set; }
     }
 }
