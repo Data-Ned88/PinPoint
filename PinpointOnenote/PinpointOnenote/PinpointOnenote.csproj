@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataParsers.cs" />
+    <Compile Include="LoginFunctionality.cs" />
+    <Compile Include="LoginStrength.cs" />
     <Compile Include="OneNoteClasses\OneNoteOE.cs" />
     <Compile Include="OneNoteClasses\OneNoteOEChild.cs" />
     <Compile Include="OneNoteClasses\OneNoteT.cs" />

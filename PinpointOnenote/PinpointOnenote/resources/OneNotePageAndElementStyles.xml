@@ -23,6 +23,40 @@
     <ColorTheme name="Green" default="0" titleShade="#70AD47" mainShade="#E2EFDA" alternateShade="#FFFFFF" titleColor="#FFFFFF"/>
     <ColorTheme name="Yellow" default="0" titleShade="#FFC000" mainShade="#FFE699" alternateShade="#FFF2CC" titleColor="#000000"/>
   </ColorThemes>
+  <StrengthScoreFormats>
+    <StrengthScoreType typeName="NotSet">
+      <ScoreFormat score="-99" cellShade="#96EDFE"/>
+    </StrengthScoreType>
+    <StrengthScoreType typeName="PinFour">
+      <ScoreFormat score="0" cellShade="#F8696B" scoreText=""/>
+      <ScoreFormat score="16" cellShade="#FB9476" scoreText=""/>
+      <ScoreFormat score="32" cellShade="#FCCF82" scoreText=""/>
+      <ScoreFormat score="48" cellShade="#FFEB84" scoreText=""/>
+      <ScoreFormat score="100" cellShade="#86FB57" scoreText=""/>
+    </StrengthScoreType>
+    <StrengthScoreType typeName="PinSix">
+      <ScoreFormat score="0" cellShade="#F8696B" scoreText=""/>
+      <ScoreFormat score="16" cellShade="#FB9476" scoreText=""/>
+      <ScoreFormat score="32" cellShade="#FCCF82" scoreText=""/>
+      <ScoreFormat score="48" cellShade="#FFEB84" scoreText=""/>
+      <ScoreFormat score="100" cellShade="#86FB57" scoreText=""/>
+    </StrengthScoreType>
+    <StrengthScoreType typeName="Password">
+      <ScoreFormat score="0" cellShade="#F8696B" scoreText="Crackable in 5 seconds"/>
+      <ScoreFormat score="8" cellShade="#FA7F71" scoreText="Crackable in 30 mins"/>
+      <ScoreFormat score="16" cellShade="#FB9476" scoreText="Crackable within 3 hours"/>
+      <ScoreFormat score="24" cellShade="#FCAA7C" scoreText="Crackable in 1 day"/>
+      <ScoreFormat score="32" cellShade="#FCCF82" scoreText="Crackable in 3 days"/>
+      <ScoreFormat score="40" cellShade="#FEE587" scoreText="Crackable in 1 week"/>
+      <ScoreFormat score="48" cellShade="#FFEB84" scoreText="Crackable in 1 month"/>
+      <ScoreFormat score="56" cellShade="#FBEB89" scoreText="Crackable in 1 year"/>
+      <ScoreFormat score="64" cellShade="#FAF28A" scoreText="Crackable in 5 years"/>
+      <ScoreFormat score="72" cellShade="#F3F88C" scoreText="Crackable in 10 years"/>
+      <ScoreFormat score="80" cellShade="#E2F97F" scoreText="Crackable in 30 years"/>
+      <ScoreFormat score="88" cellShade="#A9FA72" scoreText="Crackable in 200 years"/>
+      <ScoreFormat score="96" cellShade="#86FB57" scoreText="Over 200 years to crack"/>
+    </StrengthScoreType>
+  </StrengthScoreFormats>
   <SizingConverters>
     <SizingConverter fontSize="9.0">
       <SizingConverterFont fontName="Arial" charWidth="3.83" charWidthBold="4.12"/>

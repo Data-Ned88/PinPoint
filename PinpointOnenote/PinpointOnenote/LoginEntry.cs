@@ -18,6 +18,12 @@ namespace PinpointOnenote
         public string TwoFaMethod { get; set; }
         public DateTime? LastModified { get; set; } = null;
         public int LastModifiedSort { get; set; } = -1;
-        public int LoginStrength { get; set; } = -99;
+        public LoginStrength LoginStrength 
+        { 
+            get
+            { 
+                return new LoginStrength(LoginType, LoginPass, LoginUsername, HasTwoFa); 
+            } 
+        }
     }
 }

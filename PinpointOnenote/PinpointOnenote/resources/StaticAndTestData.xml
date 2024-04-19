@@ -10,6 +10,32 @@
     <LoginRecord LoginType="Password" LoginDescription ="Google" LoginURL="www.google.co.uk" LoginUsername="ggekko5@hotmail.com" LoginPass="gordon1" HasTwoFa="false" TwoFaMethod="" LastModified="2021-06-13 13:25:00" LoginStrength="3.3"/>
     <LoginRecord LoginType="Password" LoginDescription ="Microsoft 365" LoginURL="" LoginUsername="ggekko5@hotmail.com" LoginPass="GekkoG1971" HasTwoFa="true" TwoFaMethod="email" LastModified="2023-08-07 08:01:00" LoginStrength="57.69"/>
   </TestRecords>
+  <Algorithms>
+    <AlgorithmLookup name="Password"> 
+      <!--Each element in here relates to a measure password length, eact or greater than (lengthValue attribute).-->
+      <!--Each of the level attributes relates to a complexity level of the measured password, and contains the score value to be returned for the password based on its length and complexity.-->
+      <!--This score value as text looks up the hex code cell colour for the password in the OneNotePageAndElementStyles.xml.-->
+      <LengthScore lengthValue="1" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="2" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="3" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="4" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="5" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="6" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="7" level_0="0" level_1="0" level_2="0" level_3="0" level_4="0"/>
+      <LengthScore lengthValue="8" level_0="0" level_1="0" level_2="8" level_3="8" level_4="8"/>
+      <LengthScore lengthValue="9" level_0="0" level_1="0" level_2="8" level_3="16" level_4="24"/>
+      <LengthScore lengthValue="10" level_0="0" level_1="8" level_2="24" level_3="40" level_4="48"/>
+      <LengthScore lengthValue="11" level_0="0" level_1="16" level_2="48" level_3="56" level_4="64"/>
+      <LengthScore lengthValue="12" level_0="0" level_1="24" level_2="72" level_3="88" level_4="96"/>
+      <LengthScore lengthValue="13" level_0="0" level_1="48" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="14" level_0="8" level_1="56" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="15" level_0="8" level_1="80" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="16" level_0="16" level_1="96" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="17" level_0="24" level_1="96" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="18" level_0="40" level_1="96" level_2="96" level_3="96" level_4="96"/>
+      <LengthScore lengthValue="GT18" level_0="40" level_1="96" level_2="96" level_3="96" level_4="96"/>
+    </AlgorithmLookup>
+  </Algorithms>
   <StaticCopy>
     <!--Pages>Page>Sections>Section> Line>Line||Span> || Table>Columns>Column>,Row>Cell>Line>Line||Span-->
     <!--Bullet is an attribute of line."2" for filled, "3" for hollow-->
