@@ -139,6 +139,16 @@ namespace PinpointOnenote.OneNoteClasses
             }
         }
 
+        /// <summary>
+        /// Constructor method to build OneNoteT from static XML.
+        /// </summary>
+        /// <param name="IhFW"></param>
+        /// <param name="IhF"></param>
+        /// <param name="IndentCt"></param>
+        /// <param name="InputSpansXml"></param>
+        /// <param name="linksLookup"></param>
+        /// <param name="inputBullet"></param>
+        /// <param name="defaultBold"></param>
         public OneNoteT(string IhFW, string IhF, int IndentCt, IEnumerable<XElement> InputSpansXml = null,
             Dictionary<string,Dictionary<string, object>> linksLookup = null,
             string inputBullet = null, bool defaultBold = false)
@@ -261,6 +271,46 @@ namespace PinpointOnenote.OneNoteClasses
             }
             textSpans = lineSpans;
 
+        }
+
+
+        /// <summary>
+        /// Constructor method to build a header row cell or data row cell T text line from a password bank item.
+        /// </summary>
+        /// <param name="IhFW"></param>
+        /// <param name="IhF"></param>
+        /// <param name="spans"></param>
+        /// <param name="defaultBold"></param>
+        public OneNoteT(string IhFW, string IhF,List<Dictionary<string,string>> spans, int IndentCt = 0, string inputBullet = null)
+        {
+            List<OneNoteSpan> lineSpans = new List<OneNoteSpan>();
+            InheritedFontWeight = IhFW;
+            InheritedFont = IhF;
+            indentCount = IndentCt;
+            Bullet = inputBullet;
+            if (spans.Count == 0)
+            {
+                //throw new Exception("Attempt to build a OneNoteT line from XML with no <span> elements in it.");
+                // Give it one span with no text
+                OneNoteSpan spanObj = new OneNoteSpan();
+                string blankSpanEmptyText = "";
+                spanObj.HTML = blankSpanEmptyText;
+                spanObj.rawText = blankSpanEmptyText;
+                spanObj.isBold = false;
+                lineSpans.Add(spanObj);
+            }
+            else
+            {
+                foreach (Dictionary<string, string> inputSpan in spans)
+                {
+                    OneNoteSpan spanObj = new OneNoteSpan();
+                    spanObj.HTML = inputSpan["HTML"];
+                    spanObj.rawText = inputSpan["RawText"];
+                    spanObj.isBold = bool.Parse(inputSpan["isBold"]);
+                    lineSpans.Add(spanObj);
+                }
+            }
+            textSpans = lineSpans;
         }
 
         public OneNoteT()

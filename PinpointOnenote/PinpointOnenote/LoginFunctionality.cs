@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Globalization;
+using System.Diagnostics.SymbolStore;
 
 namespace PinpointOnenote
 {
@@ -15,6 +16,15 @@ namespace PinpointOnenote
         {
 
             bool outputbool = false;
+
+            string EmailPattern = @"^([a-zA-Z0-9._%\+&]+)@[^@\s]+\.[a-zA-Z]{2,}$";
+            Regex Emailregex = new Regex(EmailPattern);
+            Match email = Emailregex.Match(userV);
+            if (email.Success)
+            {
+                userV = email.Groups[1].Value;
+            }
+
 
             int passLength = passV.Length;
             int userLength = userV.Length;
@@ -195,6 +205,16 @@ namespace PinpointOnenote
                 returnDict.Add("score", "32");
                 returnDict.Add("scoreText", "PIN is two sets of a triplicate number (eg. 000111).");
             }
+            else if (isSequence(pinV))
+            {
+                returnDict.Add("score", "32");
+                returnDict.Add("scoreText", "PIN is a straight sequence of numbers (eg 345678)");
+            }
+            else if (isSequence(pinV,true))
+            {
+                returnDict.Add("score", "48");
+                returnDict.Add("scoreText", "PIN is an up-down/down-up pyramid sequence of numbers (eg 234432)");
+            }
             else if (rxSameTwoThrice.IsMatch(pinV))
             {
                 returnDict.Add("score", "48");
@@ -338,6 +358,216 @@ namespace PinpointOnenote
 
             return outputBool;
         }
-        
+
+        public static bool isSequence(string pinVal, bool Pyramid = false)
+        {
+            //Pin 6 only as the pyramid sequencing is hard-coded to 6.
+            bool outputBool = true;
+
+            List<int> numberList = new List<int>();
+            foreach (char c in pinVal)
+            {
+                // Add each character as a string to the list
+                numberList.Add(int.Parse(c.ToString()));
+            }
+
+            if (Pyramid)
+            {
+                List<int> firstHalf = numberList.GetRange(0,3);
+                List<int> secondHalf = numberList.GetRange(3, 3);
+                secondHalf.Reverse();
+                int prevNumber = -99;
+                int lastdiff = 500;
+                int shIncr = 0;
+                foreach (int num in firstHalf)
+                {
+                    int shEquivalent = secondHalf[shIncr];
+                    int diff = num - prevNumber;
+                    if (prevNumber != -99) //We're not looking at the placehodler for the first go
+                    {
+                        if (!(Math.Abs(diff) >= 1 && Math.Abs(diff) <= 2)) //It's gone up or or down by more than 1 or 2
+                        {
+                            outputBool = false;
+                            return outputBool;
+                        }
+                        else if (Math.Abs(lastdiff) < 20 && lastdiff != diff) //The last diff is something sensible (max 9 (9-0 or 0-9)), and it's not the same as the latest one
+                        {
+                            outputBool = false;
+                            return outputBool;
+                        }
+                    }
+                    if (num != shEquivalent)
+                    {
+                        outputBool = false;
+                        return outputBool;
+                    }
+                    prevNumber = num;
+                    lastdiff = diff;
+                    shIncr++;
+                }
+
+
+            }
+            else
+            {
+                int prevNumber = -99;
+                int lastdiff = 500;
+                foreach (int num in numberList)//1
+                {
+                    int diff = num - prevNumber; //100
+                    if (prevNumber != -99) //We're not looking at the placehodler for the first go
+                    {
+                        if (!(Math.Abs(diff) >=1 && Math.Abs(diff) <= 2)) //It's gone up or or down by more than 1 or 2
+                        {
+                            outputBool = false;
+                            return outputBool;
+                        }
+                        else if (Math.Abs(lastdiff) < 20 && lastdiff!=diff) //The last diff is something sensible (max 9 (9-0 or 0-9)), and it's not the same as the latest one
+                        {
+                            outputBool = false;
+                            return outputBool;
+                        }
+                    }
+                    prevNumber = num;
+                    lastdiff = diff;
+                }
+            }
+
+
+            return outputBool;
+        }
+        public static string generateSecureRandomPassword(int nCharcters = 13, bool hasSymbols = true)
+        {
+            // 13 is the minimum on the algorithm grid that can be 100% (crackable after 200 yrs) without the need for symbols.
+            // Define characters to use in the password
+            string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789!@#$%^&*()-_!@#$%^&*()-_";
+            string charsNoSymbol = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789";
+
+            // Initialize a random number generator
+            Random random = new Random();
+
+            // Create a StringBuilder to store the password
+            StringBuilder password = new StringBuilder();
+
+            // Generate random characters until the password reaches the desired length
+            for (int i = 0; i < nCharcters; i++)
+            {
+                // Append a random character from the defined character set
+                if (hasSymbols)
+                {
+                    password.Append(chars[random.Next(chars.Length)]);
+                }
+                else
+                {
+                    password.Append(charsNoSymbol[random.Next(charsNoSymbol.Length)]);
+                }
+                
+            }
+
+            // Return the generated password as a string
+            return password.ToString();
+        }
+
+        public static string generateSecurePasswordFromStem(string stem)
+        {
+            // Take in a stem, convert its letters to lowercase and sub in sybols/numbers if theya re in a list of available replacements...
+            // ... also pad it with a random combination of Symbol,number, upprecase, symbol on both sides (same padding for eas of memory).
+            string symbols = "!@#$%^&*()-_!@#$%^&*()-_";
+            string numbers = "0123456789";
+            string ucase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            // Initialize a random number generator
+            Random random = new Random();
+
+            //Phase 1 - convert stem characters into number and symbol equivalents.
+
+            Dictionary<string, string> passwordReps = new Dictionary<string, string> { { "a", "4" }, { "b", "8" }, { "e", "3" },
+                                                            { "g", "9" }, { "i", "!" }, { "l", "1" }, { "o", "0" }, { "s", "$" }, { "t", "7" } };
+
+            
+            StringBuilder sb = new StringBuilder();
+            
+            StringBuilder sbPadding = new StringBuilder();
+            sbPadding.Append(symbols[random.Next(symbols.Length)]);
+            sbPadding.Append(numbers[random.Next(numbers.Length)]);
+            sbPadding.Append(ucase[random.Next(ucase.Length)]);
+            sbPadding.Append(symbols[random.Next(symbols.Length)]);
+            string Padding = sbPadding.ToString();
+
+            sb.Append(Padding);
+
+            
+            foreach (char t in stem)
+            {
+                
+                string t_string_lower = t.ToString().ToLower();
+
+
+                if (passwordReps.ContainsKey(t_string_lower))
+                {
+                    sb.Append(passwordReps[t_string_lower]);
+                }
+                else 
+                { 
+                    sb.Append(t_string_lower);
+                }
+                
+            }
+            sb.Append(Padding);
+
+
+            // Return the generated password as a string
+            return sb.ToString();
+        }
+
+        public static string generateRandomPin(int pLength = 4)
+        {
+            string numbers = "0123456789";
+            Random random = new Random();
+            StringBuilder sb = new StringBuilder();
+            sb.Append(numbers[random.Next(numbers.Length)]);
+            sb.Append(numbers[random.Next(numbers.Length)]);
+            sb.Append(numbers[random.Next(numbers.Length)]);
+            sb.Append(numbers[random.Next(numbers.Length)]);
+
+            if (pLength == 6)
+            {
+                sb.Append(numbers[random.Next(numbers.Length)]);
+                sb.Append(numbers[random.Next(numbers.Length)]);
+            }
+
+            return sb.ToString();
+        }
+
+        public static string generateSecurePinFour()
+        {
+            string pinFour = generateRandomPin();
+            Dictionary<string, string> testPIN = PinFourScoreValues(pinFour);
+            bool passesTest = testPIN["score"] == "100";
+
+            while (!passesTest)
+            {
+                pinFour = generateRandomPin();
+                testPIN = PinFourScoreValues(pinFour);
+                passesTest = testPIN["score"] == "100";
+            }
+
+            return pinFour;
+        }
+        public static string generateSecurePinSix()
+        {
+            string pinSix = generateRandomPin(6);
+            Dictionary<string, string> testPIN = PinSixScoreValues(pinSix);
+            bool passesTest = testPIN["score"] == "100";
+
+            while (!passesTest)
+            {
+                pinSix = generateRandomPin(6);
+                testPIN = PinSixScoreValues(pinSix);
+                passesTest = testPIN["score"] == "100";
+            }
+
+            return pinSix;
+        }
     }
 }

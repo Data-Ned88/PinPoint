@@ -23,6 +23,18 @@
     <ColorTheme name="Green" default="0" titleShade="#70AD47" mainShade="#E2EFDA" alternateShade="#FFFFFF" titleColor="#FFFFFF"/>
     <ColorTheme name="Yellow" default="0" titleShade="#FFC000" mainShade="#FFE699" alternateShade="#FFF2CC" titleColor="#000000"/>
   </ColorThemes>
+  <ColumnsWidthSettings>
+    <Column tableTemplate="PasswordBank" index="0" customWidth="150.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="1" customWidth="75.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="2" customWidth="150.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="3" customWidth="150.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="4" customWidth="150.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="5" customWidth="40.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="6" customWidth="100.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="7" customWidth="125.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="8" customWidth="40.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="9" customWidth="50.00"  customWidthType="cap_at"/>
+  </ColumnsWidthSettings>
   <StrengthScoreFormats>
     <StrengthScoreType typeName="NotSet">
       <ScoreFormat score="-99" cellShade="#96EDFE"/>

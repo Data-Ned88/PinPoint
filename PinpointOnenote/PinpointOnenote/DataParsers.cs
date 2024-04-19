@@ -1122,5 +1122,247 @@ namespace PinpointOnenote
 
             return pBank;
         }
+
+        public static OneNoteTable BuildTableFromPasswordBank(List<LoginEntry> pBank, XElement sizingOptions, XElement tableCol, AllowableFonts defaultFont)
+        {
+            // Params:
+            // 1. List<LoginEntry> pBank - your hydrated passwordBank class object as a List of LoginEntry
+            // 2. sizingOptions - a <TableSizing> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
+            // 3. tableCol - a <ColorTheme> from PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles
+            // 4. defaultFont - font which is either Arial,Calibri or Times New Roman
+            // 5.Dictionary<string, Dictionary<string, object>> linksLookup - this is all the onenote section names/linkableIds + nested dict of ...
+            // ... their pages name/linableId key/value pairs in play. THis is needed to build internal linking spans if needed.
+            OneNoteTable output = new OneNoteTable();
+
+            string defaultFontStr = GetAllowableFontAsStr(defaultFont);
+            string defaultFontSize;
+            string defaultFontColor;
+            string defaultShadingColor;
+            List<string> pBankHeaders = new List<string> { "Description", "Type", "URL", "Username", "Password/PIN", "2FA", "2FA Method", "Last Modified", "Last Modified Sort", "Strength"};
+            //string fontSizeTHead = sizingOptions.Attribute("fontSizeTableHead").Value;
+
+
+            output.bordersVisible = true;
+            output.hasHeaders = true;
+            
+            output.colorXml = tableCol;
+            output.sizingXml = sizingOptions;
+
+            List<OneNoteTableCell> headerRow = new List<OneNoteTableCell>();
+        
+            foreach (string header in pBankHeaders)
+            {
+                OneNoteTableCell cellOE = getPasswordBankCell(header, tableCol.Attribute("titleShade").Value, defaultFontStr, 
+                    sizingOptions.Attribute("fontSizeTableHead").Value, tableCol.Attribute("titleColor").Value,true,false);
+                headerRow.Add(cellOE);
+            }
+            output.dataRows.Add(headerRow);
+
+            //TODO - decide here if were going to try and sort the password bank by last modified sort, or have it come into this function pre-sorted. I think PRE-SORT IT.
+
+
+            defaultFontSize = sizingOptions.Attribute("fontSizeText").Value;
+            defaultFontColor = "#000000"; //black
+            int rowIncr = 0;
+            foreach (LoginEntry login in pBank)
+            {
+                List<OneNoteTableCell> dataRow = new List<OneNoteTableCell>();
+                
+
+                if (rowIncr % 2 == 0)
+                {
+                    defaultShadingColor = tableCol.Attribute("alternateShade").Value;
+                }
+                else
+                {
+                    defaultShadingColor = tableCol.Attribute("mainShade").Value;
+                }
+
+                //Description
+                dataRow.Add(getPasswordBankCell(login.LoginDescription, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End Description
+                //Type
+                string loginTypeText;
+                if (login.LoginType ==  LoginTypes.Password)
+                {
+                    loginTypeText = "Password";
+                }
+                else if (login.LoginType == LoginTypes.PinFour)
+                {
+                    loginTypeText = "PIN (4)";
+                }
+                else if (login.LoginType == LoginTypes.PinSix)
+                {
+                    loginTypeText = "PIN (6)";
+                }
+                else { loginTypeText = "Not Set"; } //shouldn't happen but need to assign.
+                dataRow.Add(getPasswordBankCell(loginTypeText, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, true, false));
+
+                //End Type
+                //URL
+                dataRow.Add(getPasswordBankCell(login.LoginUrl, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, true));
+                //End URL
+                //Username
+                dataRow.Add(getPasswordBankCell(login.LoginUsername, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End Username
+                //Password/PIN
+                dataRow.Add(getPasswordBankCell(login.LoginPass, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End Password/PIN
+                //2FA
+                string twoFaText = "";
+                if (login.HasTwoFa) { twoFaText = "Y"; }
+                dataRow.Add(getPasswordBankCell(twoFaText, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, true, false));
+                //End 2FA
+                //2FA Method
+                dataRow.Add(getPasswordBankCell(login.TwoFaMethod, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End 2FA Method
+                //Last Modified
+                string dlmText = "";
+                if (login.LastModified != null) { dlmText = login.LastModified.ToString(); }
+                dataRow.Add(getPasswordBankCell(dlmText, defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End Last Modified
+                //Last Modified Sort
+                dataRow.Add(getPasswordBankCell(login.LastModifiedSort.ToString(), defaultShadingColor, defaultFontStr,
+                    defaultFontSize, defaultFontColor, false, false));
+                //End Last Modified Sort
+                //Strength
+                string strengthScore = "";
+                string strengthCellColour = login.LoginStrength.cellColour;
+                if (login.LoginStrength.Score != -99) { strengthScore = login.LoginStrength.Score.ToString(); }
+                dataRow.Add(getPasswordBankCell(strengthScore, strengthCellColour, defaultFontStr,
+                    defaultFontSize, defaultFontColor, true, false));
+                //End Strength
+
+
+
+                rowIncr++;
+                output.dataRows.Add(dataRow);
+            }
+            // Here we need to segment the output.dataRows into columns, build a list of oes for each column, and then build/run a recursive function to get all the widthNeeded from their OnNoteTs.
+            // The recursive function is straight below - use it for each column by making a list of empty List<double>(); tempLists for each column.
+            Dictionary<int, List<double>> columnLineLengths = new Dictionary<int, List<double>>();
+            int colCount = output.dataRows.First().Count;
+
+            for (int i = 0; i < colCount; i++)
+            {
+                columnLineLengths[i] = new List<double>();
+            }
+            foreach (List<OneNoteTableCell> dr in output.dataRows)
+            {
+                int incrCellInRow = 0;
+                foreach (OneNoteTableCell c in dr)
+                {
+                    List<double> holdDictValue; // need a holding variable for the latest knwon list-value for the dictionary key where the key is the column we're on.
+                    holdDictValue = columnLineLengths[incrCellInRow]; // assign it.
+                    holdDictValue = GetWidthsNeeded(c.cellLines, ref holdDictValue); //ref it through the recusrive function on the lines within this cell.
+                    columnLineLengths[incrCellInRow] = holdDictValue; //reassign the dict value to be the upldated line lenghts list of numbers.
+                    incrCellInRow++;
+                }
+            }
+            Dictionary<int, string> columnLineLengthMaximums = new Dictionary<int, string>();
+
+            //fill the above by max-aggreagting columnLineLengths, looking for a value in the XML table <Columns> for that positional key, ...
+            //... and taking the master of truth from the max agg or the set value. If there's a value from XML and its fix, that's the number.
+            //else if theres a value from XML and it's cap_at, we take the SMALLER number of the XML value and the agg max. Else just take the agg max.
+            IEnumerable<XElement> pBankColumnWidths = XElement.Parse(Properties.Resources.OneNotePageAndElementStyles).Element("ColumnsWidthSettings")
+                .Elements("Column").Where(x=>x.Attribute("tableTemplate").Value == "PasswordBank");
+            
+            for (int i = 0; i < colCount; i++)
+            {
+                string istring = i.ToString();
+                XElement colXmlConfig = pBankColumnWidths.Where(x => x.Attribute("index").Value.ToString() == istring).FirstOrDefault();
+                if (colXmlConfig == null)
+                {
+                    throw new Exception($"Column with index {istring} is in your data but not in your Xml columns list.");
+                }
+                double maxWidthAtIndex = Math.Round(columnLineLengths[i].Max(), 2);
+                if (colXmlConfig.Attribute("customWidth") != null)
+                {
+                    if (colXmlConfig.Attribute("customWidthType") == null)
+                    {
+                        throw new Exception($"Column with index {istring} has a customWidth attribute in your Xml but no customWidthType.");
+                    }
+                    if (colXmlConfig.Attribute("customWidthType").Value.ToString() == "fix")
+                    {
+                        columnLineLengthMaximums[i] = colXmlConfig.Attribute("customWidth").Value.ToString();
+                    }
+                    else if (colXmlConfig.Attribute("customWidthType").Value.ToString() == "cap_at")
+                    {
+                        double customWidthValue = double.Parse(colXmlConfig.Attribute("customWidth").Value.ToString());
+                        double[] arrayCapAt = { customWidthValue, maxWidthAtIndex };
+                        columnLineLengthMaximums[i] = arrayCapAt.Min().ToString();
+                    }
+                    else
+                    {
+                        throw new Exception($"Column with index {istring} has a customWidthType not in 'fix' or 'cap_at'.");
+                    }
+                }
+                else
+                {
+                    columnLineLengthMaximums[i] = maxWidthAtIndex.ToString();
+                }
+
+                output.colWidths = columnLineLengthMaximums;
+
+            }
+
+            return output;
+        }
+
+        public static OneNoteTableCell getPasswordBankCell(string textVal,string cellShading, string fontFamily, string fontweight, string fontColour, bool isBold = false,bool isLink = false)
+        {
+            OneNoteTableCell cellOE = new OneNoteTableCell();
+
+            
+            
+            cellOE.cellShading = cellShading;
+            OneNoteOE TextOE = new OneNoteOE();
+            TextOE.oeType = OneNoteOEType.BaseOE;
+            TextOE.fontFamily = fontFamily;
+            TextOE.fontWeight = fontweight;
+            TextOE.fontColor = fontColour;
+            List<Dictionary<string, string>> spans = new List<Dictionary<string, string>>();
+            if (!(textVal == null || textVal == "")) 
+            {
+
+            
+                Dictionary<string, string> TextSpan = new Dictionary<string, string>();
+                TextSpan.Add("RawText", textVal);
+                string spanStart;
+                if (isLink)
+                {
+                    textVal = OneNotePageFmtMethods.GetExternalHyperLinkHTML(textVal, textVal);
+                }
+                if (isBold)
+                {
+                    spanStart = "<span style='font-weight:bold;'>";
+                }
+                else
+                {
+                    spanStart = "<span>";
+                }
+                string HTML = spanStart + textVal + "</span>";
+                TextSpan.Add("HTML", HTML);
+                TextSpan.Add("isBold", isBold.ToString().ToLower());
+
+                spans.Add(TextSpan);
+            }
+            TextOE.textLine = new OneNoteT(TextOE.fontWeight, TextOE.fontFamily, spans);
+
+            cellOE.cellLines.Add(TextOE);
+
+
+
+            return cellOE;
+
+        }
     }
 }

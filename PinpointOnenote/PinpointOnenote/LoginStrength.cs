@@ -9,9 +9,9 @@ namespace PinpointOnenote
 {
     public class LoginStrength
     {
-        int Score { get; set; } = -99;
-        string cellColour { get; set; } = "#FFFFFF";
-        string ScoreText { get; set; } = "";
+        public int Score { get; set; } = -99;
+        public string cellColour { get; set; } = "#FFFFFF";
+        public string ScoreText { get; set; } = "";
 
         public LoginStrength(LoginTypes lType , string passwordValue, string usernameValue, bool hasTwoFA)
         {
