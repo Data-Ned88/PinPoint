@@ -1106,7 +1106,7 @@ namespace PinpointOnenote
                     login.LoginType = LoginTypes.NotSet;
                 }
                 DateTime? dlm; //date last modified
-                if (DateTime.TryParseExact(lr.Attribute("LastModified").Value.Trim(), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                if (DateTime.TryParseExact(lr.Attribute("LastModified").Value.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
                 {
                     dlm = parsedDate;
                 }
@@ -1363,6 +1363,24 @@ namespace PinpointOnenote
 
             return cellOE;
 
+        }
+
+        public static List<OneNoteOE> BuildPasswordBankPageData (OneNoteTable bankTable, XElement sizingOptions, AllowableFonts defaultFont)
+        {
+            List<OneNoteOE> pbData = new List<OneNoteOE>();
+
+            OneNoteOE pbOE = new OneNoteOE();
+
+            pbOE.author = "PasswordBankTable";
+            pbOE.oeType = OneNoteOEType.Section;
+            pbOE.isHeaderless = true;
+            pbOE.table = bankTable;
+            pbOE.fontFamily = GetAllowableFontAsStr(defaultFont);
+            pbOE.fontWeight =  sizingOptions.Attribute("fontSizeSectionHead").Value;
+
+            pbData.Add(pbOE);
+
+            return pbData;
         }
     }
 }

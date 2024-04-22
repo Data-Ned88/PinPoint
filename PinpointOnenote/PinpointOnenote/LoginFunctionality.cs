@@ -569,5 +569,32 @@ namespace PinpointOnenote
 
             return pinSix;
         }
+
+        public static List<LoginEntry> HydrateIdAndModifiedSort(List<LoginEntry> pBank)
+        {
+            // self hydrate ids
+            for (int i = 0; i < pBank.Count; i++)
+            {
+                pBank[i].id = i;
+            }
+            //Sort so that blank last modified's are at the bottom.
+            List<LoginEntry> sortedLoginEntries = pBank.OrderBy(entry => entry.LastModified == null)
+                .ThenByDescending(entry => entry.LastModified).ToList();
+
+
+            int lastmodifiedSortInc = 1;
+            for (int i = 0; i < pBank.Count; i++)
+            {
+                sortedLoginEntries[i].LastModifiedSort = lastmodifiedSortInc;
+                if (sortedLoginEntries[i].LastModified != null)
+                {
+                    lastmodifiedSortInc++;
+                }
+            }
+
+            return sortedLoginEntries.OrderBy(entry => entry.id).ToList();
+
+
+        }
     }
 }
