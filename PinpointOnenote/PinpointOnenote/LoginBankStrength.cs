@@ -35,19 +35,22 @@ namespace PinpointOnenote
         public int totalScoreSharesPassword { get; set; }
         public int totalScoreStems { get; set; }
         public int totalScoreAll { get; set; }
+        public string scoreRange { get; set; } //= "Good", "Bad" or "Average" - This would retrieve a hex colour from an Xml lookup.
 
         public LoginBankStrength(List<LoginEntry> passwordBank)
         {
             //TODO - this is the constructor method based on a hydrated password bank. Finsih it.
-            exactSharesPinSix = new Dictionary<string, Dictionary<string, int>>();
-            exactSharesPinFour = new Dictionary<string, Dictionary<string, int>>();
-            exactSharesPassword = new Dictionary<string, Dictionary<string, int>>();
+            exactSharesPinSix = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.PinSix);
+            exactSharesPinFour = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.PinFour);
+            exactSharesPassword = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.Password);
             passwordStems = new Dictionary<string, Dictionary<string, int>>();
-            singleLoginPoints = 0;
-            totalScoreSharesPinSix = 0;
-            totalScoreSharesPinFour = 0;
-            totalScoreSharesPassword = 0;
-            totalScoreStems = 0;
+            singleLoginPoints = passwordBank.Where(x=> x.LoginType != LoginTypes.NotSet).Select(x => x.LoginStrength.Score).Sum();
+            totalScoreSharesPinSix = exactSharesPinSix.Keys.ToList().ConvertAll(x => exactSharesPinSix[x]["dvs_total"]).Sum();
+            totalScoreSharesPinFour = exactSharesPinFour.Keys.ToList().ConvertAll(x => exactSharesPinFour[x]["dvs_total"]).Sum();
+            totalScoreSharesPassword = exactSharesPassword.Keys.ToList().ConvertAll(x => exactSharesPassword[x]["dvs_total"]).Sum();
+            totalScoreStems = 0; // Need a function for this.
+
+            scoreRange = "Good"; // Need a function to set the scoreRange. This requires testing for possible ranges.
 
             totalScoreAll = totalScoreSharesPinSix + totalScoreSharesPinFour + totalScoreSharesPassword + totalScoreStems + singleLoginPoints;
         }

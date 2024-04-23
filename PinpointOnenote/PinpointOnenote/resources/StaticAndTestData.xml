@@ -10,6 +10,10 @@
     <LoginRecord LoginType="Password" LoginDescription ="Google" LoginURL="www.google.co.uk" LoginUsername="ggekko5@hotmail.com" LoginPass="gordon1" HasTwoFa="false" TwoFaMethod="" LastModified="2021-06-13 13:25:00" LoginStrength="3.3"/>
     <LoginRecord LoginType="Password" LoginDescription ="Microsoft 365" LoginURL="" LoginUsername="ggekko5@hotmail.com" LoginPass="GekkoG1971" HasTwoFa="true" TwoFaMethod="email" LastModified="2023-08-07 08:01:00" LoginStrength="57.69"/>
     <LoginRecord LoginType="Password" LoginDescription ="Microsoft 365 (II)" LoginURL="" LoginUsername="ggekko@hotmail.com" LoginPass="GGekkoG1971" HasTwoFa="true" TwoFaMethod="email" LastModified="2023-08-07 08:01:00" LoginStrength="57.69"/>
+    <LoginRecord LoginType="PinFour" LoginDescription ="Computer" LoginURL="" LoginUsername="" LoginPass="2580" HasTwoFa="false" TwoFaMethod="" LastModified="2018-10-04 08:05:00" LoginStrength="1.0"/>
+    <LoginRecord LoginType="PinFour" LoginDescription ="Starling" LoginURL="" LoginUsername="" LoginPass="0688" HasTwoFa="false" TwoFaMethod="" LastModified="2021-10-04 08:05:00" LoginStrength="1.0"/>
+    <LoginRecord LoginType="PinFour" LoginDescription ="Revolut" LoginURL="" LoginUsername="" LoginPass="0688" HasTwoFa="false" TwoFaMethod="" LastModified="2022-10-04 08:05:00" LoginStrength="1.0"/>
+    <LoginRecord LoginType="PinSix" LoginDescription ="Android" LoginURL="" LoginUsername="" LoginPass="321123" HasTwoFa="false" TwoFaMethod="" LastModified="2023-11-07 11:14:00" LoginStrength="4.5"/>
   </TestRecords>
   <Algorithms>
     <AlgorithmLookup name="Password"> 

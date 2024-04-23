@@ -593,8 +593,38 @@ namespace PinpointOnenote
             }
 
             return sortedLoginEntries.OrderBy(entry => entry.id).ToList();
+        }
+        public static Dictionary<string, Dictionary<string, int>> GetExactShares (List<LoginEntry> passwordBank, LoginTypes lType)
+        {
+            Dictionary<string, Dictionary<string, int>> returnDict = new Dictionary<string, Dictionary<string, int>>();
+
+            List<LoginEntry> passwordBankLoginTypeSubset = passwordBank.Where(x => x.LoginType == lType).ToList();
+
+            if (passwordBankLoginTypeSubset.Any())
+            {
+                HashSet<string> uniquePasses = new HashSet<string>();
+                foreach (LoginEntry le in passwordBankLoginTypeSubset)
+                {
+                    uniquePasses.Add(le.LoginPass);
+                }
+                foreach (string passValue in uniquePasses)
+                {
+                    if (passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Count() > 1)
+                    {
+                        Dictionary<string, int> passDict = new Dictionary<string, int>();
+                        int countShares = passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Count() - 1;
+                        int minStrength = passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Select(x => x.LoginStrength.Score).Min();
+
+                        passDict.Add("count_shared", countShares);
+                        passDict.Add("dvs_total", countShares * (100- minStrength));
 
 
+                        returnDict.Add(passValue,passDict);
+                    }
+                }
+            }
+
+            return returnDict;
         }
     }
 }
