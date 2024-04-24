@@ -626,5 +626,99 @@ namespace PinpointOnenote
 
             return returnDict;
         }
+        public static List<string> getPotentialStems (string pWord,int stringLength) //TESTED
+        {
+            // This is used by getAllPotentialStemsForPassword and returns all the potential stems in a password, based on defined stem identifiaction regex algorithms.
+            // stringLength int param sets the exact length of the text bit of the stem. You would run this from 4 to infinite value for stringLEngth until the length of lsit return = 0. Then stop.
+            List<string> returnList = new List<string>();
+            Dictionary<string, string> passwordReps = new Dictionary<string, string> { { "4","a" }, {"8","b" }, {"3","e" },
+                                                            {"9","g" }, { "!","i" }, { "1","l" }, {  "0","o" }, { "$", "s"}, { "7","t" } };
+
+            //1. Need to get the above to be non-greedy, or get it so that it brings back all possible combinations of it, regardless of overlap.
+            string regexStemMainString = "(?=([a-zA-Z1347890\\$\\!]{" + stringLength.ToString() + "}))";
+            Regex regexStemMain = new Regex(regexStemMainString);
+            Regex consonantClusters = new Regex(@"[sdfqwtlpmnbvcxzgjkl]{4,}");
+            Regex numberFalsePositives = new Regex(@"[1347890\\$\\!]{1,6}$|^[1347890\\$\\!]{1,6}"); // disqualification: number masks at the ends shouldn't count.
+
+            Regex numbersBeforeMatch = new Regex(@"[0-9]{1,6}$");
+            Regex numbersAfterMatch = new Regex(@"^[0-9]{1,6}");
+
+            List<Match> firstPass = regexStemMain.Matches(pWord).Cast<Match>().ToList();
+
+
+
+            //2. Then we lowercase them and translate out of number/char replacements for letters (B!ll >bill)
+            //3. Then validate them against the consonant clustering, disqualifying them if so.
+
+            List<Dictionary<string, Match>> cleanMatches = new List<Dictionary<string, Match>>();
+
+            foreach (Match m in firstPass)
+            {
+                string rawMatch = m.Groups[1].Value;
+                string matchReduced = rawMatch.ToLower();
+                foreach (string k in passwordReps.Keys)
+                {
+                    matchReduced = matchReduced.Replace(k, passwordReps[k]); //2.
+                }
+                if (!consonantClusters.IsMatch(matchReduced) && !numberFalsePositives.IsMatch(rawMatch)) // 3. Validation and disqualification
+                {
+                    cleanMatches.Add(new Dictionary<string, Match> { { matchReduced, m } });
+                }
+            }
+
+
+            //4. Then look at their originals in the password, and see if they have 0-6 solid numbers either side.
+            //5. Then return the normalised stem to the list, both on its own and with the number versions. (all combos of number from 1 to highest found.)
+
+            foreach (Dictionary<string, Match> cM in cleanMatches)
+            {
+                foreach(string cmK in cM.Keys)
+                {
+                    returnList.Add(cmK); //5. part 1. Add the reduced version as a potential match in itself
+
+                    string whatsBefore = pWord.Substring(0, cM[cmK].Groups[1].Index);
+                    string whatsAfter = pWord.Substring(cM[cmK].Groups[1].Index + cM[cmK].Groups[1].Length);
+
+                    //4.part 1. before
+                    if (numbersBeforeMatch.IsMatch(whatsBefore))
+                    {
+                        string leadingnumbersMatched = numbersBeforeMatch.Match(whatsBefore).Value;
+                        for (int i = leadingnumbersMatched.Length -1; i >= 0; i--)
+                        {
+                            returnList.Add(leadingnumbersMatched.Substring(i) + cmK); // 5 part 2. reduced match with leading numbers 1 to highest found
+                        }
+                    }
+                    //4.part 2. after
+                    if (numbersAfterMatch.IsMatch(whatsAfter))
+                    {
+                        string trailingnumbersMatched = numbersAfterMatch.Match(whatsAfter).Value;
+                        for (int i = 1; i <= trailingnumbersMatched.Length; i++)
+                        {
+                            returnList.Add(cmK + trailingnumbersMatched.Substring(0,i)); // 5 part 2. reduced match with trailing numbers 1 to highest found
+                        }
+                    }
+                }
+            }
+            return returnList;
+        }
+        public static List<string> getAllPotentialStemsForPassword(string pWord)
+        {
+            List<string> allStems = new List<string>();
+            List<string> stemsNLength;
+
+            int stemsReturned = 1; // sets up the while loop
+            int stemLength = 4; // minimum value
+            while (stemsReturned > 0)
+            {
+                stemsNLength = getPotentialStems(pWord, stemLength);
+                if (stemsNLength.Count > 0)
+                {
+                    allStems.AddRange(stemsNLength);
+                }
+                stemsReturned = stemsNLength.Count;
+                stemLength++;
+            }
+            return allStems;
+        }
     }
 }
