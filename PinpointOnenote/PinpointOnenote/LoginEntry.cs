@@ -8,7 +8,7 @@ namespace PinpointOnenote
 {
     public class LoginEntry
     {
-        public int id { get; set; }
+        public int id { get; set; } = -99;
         public LoginTypes LoginType { get; set; } = LoginTypes.NotSet;
         public string LoginDescription { get; set; }
         public string LoginUrl { get; set; }

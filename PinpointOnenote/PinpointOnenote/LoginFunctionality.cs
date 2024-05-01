@@ -626,18 +626,19 @@ namespace PinpointOnenote
 
             return returnDict;
         }
-        public static List<string> getPotentialStems (string pWord,int stringLength) //TESTED
+        public static List<Dictionary<string,int>> getPotentialStems (string pWord,int stringLength) //TESTED
         {
             // This is used by getAllPotentialStemsForPassword and returns all the potential stems in a password, based on defined stem identifiaction regex algorithms.
             // stringLength int param sets the exact length of the text bit of the stem. You would run this from 4 to infinite value for stringLEngth until the length of lsit return = 0. Then stop.
-            List<string> returnList = new List<string>();
+            List<Dictionary<string, int>> returnList = new List<Dictionary<string, int>>();
             Dictionary<string, string> passwordReps = new Dictionary<string, string> { { "4","a" }, {"8","b" }, {"3","e" },
                                                             {"9","g" }, { "!","i" }, { "1","l" }, {  "0","o" }, { "$", "s"}, { "7","t" } };
 
             //1. Need to get the above to be non-greedy, or get it so that it brings back all possible combinations of it, regardless of overlap.
             string regexStemMainString = "(?=([a-zA-Z1347890\\$\\!]{" + stringLength.ToString() + "}))";
             Regex regexStemMain = new Regex(regexStemMainString);
-            Regex consonantClusters = new Regex(@"[sdfqwtlpmnbvcxzgjkl]{4,}");
+            Regex consonantClusters = new Regex(@"[sdfqwtlpmnbvcxzgjklh]{4,}");
+            Regex consonantClustersExpansive = new Regex(@"(?=([dfqwtlpmnbvcxzgjkl]{3}))");
             Regex numberFalsePositives = new Regex(@"[1347890\\$\\!]{1,6}$|^[1347890\\$\\!]{1,6}"); // disqualification: number masks at the ends shouldn't count.
 
             Regex numbersBeforeMatch = new Regex(@"[0-9]{1,6}$");
@@ -660,7 +661,10 @@ namespace PinpointOnenote
                 {
                     matchReduced = matchReduced.Replace(k, passwordReps[k]); //2.
                 }
-                if (!consonantClusters.IsMatch(matchReduced) && !numberFalsePositives.IsMatch(rawMatch)) // 3. Validation and disqualification
+                bool consClusters = consonantClusters.IsMatch(matchReduced);
+                bool consClustersExpansiveGTonce = consonantClustersExpansive.Matches(matchReduced).Count > 1;
+                bool suppress = consClusters || consClustersExpansiveGTonce || numberFalsePositives.IsMatch(rawMatch);
+                if (!suppress) // 3. Validation and disqualification
                 {
                     cleanMatches.Add(new Dictionary<string, Match> { { matchReduced, m } });
                 }
@@ -674,7 +678,8 @@ namespace PinpointOnenote
             {
                 foreach(string cmK in cM.Keys)
                 {
-                    returnList.Add(cmK); //5. part 1. Add the reduced version as a potential match in itself
+                    returnList.Add(new Dictionary<string, int> { { cmK, cM[cmK].Index } }
+                        ); //5. part 1. Add the reduced version as a potential match in itself
 
                     string whatsBefore = pWord.Substring(0, cM[cmK].Groups[1].Index);
                     string whatsAfter = pWord.Substring(cM[cmK].Groups[1].Index + cM[cmK].Groups[1].Length);
@@ -683,9 +688,14 @@ namespace PinpointOnenote
                     if (numbersBeforeMatch.IsMatch(whatsBefore))
                     {
                         string leadingnumbersMatched = numbersBeforeMatch.Match(whatsBefore).Value;
+                        int indexBeforeIncr = 0;
                         for (int i = leadingnumbersMatched.Length -1; i >= 0; i--)
                         {
-                            returnList.Add(leadingnumbersMatched.Substring(i) + cmK); // 5 part 2. reduced match with leading numbers 1 to highest found
+                            indexBeforeIncr++;
+                            returnList.Add(new Dictionary<string, int> {
+                                { leadingnumbersMatched.Substring(i) + cmK, cM[cmK].Index - indexBeforeIncr} 
+                                }
+                                ); // 5 part 2. reduced match with leading numbers 1 to highest found
                         }
                     }
                     //4.part 2. after
@@ -693,18 +703,21 @@ namespace PinpointOnenote
                     {
                         string trailingnumbersMatched = numbersAfterMatch.Match(whatsAfter).Value;
                         for (int i = 1; i <= trailingnumbersMatched.Length; i++)
-                        {
-                            returnList.Add(cmK + trailingnumbersMatched.Substring(0,i)); // 5 part 2. reduced match with trailing numbers 1 to highest found
+                        { //cmK + trailingnumbersMatched.Substring(0,i)
+                            returnList.Add(new Dictionary<string, int> {
+                                { cmK + trailingnumbersMatched.Substring(0,i), cM[cmK].Index}
+                                }
+                                ); // 5 part 2. reduced match with trailing numbers 1 to highest found
                         }
                     }
                 }
             }
             return returnList;
         }
-        public static List<string> getAllPotentialStemsForPassword(string pWord)
+        public static List<Dictionary<string, int>> getAllPotentialStemsForPassword(string pWord)
         {
-            List<string> allStems = new List<string>();
-            List<string> stemsNLength;
+            List<Dictionary<string, int>> allStems = new List<Dictionary<string, int>>();
+            List<Dictionary<string, int>> stemsNLength;
 
             int stemsReturned = 1; // sets up the while loop
             int stemLength = 4; // minimum value
@@ -719,6 +732,148 @@ namespace PinpointOnenote
                 stemLength++;
             }
             return allStems;
+        }
+        public static Dictionary<string, int> getAllSharedPasswordStemsInBank(List<List<Dictionary<string, int>>> allPasswordStemLists)
+        {
+            Dictionary<string, int>  uniqueSharedStems = new Dictionary<string, int>();
+
+            foreach (List<Dictionary<string, int>> stemsForOnePassword in allPasswordStemLists)
+            {
+                // we want a hashset of all the keys (the normalised passwords)
+                HashSet<string> uniqueStemsInPw = new HashSet<string>();
+                foreach (Dictionary<string, int> stemKVpair in stemsForOnePassword)
+                {
+                    foreach (string k in stemKVpair.Keys)
+                    {
+                        uniqueStemsInPw.Add(k);
+                    }
+                }
+                foreach (string uStem in uniqueStemsInPw)
+                {
+                    if (uniqueSharedStems.ContainsKey(uStem))
+                    {
+                        uniqueSharedStems[uStem] += 1;
+                    }
+                    else
+                    {
+                        uniqueSharedStems.Add(uStem, 1);
+                    }
+                }
+            }
+
+            // We now have the dictionary of all stems across passwords with count of password shared in. Remove where count = 1
+            uniqueSharedStems = uniqueSharedStems.Where(pair => pair.Value > 1).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+
+            return uniqueSharedStems;
+        }
+        public static Dictionary<string, List<int>> getPasswordShareMatrix (Dictionary<string, int> sharedStems, 
+            Dictionary<int, List<Dictionary<string, int>>> passwordIdsWithStems)
+        {
+            // INPUT PARAMS:
+            // sharedStems - this is the result of getAllSharedPasswordStemsInBank - all shared stems across the bank
+            // passwordIdsWithStems for each password in a bank (hydrated with ID), have its ID as the key and run getAllPotentialStemsForPassword for the value.
+
+            Dictionary<string, List<int>> matrix = new Dictionary<string, List<int>>();
+
+            // first step is to redact input param 2 (passwordIdsWithStems) to just the passwords that have  values in the sharedStems keys
+
+            Dictionary<int, List<Dictionary<string, int>>> stemSharingPasswords = new Dictionary<int, List<Dictionary<string, int>>>();
+
+            foreach (int k in passwordIdsWithStems.Keys)
+            {
+                List<Dictionary<string, int>> stems = passwordIdsWithStems[k];
+                int countSharedStems = stems.Where(x => x.Keys.Where(y => sharedStems.ContainsKey(y)).Count() > 0).Count();
+                if (countSharedStems > 0)
+                {
+                    stemSharingPasswords.Add(k, stems);
+                }
+            }
+
+            Dictionary<string, List<int>> allStemsWithSharingIDs = new Dictionary<string, List<int>>();
+
+            foreach (string stemString in sharedStems.Keys)
+            {
+                List<int> passwordsUsing = new List<int>();
+                foreach (int passwordID in stemSharingPasswords.Keys)
+                {
+                    List<string> passwordStems = stemSharingPasswords[passwordID].Select(x => x.Keys.First()).ToList();
+                    if (passwordStems.Contains(stemString))
+                    {
+                        passwordsUsing.Add(passwordID);
+                    }
+                }
+                allStemsWithSharingIDs.Add(stemString, passwordsUsing);
+            }
+
+            Dictionary<string, List<int>> cleanStemsWithSharingIDs = new Dictionary<string, List<int>>();
+            List<string> sortedStems = allStemsWithSharingIDs.Keys.ToList().OrderByDescending(x => x.Length).ToList();
+            int longestStemLength = sortedStems.Select(x => x.Length).Max();
+            List<string> longestStems = sortedStems.Where(x => x.Length == longestStemLength).ToList();
+            List<string> shorterStems = sortedStems.Where(x => x.Length != longestStemLength).ToList();
+
+            foreach (string l in longestStems)
+            {
+                cleanStemsWithSharingIDs.Add(l, allStemsWithSharingIDs[l]);
+            }
+            foreach (string s in shorterStems)
+            {
+                List<string> enclosingLongerStems = cleanStemsWithSharingIDs.Keys.Where(x => x.Contains(s)).ToList();
+                if (enclosingLongerStems.Count == 0) // this item is not covered by a longer stem. Add it to the dictionary unmolested
+                {
+                    cleanStemsWithSharingIDs.Add(s, allStemsWithSharingIDs[s]);
+                }
+                else // it's covered by at least 1 longer stem: for each longer stem its covered by, redact its ids against the that stem, then add.
+                {
+                    List<int> sMembers = new List<int>(); 
+                    
+                    foreach (int member in allStemsWithSharingIDs[s])
+                    {
+                        sMembers.Add(member);
+                    }
+
+                    foreach (string elsx in enclosingLongerStems)
+                    {
+                        List<int> elsxMembers = cleanStemsWithSharingIDs[elsx];
+                        sMembers = sMembers.Except(elsxMembers).ToList();
+                    }
+                    cleanStemsWithSharingIDs.Add(s, sMembers);
+                }
+            }
+            matrix = cleanStemsWithSharingIDs.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            return matrix;
+        }
+        public static Dictionary<string, Dictionary<string, int>> GetPasswordStems (List<LoginEntry>  pBank)
+        {
+            //pBank param is the WHOLE PASSWORD BANK. It needs to be id-hydrated.
+
+            LoginEntry f = pBank.FirstOrDefault();
+            if (f != null && f.id == -99) // -99 is the default id for unhyrdated login entries
+            {
+                throw new Exception("You are running GetPasswordStems on a password bank that is not hydrated with IDs");
+            }
+
+            Dictionary<string, Dictionary<string, int>> passwordStems = new Dictionary<string, Dictionary<string, int>>();
+
+            List<LoginEntry> pBankPasswordsOnly = pBank.Where(x => x.LoginType == LoginTypes.Password).ToList();
+
+            List<List<Dictionary<string, int>>> allStemLists = new List<List<Dictionary<string, int>>>(); //holds all passwords with all pt stems stems and their positional indexes in the passwrods.
+            Dictionary<int, List<Dictionary<string, int>>> passwordIdsWithStems = new Dictionary<int, List<Dictionary<string, int>>>(); // holds passwordIds with their potential stems.
+            foreach (LoginEntry p in pBankPasswordsOnly)
+            {
+                int pid = p.id;
+                List<Dictionary<string, int>> stems = getAllPotentialStemsForPassword(p.LoginPass);
+                allStemLists.Add(stems);
+                passwordIdsWithStems.Add(pid, stems);
+            }
+
+            Dictionary<string, int> pBankShares = getAllSharedPasswordStemsInBank(allStemLists); // all shared stems with their counts.
+            Dictionary<string, List<int>> matrix = getPasswordShareMatrix(pBankShares, passwordIdsWithStems); // stem, list ID for all shared stems, cross-deduplciated prioritising msot complex.
+
+            // TODO: USe the whole password bank AND matrix variable to calculate the properties of LoginBankStrength.passwordStems, and return it in passwordStems.
+
+            return passwordStems;
         }
     }
 }
