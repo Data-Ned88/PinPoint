@@ -68,6 +68,21 @@
       <ScoreFormat score="88" cellShade="#A9FA72" scoreText="Crackable in 200 years"/>
       <ScoreFormat score="96" cellShade="#86FB57" scoreText="Over 200 years to crack"/>
     </StrengthScoreType>
+    <StrengthScoreType typeName="PasswordBankAggregate">
+      <ScoreFormat maxScore="unlimited" cellShade="#F8696B" scoreText="Major vulnerability"/>
+      <ScoreFormat maxScore="7000" cellShade="#FA7F71" scoreText="Serious vulnerability"/>
+      <ScoreFormat maxScore="5000" cellShade="#FB9476" scoreText="Significant vulnerability"/>
+      <ScoreFormat maxScore="4000" cellShade="#FCAA7C" scoreText="Some serious vulnerability"/>
+      <ScoreFormat maxScore="3500" cellShade="#FCCF82" scoreText="Medium-significant vulnerability"/>
+      <ScoreFormat maxScore="2500" cellShade="#FEE587" scoreText="Some significant vulnerability"/>
+      <ScoreFormat maxScore="2000" cellShade="#FFEB84" scoreText="Some medium-significant vulnerability"/>
+      <ScoreFormat maxScore="1500" cellShade="#FBEB89" scoreText="Some vulnerability"/>
+      <ScoreFormat maxScore="1000" cellShade="#FAF28A" scoreText="Moderate vulnerability"/>
+      <ScoreFormat maxScore="700" cellShade="#F3F88C" scoreText="Some moderate vulnerability"/>
+      <ScoreFormat maxScore="500" cellShade="#E2F97F" scoreText="Low-moderate vulnerability"/>
+      <ScoreFormat maxScore="300" cellShade="#A9FA72" scoreText="Low vulnerability"/>
+      <ScoreFormat maxScore="100" cellShade="#86FB57" scoreText="Very low vulnerability"/>
+    </StrengthScoreType>    
   </StrengthScoreFormats>
   <SizingConverters>
     <SizingConverter fontSize="9.0">

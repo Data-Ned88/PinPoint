@@ -135,6 +135,11 @@ namespace PinpointOnenote
                         passwordStrengthScore -= 40;
                         scoreTextBuilder.AppendLine("Security score for this login is weaker because the password contains the username as a stem.");
                     }
+                    if (LoginFunctionality.PasswordOne(passwordValue))
+                    {
+                        passwordStrengthScore -= 40;
+                        scoreTextBuilder.AppendLine("Security score for this login is weaker because the password contains 'password'.");
+                    }
                     // min 0, max 100
                     if (passwordStrengthScore < 0)
                     {

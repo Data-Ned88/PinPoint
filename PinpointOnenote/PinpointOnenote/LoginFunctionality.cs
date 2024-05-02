@@ -7,11 +7,37 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Globalization;
 using System.Diagnostics.SymbolStore;
+using System.Security.Cryptography;
 
 namespace PinpointOnenote
 {
     public static class LoginFunctionality
     {
+        public static bool PasswordOne(string passV, string compare="password")
+        {
+            bool outputbool = false;
+            Dictionary<string, string> passwordReps = new Dictionary<string, string> { { "a", "4" },{ "o", "0" } };
+
+            StringBuilder sb = new StringBuilder();
+            foreach (char t in compare.ToLower())
+            {
+                string t_string = t.ToString();
+
+                if (passwordReps.ContainsKey(t.ToString()))
+                {
+                    sb.Append("[" + t_string + passwordReps[t.ToString()] + "]");
+                }
+                else { sb.Append(t_string); }
+            }
+            string regexCompareV = sb.ToString();
+            Regex rxCompare = new Regex(regexCompareV);
+
+            if (rxCompare.IsMatch(passV.ToLower()))
+            {
+                outputbool = true;
+            }
+            return outputbool;
+        }
         public static bool PasswordStemsFromUserName(string passV, string userV)
         {
 
@@ -436,37 +462,42 @@ namespace PinpointOnenote
 
             return outputBool;
         }
-        public static string generateSecureRandomPassword(int nCharcters = 13, bool hasSymbols = true)
+        public static string generateSecureRandomPassword(int nCharacters = 13, bool hasSymbols = true)
         {
-            // 13 is the minimum on the algorithm grid that can be 100% (crackable after 200 yrs) without the need for symbols.
-            // Define characters to use in the password
-            string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789!@#$%^&*()-_!@#$%^&*()-_";
-            string charsNoSymbol = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789";
+            // Define character sets for password generation
+            const string letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "01234567890123456789";
+            const string symbols = "!@#$%^&*()-_!@#$%^&*()-_";
 
-            // Initialize a random number generator
-            Random random = new Random();
+            // Combine character sets based on input options
+            string charsToUse = letters + digits;
+            if (hasSymbols)
+            {
+                charsToUse += symbols;
+            }
+
+            // Initialize a random number generator for secure randomness
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
 
             // Create a StringBuilder to store the password
-            StringBuilder password = new StringBuilder();
+            StringBuilder password = new StringBuilder(nCharacters);
 
             // Generate random characters until the password reaches the desired length
-            for (int i = 0; i < nCharcters; i++)
+            byte[] randomBuffer = new byte[nCharacters];
+            rng.GetBytes(randomBuffer);
+
+            for (int i = 0; i < nCharacters; i++)
             {
-                // Append a random character from the defined character set
-                if (hasSymbols)
-                {
-                    password.Append(chars[random.Next(chars.Length)]);
-                }
-                else
-                {
-                    password.Append(charsNoSymbol[random.Next(charsNoSymbol.Length)]);
-                }
-                
+                // Convert the random byte into a range index for the charsToUse string
+                int rangeIndex = randomBuffer[i] % charsToUse.Length;
+                // Append the selected character to the password
+                password.Append(charsToUse[rangeIndex]);
             }
 
             // Return the generated password as a string
             return password.ToString();
         }
+    
 
         public static string generateSecurePasswordFromStem(string stem)
         {
@@ -475,9 +506,13 @@ namespace PinpointOnenote
             string symbols = "!@#$%^&*()-_!@#$%^&*()-_";
             string numbers = "0123456789";
             string ucase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
+            
             // Initialize a random number generator
-            Random random = new Random();
+            //Random random = new Random();
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            byte[] randomBuffer = new byte[2];
+            rng.GetBytes(randomBuffer);
+            int rangeIndex;
 
             //Phase 1 - convert stem characters into number and symbol equivalents.
 
@@ -488,10 +523,14 @@ namespace PinpointOnenote
             StringBuilder sb = new StringBuilder();
             
             StringBuilder sbPadding = new StringBuilder();
-            sbPadding.Append(symbols[random.Next(symbols.Length)]);
-            sbPadding.Append(numbers[random.Next(numbers.Length)]);
-            sbPadding.Append(ucase[random.Next(ucase.Length)]);
-            sbPadding.Append(symbols[random.Next(symbols.Length)]);
+            rangeIndex = randomBuffer[0] % symbols.Length;
+            sbPadding.Append(symbols[rangeIndex]);
+            rangeIndex = randomBuffer[0] % numbers.Length;
+            sbPadding.Append(numbers[rangeIndex]);
+            rangeIndex = randomBuffer[0] % ucase.Length;
+            sbPadding.Append(ucase[rangeIndex]);
+            rangeIndex = randomBuffer[1] % symbols.Length;
+            sbPadding.Append(symbols[rangeIndex]);
             string Padding = sbPadding.ToString();
 
             sb.Append(Padding);
@@ -523,17 +562,31 @@ namespace PinpointOnenote
         public static string generateRandomPin(int pLength = 4)
         {
             string numbers = "0123456789";
-            Random random = new Random();
+            //Random random = new Random();
+
+
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            byte[] randomBuffer = new byte[6];
+            rng.GetBytes(randomBuffer);
+            int rangeIndex;
+
+
             StringBuilder sb = new StringBuilder();
-            sb.Append(numbers[random.Next(numbers.Length)]);
-            sb.Append(numbers[random.Next(numbers.Length)]);
-            sb.Append(numbers[random.Next(numbers.Length)]);
-            sb.Append(numbers[random.Next(numbers.Length)]);
+            rangeIndex = randomBuffer[0] % numbers.Length;
+            sb.Append(numbers[rangeIndex]);
+            rangeIndex = randomBuffer[1] % numbers.Length;
+            sb.Append(numbers[rangeIndex]);
+            rangeIndex = randomBuffer[2] % numbers.Length;
+            sb.Append(numbers[rangeIndex]);
+            rangeIndex = randomBuffer[3] % numbers.Length;
+            sb.Append(numbers[rangeIndex]);
 
             if (pLength == 6)
             {
-                sb.Append(numbers[random.Next(numbers.Length)]);
-                sb.Append(numbers[random.Next(numbers.Length)]);
+                rangeIndex = randomBuffer[4] % numbers.Length;
+                sb.Append(numbers[rangeIndex]);
+                rangeIndex = randomBuffer[5] % numbers.Length;
+                sb.Append(numbers[rangeIndex]);
             }
 
             return sb.ToString();
@@ -609,20 +662,30 @@ namespace PinpointOnenote
                 }
                 foreach (string passValue in uniquePasses)
                 {
+                    Dictionary<string, int> passDict = new Dictionary<string, int>();
+                    int countShares = 0;
+                    int dvs = 0;
                     if (passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Count() > 1)
                     {
-                        Dictionary<string, int> passDict = new Dictionary<string, int>();
-                        int countShares = passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Count() - 1;
+                        countShares = passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Count() - 1;
                         int minStrength = passwordBankLoginTypeSubset.Where(x => x.LoginPass == passValue).Select(x => x.LoginStrength.Score).Min();
-
-                        passDict.Add("count_shared", countShares);
-                        passDict.Add("dvs_total", countShares * (100- minStrength));
-
-
-                        returnDict.Add(passValue,passDict);
+                        dvs = countShares * (100 - minStrength);
                     }
+                    passDict.Add("count_shared", countShares);
+                    passDict.Add("dvs_total", dvs);
+                    if (lType == LoginTypes.Password) // If it's a password, check for exact shares against Pin4 and Pin6 and and 100 for each.
+                    {
+                        int countSharesPinFour = passwordBank.Where(x => x.LoginType == LoginTypes.PinFour && x.LoginPass == passValue).Count();
+                        int countSharesPinSix = passwordBank.Where(x => x.LoginType == LoginTypes.PinSix && x.LoginPass == passValue).Count();
+                        passDict.Add("count_shared_pin_four", countSharesPinFour);
+                        passDict.Add("dvs_total_pin_four", countSharesPinFour * 100);
+                        passDict.Add("count_shared_pin_six", countSharesPinSix);
+                        passDict.Add("dvs_total_pin_six", countSharesPinSix * 100);
+                    }
+                    returnDict.Add(passValue, passDict);
                 }
             }
+
 
             return returnDict;
         }
@@ -805,43 +868,44 @@ namespace PinpointOnenote
                 }
                 allStemsWithSharingIDs.Add(stemString, passwordsUsing);
             }
-
-            Dictionary<string, List<int>> cleanStemsWithSharingIDs = new Dictionary<string, List<int>>();
-            List<string> sortedStems = allStemsWithSharingIDs.Keys.ToList().OrderByDescending(x => x.Length).ToList();
-            int longestStemLength = sortedStems.Select(x => x.Length).Max();
-            List<string> longestStems = sortedStems.Where(x => x.Length == longestStemLength).ToList();
-            List<string> shorterStems = sortedStems.Where(x => x.Length != longestStemLength).ToList();
-
-            foreach (string l in longestStems)
+            if (allStemsWithSharingIDs.Any())
             {
-                cleanStemsWithSharingIDs.Add(l, allStemsWithSharingIDs[l]);
-            }
-            foreach (string s in shorterStems)
-            {
-                List<string> enclosingLongerStems = cleanStemsWithSharingIDs.Keys.Where(x => x.Contains(s)).ToList();
-                if (enclosingLongerStems.Count == 0) // this item is not covered by a longer stem. Add it to the dictionary unmolested
-                {
-                    cleanStemsWithSharingIDs.Add(s, allStemsWithSharingIDs[s]);
-                }
-                else // it's covered by at least 1 longer stem: for each longer stem its covered by, redact its ids against the that stem, then add.
-                {
-                    List<int> sMembers = new List<int>(); 
-                    
-                    foreach (int member in allStemsWithSharingIDs[s])
-                    {
-                        sMembers.Add(member);
-                    }
+                Dictionary<string, List<int>> cleanStemsWithSharingIDs = new Dictionary<string, List<int>>();
+                List<string> sortedStems = allStemsWithSharingIDs.Keys.ToList().OrderByDescending(x => x.Length).ToList();
+                int longestStemLength = sortedStems.Select(x => x.Length).Max();
+                List<string> longestStems = sortedStems.Where(x => x.Length == longestStemLength).ToList();
+                List<string> shorterStems = sortedStems.Where(x => x.Length != longestStemLength).ToList();
 
-                    foreach (string elsx in enclosingLongerStems)
-                    {
-                        List<int> elsxMembers = cleanStemsWithSharingIDs[elsx];
-                        sMembers = sMembers.Except(elsxMembers).ToList();
-                    }
-                    cleanStemsWithSharingIDs.Add(s, sMembers);
+                foreach (string l in longestStems)
+                {
+                    cleanStemsWithSharingIDs.Add(l, allStemsWithSharingIDs[l]);
                 }
-            }
-            matrix = cleanStemsWithSharingIDs.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
+                foreach (string s in shorterStems)
+                {
+                    List<string> enclosingLongerStems = cleanStemsWithSharingIDs.Keys.Where(x => x.Contains(s)).ToList();
+                    if (enclosingLongerStems.Count == 0) // this item is not covered by a longer stem. Add it to the dictionary unmolested
+                    {
+                        cleanStemsWithSharingIDs.Add(s, allStemsWithSharingIDs[s]);
+                    }
+                    else // it's covered by at least 1 longer stem: for each longer stem its covered by, redact its ids against the that stem, then add.
+                    {
+                        List<int> sMembers = new List<int>(); 
+                        
+                        foreach (int member in allStemsWithSharingIDs[s])
+                        {
+                            sMembers.Add(member);
+                        }
 
+                        foreach (string elsx in enclosingLongerStems)
+                        {
+                            List<int> elsxMembers = cleanStemsWithSharingIDs[elsx];
+                            sMembers = sMembers.Except(elsxMembers).ToList();
+                        }
+                        cleanStemsWithSharingIDs.Add(s, sMembers);
+                    }
+                }
+                matrix = cleanStemsWithSharingIDs.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value);
+            }
             return matrix;
         }
         public static Dictionary<string, Dictionary<string, int>> GetPasswordStems (List<LoginEntry>  pBank)
@@ -857,6 +921,8 @@ namespace PinpointOnenote
             Dictionary<string, Dictionary<string, int>> passwordStems = new Dictionary<string, Dictionary<string, int>>();
 
             List<LoginEntry> pBankPasswordsOnly = pBank.Where(x => x.LoginType == LoginTypes.Password).ToList();
+            List<LoginEntry> pBankPinSixOnly = pBank.Where(x => x.LoginType == LoginTypes.PinSix).ToList();
+            List<LoginEntry> pBankPinFourOnly = pBank.Where(x => x.LoginType == LoginTypes.PinFour).ToList();
 
             List<List<Dictionary<string, int>>> allStemLists = new List<List<Dictionary<string, int>>>(); //holds all passwords with all pt stems stems and their positional indexes in the passwrods.
             Dictionary<int, List<Dictionary<string, int>>> passwordIdsWithStems = new Dictionary<int, List<Dictionary<string, int>>>(); // holds passwordIds with their potential stems.
@@ -871,7 +937,91 @@ namespace PinpointOnenote
             Dictionary<string, int> pBankShares = getAllSharedPasswordStemsInBank(allStemLists); // all shared stems with their counts.
             Dictionary<string, List<int>> matrix = getPasswordShareMatrix(pBankShares, passwordIdsWithStems); // stem, list ID for all shared stems, cross-deduplciated prioritising msot complex.
 
-            // TODO: USe the whole password bank AND matrix variable to calculate the properties of LoginBankStrength.passwordStems, and return it in passwordStems.
+            // TODO: Use the whole password bank AND matrix variable to calculate the properties of LoginBankStrength.passwordStems, and return it in passwordStems.
+
+            foreach (string stemKey in matrix.Keys)
+            {
+                List<LoginEntry> affectedPasswords = pBankPasswordsOnly.Where(x => matrix[stemKey].Contains(x.id)).ToList();
+                List<LoginEntry> affectedPinSix = pBankPinSixOnly.Where(x => stemKey.Contains(x.LoginPass)).ToList();
+                List<LoginEntry> affectedPinFour = pBankPinFourOnly.Where(x => stemKey.Contains(x.LoginPass)).ToList();
+
+                Dictionary<string, int> stemMetrics = new Dictionary<string, int>();
+
+
+                //1. Do the scoring for each password allocated the stem.
+                int passwordCount = affectedPasswords.Count;
+                int passwordsDVS = 0;
+                //1a. Find weakest password and add 100 minus its strength score
+                LoginEntry weakestPassword = affectedPasswords.OrderBy(x => x.LoginStrength.Score).First();
+                passwordsDVS += 100 - weakestPassword.LoginStrength.Score;
+
+                //1b. For the rest of the passwords...
+                List<LoginEntry> restOfPasswords = affectedPasswords.Where(x => x.id != weakestPassword.id).ToList();
+                foreach (LoginEntry pw in restOfPasswords)
+                {
+                    
+                    Dictionary<string, int> stemPositionDict = passwordIdsWithStems[pw.id].Where(x => x.Keys.First() == stemKey).First();
+
+                    // Get the original password minus the stem, calculate the score for that, and add 100- new score to the dvs.
+
+                    int startIndexStem = stemPositionDict[stemKey];
+                    int lengthStem = stemKey.Length;
+                    string partBeforeStem = pw.LoginPass.Substring(0, startIndexStem);
+                    string partAfterStem = pw.LoginPass.Substring(startIndexStem + lengthStem);
+                    string redactedPassword = partBeforeStem + partAfterStem;
+
+                    if (redactedPassword.Length == 0)
+                    {
+                        passwordsDVS += 100;
+                    }
+                    else
+                    {
+                        LoginStrength ls = new LoginStrength(LoginTypes.Password, redactedPassword, pw.LoginUsername, pw.HasTwoFa);
+                        passwordsDVS += 100 - ls.Score; 
+                    }
+                }
+                stemMetrics.Add("count_passwords", passwordCount);
+                stemMetrics.Add("total_dvs_passwords", passwordsDVS);
+
+                //2 Do the scoring for each Pin 6 found in the stem
+                int pinSixCount = 0;
+                int pinSixDVS = 0;
+
+                foreach (LoginEntry psix in affectedPinSix)
+                {
+                    if (stemKey.Contains(psix.LoginPass))
+                    {
+                        pinSixCount++;
+                        pinSixDVS += 100;
+                    }
+                }
+
+                stemMetrics.Add("count_pin_six", pinSixCount);
+                stemMetrics.Add("total_dvs_pin_six", pinSixDVS);
+
+                //3 Do the scoring for each Pin 4 found in the stem
+                int pinFourCount = 0;
+                int pinFourDVS = 0;
+
+                foreach (LoginEntry pfour in affectedPinFour)
+                {
+                    if (stemKey.Contains(pfour.LoginPass))
+                    {
+                        string pfourRegex = "\\D" + pfour.LoginPass + "\\D|^" + pfour.LoginPass + "\\D|" + pfour.LoginPass + "$";
+                        Regex rx = new Regex(pfourRegex);
+                        if (rx.IsMatch(stemKey)) // can't be surrounded by other numbers.
+                        {
+                            pinFourCount++;
+                            pinFourDVS += 100;
+                        }
+                    }
+                }
+
+                stemMetrics.Add("count_pin_four", pinFourCount);
+                stemMetrics.Add("total_dvs_pin_four", pinFourDVS);
+
+                passwordStems.Add(stemKey, stemMetrics);
+            }
 
             return passwordStems;
         }
