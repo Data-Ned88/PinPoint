@@ -25,5 +25,21 @@ namespace PinpointOnenote
                 return new LoginStrength(LoginType, LoginPass, LoginUsername, HasTwoFa); 
             } 
         }
+
+        public LoginEntry()
+        {
+
+        }
+        public LoginEntry(LoginEntry copyTarget)
+        {
+            LoginType = copyTarget.LoginType;
+            LoginDescription = copyTarget.LoginDescription;
+            LoginUrl = copyTarget.LoginUrl;
+            LoginUsername = copyTarget.LoginUsername;
+            LoginPass = copyTarget.LoginPass;
+            HasTwoFa = copyTarget.HasTwoFa;
+            TwoFaMethod = copyTarget.TwoFaMethod;
+            LastModified = copyTarget.LastModified;
+        }
     }
 }

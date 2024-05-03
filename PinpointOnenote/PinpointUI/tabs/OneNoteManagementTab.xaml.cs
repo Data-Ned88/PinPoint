@@ -33,7 +33,7 @@ namespace PinpointUI.tabs
         private string createNewSectionLabelPlacehold = "Provide a name for your new PinPoint password section in {0}.\n(Max. 25 characters and letters, numbers and spaces only)";
         Microsoft.Office.Interop.OneNote.Application app = OnenoteMethods.InstantiateOneNoteApp();
 
-        public RelayCommand fnLoadSection => new RelayCommand(execute => { showTestMessage(selectedSection); }, 
+        public RelayCommand fnLoadSection => new RelayCommand(execute => { loadSelectedValidSection(); }, //showTestMessage(selectedSection)
                                                                 canExecute => { return isValidselectedSection(selectedSection); });
 
 
@@ -190,7 +190,22 @@ namespace PinpointUI.tabs
             MessageBox.Show(em, "Invalid Section Name", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
+        private void loadSelectedValidSection ()
+        {
+            if (1 == 2)
+            {
+                PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this, callingWindow,
+                                                    callingButtonName, app, selectedNotebook.Attributes["name"].Value,
+                                                    hier, nsmgr, selectedSection.SectionName,selectedSection
+                                                    );
+                callingWindow.PasswordsTab.Content = PasswordEditor;
+                callingWindow.PasswordsTab.Visibility = Visibility.Visible;
+                callingWindow.OneNoteTab.IsSelected = false;
+                callingWindow.PasswordsTab.IsSelected = true;
+                callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
 
+            }
+        }
 
 
         private bool isValidselectedSection(OneNoteSection selectedSection)
@@ -200,7 +215,7 @@ namespace PinpointUI.tabs
             bool returnable = false;
             if (selectedSection != null)
             {
-                if (selectedSection.IsValidPinPointInstance == false) // going to want to change this to true once we've worked out the function!!!
+                if (selectedSection.IsValidPinPointInstance == true) // going to want to change this to true once we've worked out the function!!!
                 {
                     returnable = true;
                 }
@@ -237,7 +252,7 @@ namespace PinpointUI.tabs
             }
             if (validSection)
             {
-                //TODO instantiate password editor.
+                // Instantiate Password Editor for new section
                 //...Pass through the MainWIndowcalling button name (which should suffice for new/existing),
                 //...the section name
                 //... the notebook name
@@ -248,7 +263,10 @@ namespace PinpointUI.tabs
 
                 if (1 == 2)
                 {
-                    PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(/* ARGUMENTS IN TODO ABOVE*/);
+                    PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this,callingWindow,
+                                                        callingButtonName,app, selectedNotebook.Attributes["name"].Value,
+                                                        hier,nsmgr, newSectionNameData
+                                                        );
                     callingWindow.PasswordsTab.Content = PasswordEditor;
                     callingWindow.PasswordsTab.Visibility = Visibility.Visible;
                     callingWindow.OneNoteTab.IsSelected = false;
