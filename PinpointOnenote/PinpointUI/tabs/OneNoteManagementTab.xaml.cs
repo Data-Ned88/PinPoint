@@ -192,19 +192,18 @@ namespace PinpointUI.tabs
 
         private void loadSelectedValidSection ()
         {
-            if (1 == 2)
-            {
-                PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this, callingWindow,
+
+             PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this, callingWindow,
                                                     callingButtonName, app, selectedNotebook.Attributes["name"].Value,
                                                     hier, nsmgr, selectedSection.SectionName,selectedSection
                                                     );
-                callingWindow.PasswordsTab.Content = PasswordEditor;
-                callingWindow.PasswordsTab.Visibility = Visibility.Visible;
-                callingWindow.OneNoteTab.IsSelected = false;
-                callingWindow.PasswordsTab.IsSelected = true;
-                callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
+             callingWindow.PasswordsTab.Content = PasswordEditor;
+             callingWindow.PasswordsTab.Visibility = Visibility.Visible;
+             callingWindow.OneNoteTab.IsSelected = false;
+             callingWindow.PasswordsTab.IsSelected = true;
+             callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
 
-            }
+
         }
 
 

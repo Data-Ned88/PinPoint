@@ -793,7 +793,7 @@ namespace PinpointOnenote
         {
             bool outputbool = false;
             List<string> expectedHeaders = new List<string> { "Description", "Type", "URL",
-                    "Username", "Password/PIN", "2FA", "2FA Method", "Date Last Modified", "Last Modified Sort", "Strength"};
+                    "Username", "Password/PIN", "2FA", "2FA Method", "Last Modified", "Last Modified Sort", "Strength"};
             
             
             XElement headerRow = table.Elements(ns + "Row").First();
@@ -841,7 +841,7 @@ namespace PinpointOnenote
         {
             bool outputBool = false;
             XNamespace ns = pageContent.Root.Name.Namespace;
-            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBank").FirstOrDefault();
+            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBankTable").FirstOrDefault();
             if (passwordBankOutline != null)
             {
                 IEnumerable<XElement> tablesinOutline = passwordBankOutline.Descendants(ns + "Table");
@@ -876,13 +876,13 @@ namespace PinpointOnenote
                 {"LoginType","Type" },{ "LoginDescription", "Description"},
                 {"LoginUrl","URL" },{ "LoginUsername", "Username"},
                 {"LoginPass","Password/PIN" },{ "HasTwoFa", "2FA"},
-                {"TwoFaMethod","2FA Method" },{ "LastModified", "Date Last Modified"}
+                {"TwoFaMethod","2FA Method" },{ "LastModified", "Last Modified"}
             };
             List<string> headers = propsToHeaders.Values.ToList();
             // Above list is the headers of the columns we want to parse from the OneNote page data. (all bar last modified sort and strength - these will be recalculated.)
 
             List<LoginEntry> passwordBank = new List<LoginEntry>();
-            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBank").First();
+            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBankTable").First();
             XElement passwordTableInData = passwordBankOutline.Descendants(ns + "Table").Where(x => TestTableIsValidPasswordTable(x, ns)).First();
 
             Dictionary<string, int> headerColIndex = new Dictionary<string, int>();
@@ -987,6 +987,16 @@ namespace PinpointOnenote
                             else if (allTextConcatenated.Replace("&nbsp;", " ").Trim() == "Password") { loginProp.SetValue(login, LoginTypes.Password); }
                             // no need for an else here as this property comes with a default of "not set".
                         }
+                        else if (loginPropName == "LoginUrl")
+                        {
+                            Regex rxHref = new Regex(@"(<a\s+href\s*=\s*[""'][^""']*[""']\s*>)(.+)</a>");
+                            Match link = rxHref.Match(allTextConcatenated);
+                            if (link.Success)
+                            {
+                                loginProp.SetValue(login, link.Groups[2].Value.Trim());
+                            }
+                            else { loginProp.SetValue(login, ""); }
+                        }
                         else
                         {
                             // Bog standard string
@@ -1043,7 +1053,7 @@ namespace PinpointOnenote
                 else
                 {
                     outputMessage = "There is a page called Password Bank, but it does not have a password table with the correct columns." +
-                        "\n(Description, Type, URL, Username, Password/PIN, 2FA, 2FA Method, Date Last Modified, Last Modified Sort, Strength)" +
+                        "\n(Description, Type, URL, Username, Password/PIN, 2FA, 2FA Method, Last Modified, Last Modified Sort, Strength)" +
                         "\n\n If this page has a password table, correct any accidental typos in the column headers on this page and refresh.";
                 }
             }

@@ -1,6 +1,5 @@
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\bin\Debug\PinpointOnenote.dll
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\bin\Debug\PinpointOnenote.pdb
-C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.csproj.AssemblyReference.cache
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.csproj.CoreCompileInputs.cache
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.dll
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.pdb
@@ -8,3 +7,4 @@ C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\Interop.Microsoft.O
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.csproj.ResolveComReference.cache
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.Properties.Resources.resources
 C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.csproj.GenerateResource.cache
+C:\github\PinPoint\PinpointOnenote\PinpointOnenote\obj\Debug\PinpointOnenote.csproj.AssemblyReference.cache

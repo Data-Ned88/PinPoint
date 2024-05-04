@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PinpointUI"
         xmlns:tabs="clr-namespace:PinpointUI.tabs"
         mc:Ignorable="d"
-        Title="UCOVI PinPoint" Height="450" Width="834.903" Icon="icons/ucovi_small.ico">
+        Title="UCOVI PinPoint" Height="500" Width="920" Icon="icons/ucovi_small.ico">
     <Window.Resources></Window.Resources>
     <Grid>
         <TabControl>

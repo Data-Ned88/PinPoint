@@ -58,7 +58,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="tabs\LoginTypeToStringConverter.cs" />
     <Compile Include="tabs\OneNoteManagementTab.xaml.cs">
       <DependentUpon>OneNoteManagementTab.xaml</DependentUpon>
     </Compile>
