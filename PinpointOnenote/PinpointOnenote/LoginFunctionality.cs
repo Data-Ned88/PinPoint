@@ -182,6 +182,41 @@ namespace PinpointOnenote
             return level;
         }
 
+
+
+        public static bool isValidPinSix (string input)
+        {
+            Regex rxPinSixValid = new Regex(@"[0-9]{6}");
+            if (input == null)
+            {
+                return false;
+            }
+            else if (rxPinSixValid.IsMatch(input)) {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static bool isValidPinFour(string input)
+        {
+            Regex rxPinFourValid = new Regex(@"[0-9]{4}");
+            if (input == null)
+            {
+                return false;
+            }
+            else if (rxPinFourValid.IsMatch(input))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         public static Dictionary<string,string> PinSixScoreValues(string pinV)
         {
             Dictionary<string, string> returnDict = new Dictionary<string, string>();

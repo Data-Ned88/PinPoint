@@ -150,7 +150,7 @@ namespace PinpointOnenote
                     {
                         passwordStrengthScore = 96;
                     }
-                    passwordStrengthScoreLookup = passwordStrengthScoreLookup.ToString();
+                    passwordStrengthScoreLookup = passwordStrengthScore.ToString();
                     ScoreText = scoreTextBuilder.ToString();
                     cellColour = scoreFormats.Where(x => x.Attribute("score").Value == passwordStrengthScoreLookup)
                                             .First().Attribute("cellShade").Value;

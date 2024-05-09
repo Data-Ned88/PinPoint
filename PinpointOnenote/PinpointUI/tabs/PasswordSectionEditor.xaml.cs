@@ -48,14 +48,13 @@ namespace PinpointUI.tabs
         private XDocument passwordBankPageContent;
 
 
-
-        
+        public LoginTypes SelectedLoginTypeNewPasswords { get; set; } = LoginTypes.NotSet;
+        public Brush OriginalBorderBrushTextBoxInputs { get; set; }
         public ICommand CopyCellCommand { get; private set; }
         private void CopyCell(object parameter) //input param not useful
         {
             // Logic to copy cell content to the clipboard
             int i = existingPasswords.CurrentCell.Column.DisplayIndex;
-
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(LoginTypes)); // need this to convert Enums to descriptions.
 
             LoginEntry leClicked = (LoginEntry)existingPasswords.CurrentCell.Item;
@@ -166,6 +165,7 @@ namespace PinpointUI.tabs
             toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
             singleItemAreaHeader.Text = "";
+            OriginalBorderBrushTextBoxInputs = selItemPassPinInput.BorderBrush;
         }
 
         private void PwordTabBackToSections_Click(object sender, RoutedEventArgs e)
@@ -213,7 +213,7 @@ namespace PinpointUI.tabs
                 newItemPassPinInput.Visibility = _mode;
                 newItemTwoFaInput.Visibility = _mode;
                 newItemTwoFaMethodInput.Visibility = _mode;
-                newItemStrengthInput.Visibility = _mode;
+                newItemStrengthLabel.Visibility = _mode;
                 btnAddNew.Visibility = _mode;
                 btnCloseNewEditor.Visibility = _mode;
 
@@ -227,11 +227,31 @@ namespace PinpointUI.tabs
                 selItemPassPinInput.Visibility = _mode;
                 selItemTwoFaInput.Visibility = _mode;
                 selItemTwoFaMethodInput.Visibility = _mode;
-                selItemStrengthInput.Visibility = _mode;
+                selItemStrengthLabel.Visibility = _mode;
                 btnUpdate.Visibility = _mode;
                 btnUndoChanges.Visibility = _mode;
             }
         }
+
+        private void setToDefaultSinglePasswordEditorBordersTTs(string set = "new")
+        {
+            //This does alternates for NEW Password vs edit existing password
+
+            if (set == "new")
+            {
+                BorderAndToolTip(newItemDescInput);
+                BorderAndToolTip(newItemUsernameInput);
+                BorderAndToolTip(newItemPassPinInput);
+            }
+            else
+            {
+                BorderAndToolTip(selItemDescInput);
+                BorderAndToolTip(selItemUsernameInput);
+                BorderAndToolTip(selItemPassPinInput);
+            }
+        }
+
+
 
         private void setVisibilitySinglePasswordEditorConstants(Visibility _mode = Visibility.Hidden)
         {
@@ -275,13 +295,13 @@ namespace PinpointUI.tabs
             }
             else
             {
-                //TODO - I don't like this. It hides everything except the labels when no passwords are selected. Hide the labels as well.??
                 toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
                 toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
                 setVisibilitySinglePasswordEditorConstants();
                 btnDeleteSelected.Visibility = Visibility.Hidden;
                 singleItemAreaHeader.Text = "";
             }
+            setToDefaultSinglePasswordEditorBordersTTs("sel");
         }
 
         private void ExistingPasswords_Loaded(object sender, RoutedEventArgs e)
@@ -307,7 +327,6 @@ namespace PinpointUI.tabs
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
             setVisibilitySinglePasswordEditorConstants(Visibility.Visible);
             btnDeleteSelected.Visibility = Visibility.Hidden;
-            existingPasswords.SelectedItem = null;
             singleItemAreaHeader.Text = "New Login";
         }
 
@@ -340,8 +359,6 @@ namespace PinpointUI.tabs
             be.UpdateSource();
             be = selItemTwoFaMethodInput.GetBindingExpression(TextBox.TextProperty);
             be.UpdateSource();
-            be = selItemStrengthInput.GetBindingExpression(TextBox.TextProperty);
-            be.UpdateSource();
             existingPasswords.Items.Refresh(); // need to do this to get the Strength scores in the grid to update.
             
             singleItemAreaHeader.Text = "Changes saved to selected login.";
@@ -355,6 +372,7 @@ namespace PinpointUI.tabs
             toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
             setVisibilitySinglePasswordEditorConstants();
+            setToDefaultSinglePasswordEditorBordersTTs("sel");
             btnDeleteSelected.Visibility = Visibility.Hidden;
             existingPasswords.SelectedItem = null;
         }
@@ -378,18 +396,86 @@ namespace PinpointUI.tabs
             PasswordBank.Clear();
         }
 
+        private void singleEditorScoreFormat(ComboBox TypeInput,TextBox PassPinInput, TextBox UsernameInput, CheckBox ItemTwoFaInput, Label StrengthLabel)
+        {
+            LoginStrength lsFly = new LoginStrength((LoginTypes)TypeInput.SelectedItem, PassPinInput.Text, UsernameInput.Text, (bool)ItemTwoFaInput.IsChecked);
+            StrengthLabel.Content = lsFly.Score.ToString();
+            StrengthLabel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(lsFly.cellColour));
+            StrengthLabel.ToolTip = lsFly.ScoreText;
+        }
+
         private void btnPassPinAuto_Click(object sender, RoutedEventArgs e)
         {
             //TODO new modal
         }
 
+
+        private void BorderAndToolTip (TextBox newOrExistingTextBox, bool setRed=false, string toolTipText = null)
+        {
+            if (newOrExistingTextBox != null)
+            {
+                if (setRed)
+                {
+                    newOrExistingTextBox.BorderBrush = Brushes.Red;
+                }
+                else
+                {
+                    newOrExistingTextBox.BorderBrush = OriginalBorderBrushTextBoxInputs;
+                }
+
+                newOrExistingTextBox.ToolTip = toolTipText;
+            }
+
+        }
+        private void passTypeConditionalRedBorderAndToolTip(TextBox newOrExistingTextBox,ComboBox predicateComboBox)
+        {
+            LoginTypes selItemLoginType = (LoginTypes)predicateComboBox.SelectedItem;
+            if (selItemLoginType == LoginTypes.PinFour)
+            {
+                if (!LoginFunctionality.isValidPinFour(newOrExistingTextBox.Text))
+                {
+                    BorderAndToolTip(newOrExistingTextBox, true, "Not a valid 4-digit PIN");
+                }
+                else
+                {
+                    BorderAndToolTip(newOrExistingTextBox);
+                }
+            }
+            else if (selItemLoginType == LoginTypes.PinSix)
+            {
+                if (!LoginFunctionality.isValidPinSix(newOrExistingTextBox.Text))
+                {
+                    BorderAndToolTip(newOrExistingTextBox, true, "Not a valid 6-digit PIN");
+                }
+                else
+                {
+                    BorderAndToolTip(newOrExistingTextBox);
+                }
+            }
+            else if (selItemLoginType == LoginTypes.Password)
+            {
+                if (newOrExistingTextBox.Text == null || newOrExistingTextBox.Text.Length == 0)
+                {
+                    BorderAndToolTip(newOrExistingTextBox, true, "Password is empty.");
+                }
+                else
+                {
+                    BorderAndToolTip(newOrExistingTextBox);
+                }
+            }
+            else // LoginTypes.NotSet or null
+            {
+                BorderAndToolTip(newOrExistingTextBox);
+            }
+        }
+
         private void selItemPassPinInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             // This is clever. When  the value in the pin/password box of the existing item editor is changed, it calculates the logins core for it on the fly so taht the user can preview.
-            if (existingPasswords.SelectedItems.Count > 0)
+            if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
             {
-                LoginStrength lsFly = new LoginStrength((LoginTypes)selItemTypeInput.SelectedItem, selItemPassPinInput.Text, selItemUsernameInput.Text, (bool)selItemTwoFaInput.IsChecked);
-                selItemStrengthInput.Text = lsFly.Score.ToString();
+                passTypeConditionalRedBorderAndToolTip(selItemPassPinInput, selItemTypeInput);
+                singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
             }
             //TODO Make one of these for each input field in the single item editor which affects the login score (Type as ENum, 2FA as bool, user, and password.)
         }
@@ -402,6 +488,135 @@ namespace PinpointUI.tabs
             btnDeleteSelected.Visibility = Visibility.Hidden;
             existingPasswords.SelectedItem = null;
             singleItemAreaHeader.Text = "";
+        }
+
+        private void selItemTypeInput_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
+            {
+                //PIN/Password Text Box
+                passTypeConditionalRedBorderAndToolTip(selItemPassPinInput, selItemTypeInput);
+                LoginTypes selItemLoginType = (LoginTypes)selItemTypeInput.SelectedItem;
+                //User Text Box (password only)
+                if ((selItemUsernameInput.Text == null || selItemUsernameInput.Text.Length == 0) && selItemLoginType == LoginTypes.Password)
+                {
+                    BorderAndToolTip(selItemUsernameInput,true,"Logins of type 'Password' need usernames.");
+                }
+                else
+                {
+                    BorderAndToolTip(selItemUsernameInput);
+                }
+                singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
+            }
+        }
+
+        private void selItemUsernameInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
+            {
+                LoginTypes selItemLoginType = (LoginTypes)selItemTypeInput.SelectedItem;
+                if ((selItemUsernameInput.Text == null || selItemUsernameInput.Text.Length == 0) && selItemLoginType == LoginTypes.Password)
+                {
+                    BorderAndToolTip(selItemUsernameInput, true, "Logins of type 'Password' need usernames.");
+                }
+                else
+                {
+                    BorderAndToolTip(selItemUsernameInput);
+                }
+                singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
+            }
+        }
+
+        private void selItemDescInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (selItemDescInput.Text == null || selItemDescInput.Text.Length == 0)
+            {
+                BorderAndToolTip(selItemDescInput, true, "Please add a value for Description");
+            }
+            else
+            {
+                BorderAndToolTip(selItemDescInput);
+            }
+        }
+
+        private void selItemTwoFaInput_Checked(object sender, RoutedEventArgs e)
+        {
+            if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
+            {
+                singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
+            }
+        }
+
+        private void newItemTwoFaInput_Checked(object sender, RoutedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+
+                singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+            }
+        }
+
+        private void newItemDescInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+
+                if (newItemDescInput.Text == null || newItemDescInput.Text.Length == 0)
+                {
+                    BorderAndToolTip(newItemDescInput, true, "Please add a value for Description");
+                }
+                else
+                {
+                    BorderAndToolTip(newItemDescInput);
+                }
+            }
+        }
+
+        private void newItemTypeInput_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded) // THis stops selection change events being fired on Itnitialisation, when you first set the defaults.
+            {
+
+                //PIN/Password Text Box
+                passTypeConditionalRedBorderAndToolTip(newItemPassPinInput, newItemTypeInput);
+                LoginTypes newItemLoginType = (LoginTypes)newItemTypeInput.SelectedItem;
+                //User Text Box (password only)
+                if ((newItemUsernameInput.Text == null || newItemUsernameInput.Text.Length == 0) && newItemLoginType == LoginTypes.Password)
+                {
+                    BorderAndToolTip(newItemUsernameInput, true, "Logins of type 'Password' need usernames.");
+                }
+                else
+                {
+                    BorderAndToolTip(newItemUsernameInput);
+                }
+                singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+            }
+        }
+
+        private void newItemUsernameInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+                LoginTypes newItemLoginType = (LoginTypes)newItemTypeInput.SelectedItem;
+                if ((newItemUsernameInput.Text == null || newItemUsernameInput.Text.Length == 0) && newItemLoginType == LoginTypes.Password)
+                {
+                    BorderAndToolTip(newItemUsernameInput, true, "Logins of type 'Password' need usernames.");
+                }
+                else
+                {
+                    BorderAndToolTip(newItemUsernameInput);
+                }
+                singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+            }
+        }
+
+        private void newItemPassPinInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded)
+            {
+                passTypeConditionalRedBorderAndToolTip(newItemPassPinInput, newItemTypeInput);
+                singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+            }
         }
     }
 }
