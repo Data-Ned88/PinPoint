@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -46,6 +47,7 @@ namespace PinpointUI.tabs
         private string subBannerText;
         private string passwordBankPageId;
         private XDocument passwordBankPageContent;
+        private int countUpdates = 0;
 
 
         public LoginTypes SelectedLoginTypeNewPasswords { get; set; } = LoginTypes.NotSet;
@@ -150,7 +152,7 @@ namespace PinpointUI.tabs
                 foreach (LoginEntry le in passwordBankOriginal)
                 {
                     passwordBank.Add(
-                        le
+                        new LoginEntry(le)
                         );
                 }
                 //passwordBankOriginal = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankOriginal);
@@ -180,7 +182,23 @@ namespace PinpointUI.tabs
 
         private void PwordTabClear_Click(object sender, RoutedEventArgs e)
         {
-
+            PasswordBank = new ObservableCollection<LoginEntry>();
+            foreach (LoginEntry le in passwordBankOriginal)
+            {
+                PasswordBank.Add(
+                    new LoginEntry(le)
+                    );
+            }
+            existingPasswords.SelectedItem = null;
+            existingPasswords.Items.Refresh();
+            toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
+            toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
+            setVisibilitySinglePasswordEditorConstants();
+            btnDeleteSelected.Visibility = Visibility.Hidden;
+            singleItemAreaHeader.Text = "";
+            existingPasswords.SelectedItem = null;
+            countUpdates = 0;
+            pwordTabSectionTitle.Text = mainBannerText;//mainBannerText + "*";
         }
 
         private void PwordTabExit_Click(object sender, RoutedEventArgs e)
@@ -342,8 +360,13 @@ namespace PinpointUI.tabs
 
         private void btnUpdate_Click(object sender, RoutedEventArgs e)
         {
+            fnUpdateSingleItemInGrid();
+        }
 
+        #region Add and update execute and canExecute inputs
 
+        private void fnUpdateSingleItemInGrid ()
+        {
             // THis pushes the update to the Grid, which is read only. It don't want it dynamically updating.
             BindingExpression be = selItemDescInput.GetBindingExpression(TextBox.TextProperty);
             be.UpdateSource();
@@ -360,12 +383,99 @@ namespace PinpointUI.tabs
             be = selItemTwoFaMethodInput.GetBindingExpression(TextBox.TextProperty);
             be.UpdateSource();
             existingPasswords.Items.Refresh(); // need to do this to get the Strength scores in the grid to update.
-            
+            selectedLogin.LastModified = DateTime.Now;
             singleItemAreaHeader.Text = "Changes saved to selected login.";
-
-
-
+            countUpdates++;
+            pwordTabSectionTitle.Text = mainBannerText + "*";
         }
+
+        private bool fnCanUpdateSingleItemInGrid()
+        {
+            bool returnable = false;
+            bool userNameCheckOnPasswords = true;
+            if (selItemStrengthLabel.IsLoaded)
+            {
+                if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
+                {
+                    LoginStrength lsFly = new LoginStrength((LoginTypes)selItemTypeInput.SelectedItem, selItemPassPinInput.Text, selItemUsernameInput.Text, (bool)selItemTwoFaInput.IsChecked);
+                    bool generatesScore = lsFly.Score != -99;
+                    bool populatedDescription = selItemDescInput.Text != null && selItemDescInput.Text.Length > 0;
+                    if ((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.Password)
+                    {
+                        if (selItemUsernameInput.Text == null || selItemUsernameInput.Text.Length == 0)
+                        {
+                            userNameCheckOnPasswords = false;
+                        }
+                    }
+                    if (generatesScore && populatedDescription && userNameCheckOnPasswords)
+                    {
+                        returnable = true;
+                    }
+                }
+
+            }
+
+            return returnable;
+        }
+        private bool fnCanAddSingleItemToGrid()
+        {
+            bool returnable = false;
+            bool userNameCheckOnPasswords = true;
+            if (newItemStrengthLabel.IsLoaded)
+            {
+                LoginStrength lsFly = new LoginStrength((LoginTypes)newItemTypeInput.SelectedItem, newItemPassPinInput.Text, newItemUsernameInput.Text, (bool)newItemTwoFaInput.IsChecked);
+                bool generatesScore = lsFly.Score != -99;
+                bool populatedDescription = newItemDescInput.Text != null && newItemDescInput.Text.Length > 0;
+                if ((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.Password)
+                {
+                    if (newItemUsernameInput.Text == null || newItemUsernameInput.Text.Length == 0)
+                    {
+                        userNameCheckOnPasswords = false;
+                    }
+                }
+                if (generatesScore && populatedDescription && userNameCheckOnPasswords)
+                {
+                    returnable = true;
+                }
+            }
+
+            return returnable;
+        }
+
+        private void fnAddSingleItemToGrid()
+        {
+            LoginEntry newEntryFromForm = new LoginEntry();
+            newEntryFromForm.LoginDescription = newItemDescInput.Text;
+            newEntryFromForm.LoginType = (LoginTypes)newItemTypeInput.SelectedItem;
+            newEntryFromForm.LoginUrl = newItemUrlInput.Text;
+            newEntryFromForm.LoginUsername = newItemUsernameInput.Text;
+            newEntryFromForm.LoginPass = newItemPassPinInput.Text;
+            newEntryFromForm.HasTwoFa = (bool)newItemTwoFaInput.IsChecked;
+            newEntryFromForm.TwoFaMethod = newItemTwoFaMethodInput.Text;
+            newEntryFromForm.LastModified = DateTime.Now;
+
+            passwordBank.Add(newEntryFromForm);
+            existingPasswords.Items.Refresh();
+            toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
+            toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
+            setVisibilitySinglePasswordEditorConstants();
+            btnDeleteSelected.Visibility = Visibility.Hidden;
+            singleItemAreaHeader.Text = "";
+            existingPasswords.SelectedItem = null;
+            countUpdates++;
+            pwordTabSectionTitle.Text = mainBannerText + "*";
+        }
+
+        #endregion
+        #region RelayCommands for Add and update
+        public RelayCommand fnNewItemToGrid_NewButton => new RelayCommand(execute => { fnAddSingleItemToGrid(); },
+                                                                canExecute => { return fnCanAddSingleItemToGrid(); });
+        public RelayCommand fnUpdateItemInGrid_UpdateButton => new RelayCommand(execute => { fnUpdateSingleItemInGrid(); },
+                                                                canExecute => { return fnCanUpdateSingleItemInGrid(); });
+        #endregion
+
+
+
 
         private void btnUndoChanges_Click(object sender, RoutedEventArgs e)
         {
@@ -387,13 +497,14 @@ namespace PinpointUI.tabs
                 {
                     PasswordBank.Remove((LoginEntry)item);
                 }
-
+                pwordTabSectionTitle.Text = mainBannerText + "*";
             }
         }
 
         private void btnDeleteAll_Click(object sender, RoutedEventArgs e)
         {
             PasswordBank.Clear();
+            pwordTabSectionTitle.Text = mainBannerText + "*";
         }
 
         private void singleEditorScoreFormat(ComboBox TypeInput,TextBox PassPinInput, TextBox UsernameInput, CheckBox ItemTwoFaInput, Label StrengthLabel)
