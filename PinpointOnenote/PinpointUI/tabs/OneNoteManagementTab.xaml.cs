@@ -260,19 +260,18 @@ namespace PinpointUI.tabs
                 //... this(just in case)
                 // callingWindow (MainWindow object) - so that you can manipulate which tab is visible.
 
-                if (1 == 2)
-                {
-                    PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this,callingWindow,
-                                                        callingButtonName,app, selectedNotebook.Attributes["name"].Value,
-                                                        hier,nsmgr, newSectionNameData
-                                                        );
-                    callingWindow.PasswordsTab.Content = PasswordEditor;
-                    callingWindow.PasswordsTab.Visibility = Visibility.Visible;
-                    callingWindow.OneNoteTab.IsSelected = false;
-                    callingWindow.PasswordsTab.IsSelected = true;
-                    callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
 
-                }
+                PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this,callingWindow,
+                                                    callingButtonName,app, selectedNotebook.Attributes["name"].Value,
+                                                    hier,nsmgr, newSectionNameData
+                                                    );
+                callingWindow.PasswordsTab.Content = PasswordEditor;
+                callingWindow.PasswordsTab.Visibility = Visibility.Visible;
+                callingWindow.OneNoteTab.IsSelected = false;
+                callingWindow.PasswordsTab.IsSelected = true;
+                callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
+
+                
 
                 
             }

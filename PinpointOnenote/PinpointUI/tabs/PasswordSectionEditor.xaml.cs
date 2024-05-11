@@ -1,4 +1,5 @@
 ﻿using PinpointOnenote;
+using PinpointOnenote.OneNoteClasses;
 using PinpointUI.modals;
 using System;
 using System.Collections;
@@ -40,6 +41,7 @@ namespace PinpointUI.tabs
         private string notebookId;
         private string notebookName;
         private string sectionName;
+        private string sectionId;
         private OneNoteSection onSection;
         private string mainBannerPlaceholder = "OneNote Password Section: {0}";
         private string subBannerPlaceholder = "(Notebook: {0})"; // optional switch later to "(Notebook: {0} Section Group: {1})"
@@ -47,6 +49,7 @@ namespace PinpointUI.tabs
         private string subBannerText;
         private string passwordBankPageId;
         private XDocument passwordBankPageContent;
+        XElement stylingresource = XElement.Parse(PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles);
         private int countUpdates = 0;
 
 
@@ -104,7 +107,7 @@ namespace PinpointUI.tabs
             }
 
         }
-
+        #region Instantiantion Code
         public PasswordSectionEditor(OneNoteManagementTab inpSecCaller, MainWindow inpMwCaller, 
             string inpMwCbn, Microsoft.Office.Interop.OneNote.Application inpApp,
             string inpNotebookName, XmlDocument inpHierarchy, XmlNamespaceManager inpNsmgr, string inpSectionName, OneNoteSection inpSection = null)
@@ -130,7 +133,7 @@ namespace PinpointUI.tabs
                 passwordBank = new ObservableCollection<LoginEntry>();
                 passwordBankOriginal = new List<LoginEntry>();
 
-    }
+            }
             else
             {
                 mainBannerText = string.Format(mainBannerPlaceholder, inpSectionName);
@@ -143,6 +146,7 @@ namespace PinpointUI.tabs
                 {
                     subBannerText = string.Format(subBannerPlaceholder, notebookName);
                 }
+                sectionId = inpSection.SectionID;
                 // hydrate password Bank with the PasswordBank page from the section.
                 passwordBankPageId = OneNotePageFmtMethods.GetPageIdInSection(inpSection.SectionXML, "Password Bank"); // THIS WILL HAVE BEEN TESTED AS VALID BY PREV GUI.
                 passwordBankPageContent = OneNotePageFmtMethods.GetPageXmlLinq(app, passwordBankPageId);
@@ -169,7 +173,7 @@ namespace PinpointUI.tabs
             singleItemAreaHeader.Text = "";
             OriginalBorderBrushTextBoxInputs = selItemPassPinInput.BorderBrush;
         }
-
+        #endregion
         private void PwordTabBackToSections_Click(object sender, RoutedEventArgs e)
         {
 
@@ -474,7 +478,93 @@ namespace PinpointUI.tabs
                                                                 canExecute => { return fnCanUpdateSingleItemInGrid(); });
         #endregion
 
+        #region Publish To OneNote RelayCOmmand and 2 x precedent functions
+        private bool canPublishToOneNote() 
+        {
+            bool returnable = false;
+            if (passwordBank.Count > 0)
+            {
+                returnable = true;
+            }
+            return returnable;
+        }
 
+        private void PublishToOneNote()
+        {
+            XElement tableCol = stylingresource.Descendants("ColorTheme").Where(x => x.Attribute("default").Value == "1").First(); // TODO get a button in place to choose this.
+            XElement tableSize = stylingresource.Descendants("TableSizing").Where(x => x.Attribute("default").Value == "1").First();// TODO get a button in place to choose this.
+            XElement tabColourEl = stylingresource.Elements("BaseStyles").Where(x => x.Attribute("name").Value == "Base").First().Elements("SectionTabCol").FirstOrDefault();
+            //Hydrate passwordbank and prepare for publication
+            List<LoginEntry> passwordBankPublish = new List<LoginEntry>();
+            foreach (LoginEntry le in passwordBank)
+            {
+                passwordBankPublish.Add(
+                    new LoginEntry(le)
+                    );
+            }
+
+            //Convert the password bank data to OneNote schema
+            passwordBankPublish = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankPublish);
+            OneNoteTable passwordBankPublishTable = DataParsers.BuildTableFromPasswordBank(passwordBankPublish, tableSize, tableCol, AllowableFonts.Arial); //TODO Set the font to a button - more enum mapping.
+            List<OneNoteOE> passwordPageData = DataParsers.BuildPasswordBankPageData(passwordBankPublishTable, tableSize, AllowableFonts.Arial);
+
+            if (isNew)
+            {
+                //1.Create Section
+                //1a. Necessary params
+                List<OneNoteSection> sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
+                string sectionColour = "#F6B078";
+                if (tabColourEl!= null)
+                {
+                    sectionColour = tabColourEl.Value.ToString();
+                }
+                sectionId = OnenoteMethods.AddSectionToNotebook(app, ref hier, ref nsmgr, sectionName, ref sectionsthisNotebook, notebookId, sectionColour);
+
+                //2.Create Notes and Instructions Page
+                string newNotesPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Notes and Instructions");
+
+                //3.Create Password Bank Page
+                string newPasswordBankPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Password Bank");
+
+                //4. Get the section XML again updated with the new page IDs, then prepare the section-id>page-Id lookup table.
+                sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
+                onSection = sectionsthisNotebook.Where(x => x.SectionID == sectionId).First();
+                Dictionary<string, Dictionary<string, object>> newSectionItemsLookup = OnenoteMethods.GetSectionPagesLookup(app, onSection.SectionXML); //Password Section page links lookup
+
+                //5.Rendering
+                //5.a. Render notes page
+
+                XElement notesResource = XElement.Parse(PinpointOnenote.Properties.Resources.StaticAndTestData);
+                XElement notesPageStaticXml = notesResource.Descendants("Page").Where(x => x.Attribute("name").Value == "Notes and Instructions").First();
+                List<OneNoteOE> notesPageData = DataParsers.BuildPageDataFromXml(notesPageStaticXml, tableSize, tableCol, AllowableFonts.Arial, newSectionItemsLookup);
+                XDocument renderNotesPage = OneNotePageFmtMethods.RenderOneNotePage(app, newNotesPageId, notesPageData,true);
+
+
+                //6. Render new Password bank page with data created at the top of this function.
+                XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, newPasswordBankPageId, passwordPageData, true);
+
+                isNew = false;
+            }
+            else
+            {
+                //Update Password Bank Page
+                XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, passwordBankPageId, passwordPageData);
+                
+            }
+            Console.WriteLine("Publish Action Code here. Need new mode and existing mode.");
+            //Set Password Bank Original to passwordBank (permanent save.)
+            passwordBankOriginal = new List<LoginEntry>();
+            foreach (LoginEntry le in passwordBank)
+            {
+                passwordBankOriginal.Add(
+                    new LoginEntry(le)
+                    );
+            }
+            pwordTabSectionTitle.Text = mainBannerText;
+        }
+        public RelayCommand fnPublishToOneNoteButtonCmd => new RelayCommand(execute => { PublishToOneNote(); },
+                                                                canExecute => { return canPublishToOneNote(); });
+        #endregion
 
 
         private void btnUndoChanges_Click(object sender, RoutedEventArgs e)
@@ -588,7 +678,7 @@ namespace PinpointUI.tabs
                 passTypeConditionalRedBorderAndToolTip(selItemPassPinInput, selItemTypeInput);
                 singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
             }
-            //TODO Make one of these for each input field in the single item editor which affects the login score (Type as ENum, 2FA as bool, user, and password.)
+
         }
 
         private void btnCloseNewEditor_Click(object sender, RoutedEventArgs e)
