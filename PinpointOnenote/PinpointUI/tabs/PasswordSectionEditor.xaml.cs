@@ -468,6 +468,13 @@ namespace PinpointUI.tabs
             existingPasswords.SelectedItem = null;
             countUpdates++;
             pwordTabSectionTitle.Text = mainBannerText + "*";
+            newItemDescInput.Text = null;
+            newItemUrlInput.Text = null;
+            newItemTypeInput.SelectedItem = LoginTypes.NotSet;
+            newItemUsernameInput.Text = null;
+            newItemPassPinInput.Text = null;
+            newItemTwoFaMethodInput.Text = null;
+            newItemTwoFaInput.IsChecked = false;
         }
 
         #endregion
