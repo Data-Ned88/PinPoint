@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -52,6 +53,20 @@ namespace PinpointUI.tabs
         XElement stylingresource = XElement.Parse(PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles);
         private int countUpdates = 0;
 
+        //The below is a mapping dict to hold the row state (added/deleted/uncahnged/modified) for a LoginEntry Item.
+        //It is populated and updated by UpdateRowState beneath it, which is itself triggered by the add new/Update Existing buttons,
+        //      so that the correct row state for that Login Entry is available to the existingPasswordsDatagrid to act on it when its LoadingRow handler function is triggered.
+        //      It is scbrubbed clean by the "Clear Button".
+        private Dictionary<LoginEntry, DataRowState> rowStates = new Dictionary<LoginEntry, DataRowState>(); 
+
+        // Method to update row state
+        private void UpdateRowState(LoginEntry loginEntry, DataRowState state)
+        {
+            if (!rowStates.ContainsKey(loginEntry))
+            {
+                rowStates.Add(loginEntry, state);
+            }
+        }
 
         public LoginTypes SelectedLoginTypeNewPasswords { get; set; } = LoginTypes.NotSet;
         public Brush OriginalBorderBrushTextBoxInputs { get; set; }
@@ -176,7 +191,13 @@ namespace PinpointUI.tabs
         #endregion
         private void PwordTabBackToSections_Click(object sender, RoutedEventArgs e)
         {
-
+            // User wants to go back to the previous page (onenote sections).
+            mainCallingWindow.OneNoteTab.IsSelected = true;
+            mainCallingWindow.OneNoteTab.Visibility = Visibility.Visible;
+            mainCallingWindow.PasswordsTab.IsSelected = false;
+            mainCallingWindow.PasswordsTab.Visibility = Visibility.Hidden;
+            mainCallingWindow.OneNoteTab.Visibility = Visibility.Visible;
+            mainCallingWindow.PasswordsTab.Content = null;
         }
 
         private void PwordTabSave_Click(object sender, RoutedEventArgs e)
@@ -203,6 +224,8 @@ namespace PinpointUI.tabs
             existingPasswords.SelectedItem = null;
             countUpdates = 0;
             pwordTabSectionTitle.Text = mainBannerText;//mainBannerText + "*";
+
+            rowStates.Clear();
         }
 
         private void PwordTabExit_Click(object sender, RoutedEventArgs e)
@@ -391,6 +414,8 @@ namespace PinpointUI.tabs
             singleItemAreaHeader.Text = "Changes saved to selected login.";
             countUpdates++;
             pwordTabSectionTitle.Text = mainBannerText + "*";
+
+            UpdateRowState(selectedLogin, DataRowState.Modified);
         }
 
         private bool fnCanUpdateSingleItemInGrid()
@@ -459,6 +484,7 @@ namespace PinpointUI.tabs
             newEntryFromForm.LastModified = DateTime.Now;
 
             passwordBank.Add(newEntryFromForm);
+
             existingPasswords.Items.Refresh();
             toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
@@ -475,6 +501,9 @@ namespace PinpointUI.tabs
             newItemPassPinInput.Text = null;
             newItemTwoFaMethodInput.Text = null;
             newItemTwoFaInput.IsChecked = false;
+
+            UpdateRowState(newEntryFromForm, DataRowState.Added);
+
         }
 
         #endregion
@@ -824,6 +853,33 @@ namespace PinpointUI.tabs
             {
                 passTypeConditionalRedBorderAndToolTip(newItemPassPinInput, newItemTypeInput);
                 singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+            }
+        }
+
+        private void existingPasswords_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            if (existingPasswords.IsLoaded)
+            {
+                // Check if the DataContext is set and is of type LoginEntry. This is a row of a dat grid bound to an observable coll of loginEntry, so it should be.
+                if (e.Row.DataContext is LoginEntry loginEntry)
+                {
+                    if (rowStates.TryGetValue(loginEntry, out DataRowState state))
+                    {
+                        switch (state)
+                        {
+                            case DataRowState.Added:
+                                e.Row.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C0F4B2"));
+                                break;
+                            case DataRowState.Modified:
+                                e.Row.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3CA81"));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // Handle the case where the state is not tracked
+                    }
+                }
             }
         }
     }
