@@ -67,6 +67,50 @@ namespace PinpointUI.tabs
                 rowStates.Add(loginEntry, state);
             }
         }
+        private string GetBrainToolTip(object ltype = null)
+        {
+            if (ltype == null || (LoginTypes)ltype == LoginTypes.NotSet || (LoginTypes)ltype == LoginTypes.Password) {
+                return "Generate Secure Password";
+            }
+            else if ((LoginTypes)ltype == LoginTypes.PinSix)
+            {
+                return "Generate Secure 6-Digit PIN";
+            }
+            else
+            {
+                return "Generate Secure 4-Digit PIN";
+            }
+        }
+        private string GetBrainOutput(object ltype = null)
+        {
+            if (ltype == null || (LoginTypes)ltype == LoginTypes.NotSet || (LoginTypes)ltype == LoginTypes.Password)
+            {
+                return LoginFunctionality.generateSecureRandomPassword(13);
+            }
+            else if ((LoginTypes)ltype == LoginTypes.PinSix)
+            {
+                return LoginFunctionality.generateSecurePinSix();
+            }
+            else
+            {
+                return LoginFunctionality.generateSecurePinFour();
+            }
+        }
+        private void RenderBrainOutput()
+        {
+            object ltype;
+            if (selItemTypeInput.Visibility == Visibility.Visible)
+            {
+                ltype = selItemTypeInput.SelectedItem;
+                selItemPassPinInput.Text = GetBrainOutput(ltype);
+            }
+            else if (newItemTypeInput.Visibility == Visibility.Visible)
+            {
+                ltype = newItemTypeInput.SelectedItem;
+                newItemPassPinInput.Text = GetBrainOutput(ltype);
+            }
+        }
+
 
         public LoginTypes SelectedLoginTypeNewPasswords { get; set; } = LoginTypes.NotSet;
         public Brush OriginalBorderBrushTextBoxInputs { get; set; }
@@ -187,6 +231,7 @@ namespace PinpointUI.tabs
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);
             singleItemAreaHeader.Text = "";
             OriginalBorderBrushTextBoxInputs = selItemPassPinInput.BorderBrush;
+            btnPassPinAuto.ToolTip = "Generate Secure Password";
         }
         #endregion
         private void PwordTabBackToSections_Click(object sender, RoutedEventArgs e)
@@ -438,7 +483,19 @@ namespace PinpointUI.tabs
                     }
                     if (generatesScore && populatedDescription && userNameCheckOnPasswords)
                     {
-                        returnable = true;
+                        if ((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.Password)
+                        {
+                            returnable = true;
+                        }
+                        else if (((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.PinSix) && LoginFunctionality.isValidPinSix(selItemPassPinInput.Text))
+                        {
+                            returnable = true;
+                        }
+                        else if (((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.PinFour) && LoginFunctionality.isValidPinFour(selItemPassPinInput.Text))
+                        {
+                            returnable = true;
+                        }
+                        
                     }
                 }
 
@@ -464,7 +521,18 @@ namespace PinpointUI.tabs
                 }
                 if (generatesScore && populatedDescription && userNameCheckOnPasswords)
                 {
-                    returnable = true;
+                    if ((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.Password)
+                    {
+                        returnable = true;
+                    }
+                    else if (((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.PinSix) && LoginFunctionality.isValidPinSix(newItemPassPinInput.Text))
+                    {
+                        returnable = true;
+                    }
+                    else if (((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.PinFour) && LoginFunctionality.isValidPinFour(newItemPassPinInput.Text))
+                    {
+                        returnable = true;
+                    }
                 }
             }
 
@@ -643,7 +711,7 @@ namespace PinpointUI.tabs
 
         private void btnPassPinAuto_Click(object sender, RoutedEventArgs e)
         {
-            //TODO new modal
+            RenderBrainOutput();
         }
 
 
@@ -744,6 +812,7 @@ namespace PinpointUI.tabs
                     BorderAndToolTip(selItemUsernameInput);
                 }
                 singleEditorScoreFormat(selItemTypeInput, selItemPassPinInput, selItemUsernameInput, selItemTwoFaInput, selItemStrengthLabel);
+                btnPassPinAuto.ToolTip = GetBrainToolTip(selItemTypeInput.SelectedItem);
             }
         }
 
@@ -827,6 +896,8 @@ namespace PinpointUI.tabs
                     BorderAndToolTip(newItemUsernameInput);
                 }
                 singleEditorScoreFormat(newItemTypeInput, newItemPassPinInput, newItemUsernameInput, newItemTwoFaInput, newItemStrengthLabel);
+
+                btnPassPinAuto.ToolTip = GetBrainToolTip(newItemTypeInput.SelectedItem);
             }
         }
 
@@ -881,6 +952,14 @@ namespace PinpointUI.tabs
                     }
                 }
             }
+        }
+
+        private void DigiVulnScore_Click(object sender, RoutedEventArgs e)
+        {
+            SecurityReport sr = new SecurityReport(passwordBank, sectionName);
+            Opacity = 0.6;
+            sr.ShowDialog();
+            Opacity = 1;
         }
     }
 }

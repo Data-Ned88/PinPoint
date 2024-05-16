@@ -58,6 +58,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="modals\SecurityReport.xaml.cs">
+      <DependentUpon>SecurityReport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="tabs\OneNoteManagementTab.xaml.cs">
       <DependentUpon>OneNoteManagementTab.xaml</DependentUpon>
     </Compile>
@@ -78,6 +81,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="modals\LandingExitConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="modals\SecurityReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

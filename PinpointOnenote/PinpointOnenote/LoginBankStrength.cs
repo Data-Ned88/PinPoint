@@ -13,6 +13,9 @@ namespace PinpointOnenote
         // It would be instantiated after hydration of a Password bank using the constructor method, and would be the data context for a one note page or interface.
         public int singleLoginPoints { get; set; } = 0; // 100 - Strength score for each item in bank
 
+        public Dictionary<string, Dictionary<string, int>> singleLoginPointsBreakdown { get; set; }
+
+
         //BELOW Dictionary with a string key for pin6, and as a value,
         //a dictionary of string/int where string keys are for count_shared, and DVS_points, which are how many times the Pin6 has been reused, and total DVS points caused by this respectively.
         public Dictionary<string, Dictionary<string, int>> exactSharesPinSix { get; set; }
@@ -57,6 +60,29 @@ namespace PinpointOnenote
             exactSharesPassword = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.Password);
             passwordStems = LoginFunctionality.GetPasswordStems(passwordBank);
             singleLoginPoints = passwordBank.Where(x=> x.LoginType != LoginTypes.NotSet).Select(x => 100 - x.LoginStrength.Score).Sum();
+
+
+            singleLoginPointsBreakdown = new Dictionary<string, Dictionary<string, int>>();
+
+            singleLoginPointsBreakdown.Add("Passwords",
+                new Dictionary<string, int> { 
+                    {"count",passwordBank.Where(x => x.LoginType == LoginTypes.Password).Count() }, 
+                    { "dvs_total", passwordBank.Where(x => x.LoginType == LoginTypes.Password).Select(x => 100 - x.LoginStrength.Score).Sum() }
+                                            } 
+                );
+            singleLoginPointsBreakdown.Add("PinFours",
+                new Dictionary<string, int> {
+                    {"count",passwordBank.Where(x => x.LoginType == LoginTypes.PinFour).Count() },
+                    { "dvs_total", passwordBank.Where(x => x.LoginType == LoginTypes.PinFour).Select(x => 100 - x.LoginStrength.Score).Sum() }
+                                            }
+                );
+            singleLoginPointsBreakdown.Add("PinSixes",
+                new Dictionary<string, int> {
+                    {"count",passwordBank.Where(x => x.LoginType == LoginTypes.PinSix).Count() },
+                    { "dvs_total", passwordBank.Where(x => x.LoginType == LoginTypes.PinSix).Select(x => 100 - x.LoginStrength.Score).Sum() }
+                                            }
+                );
+
             totalScoreSharesPinSix = exactSharesPinSix.Keys.ToList().ConvertAll(x => exactSharesPinSix[x]["dvs_total"]).Sum();
             totalScoreSharesPinFour = exactSharesPinFour.Keys.ToList().ConvertAll(x => exactSharesPinFour[x]["dvs_total"]).Sum();
             totalScoreSharesPassword = exactSharesPassword.Keys.ToList()

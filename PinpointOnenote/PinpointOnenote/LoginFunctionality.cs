@@ -186,7 +186,7 @@ namespace PinpointOnenote
 
         public static bool isValidPinSix (string input)
         {
-            Regex rxPinSixValid = new Regex(@"[0-9]{6}");
+            Regex rxPinSixValid = new Regex(@"^[0-9]{6}$");
             if (input == null)
             {
                 return false;
@@ -201,7 +201,7 @@ namespace PinpointOnenote
         }
         public static bool isValidPinFour(string input)
         {
-            Regex rxPinFourValid = new Regex(@"[0-9]{4}");
+            Regex rxPinFourValid = new Regex(@"^[0-9]{4}$");
             if (input == null)
             {
                 return false;
