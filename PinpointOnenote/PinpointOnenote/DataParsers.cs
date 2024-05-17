@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -1392,5 +1394,118 @@ namespace PinpointOnenote
 
             return pbData;
         }
+
+
+        #region Load Password Bank From CSV
+        public static List<string> LoadFile(string file)
+        {
+
+            if (!File.Exists(file))
+            {
+                return new List<string>();
+            }
+
+            try
+            {
+                return File.ReadAllLines(file).ToList();
+            }
+            catch (IOException ex)
+            {
+                // Log the exception (logging is not shown here)
+                // For simplicity, rethrowing the exception.
+                return new List<string>();
+            }
+        }
+        public static List<string> LoadPasswordBankHeadersFromCsvData(List<string> lines)
+        {
+            string firstLine = lines[0];
+            //List<string> cols = firstLine.Split(',').ToList();
+            List<string> cols = new List<string> { "Select column name..." };
+            string[] datacols = firstLine.Split(',');
+            foreach (string dc in datacols)
+            {
+                cols.Add(dc);
+            }
+            return cols;
+        }
+        public static List<LoginEntry> LoadPasswordBankFromCsvData (List<string> lines, Dictionary<string,string> mapping, List<string> headers)
+        {
+            //mapping input param is a dictionary of key/value pairs where the key is the target settable property and the value is the user-selected corresponding data column.
+            // headers is the output from a prior call of LoadPasswordBankHeadersFromCsvData on the same csv data. THis function takes the first placeholder off.
+
+            List<LoginEntry> passwordBank = new List<LoginEntry>();
+            DateTime now = DateTime.Now;
+
+            List<string> headersOriginal = headers.GetRange(1, headers.Count - 1);
+            Dictionary <int,string> headersIndices = new Dictionary<int, string>();
+
+            for (int i = 0; i < headersOriginal.Count; i++)
+            {
+                headersIndices.Add(i, headersOriginal[i]);
+            }
+
+            for (int i = 1; i < lines.Count; i++)
+            {
+                //main loop through passwords
+
+                LoginEntry le = new LoginEntry();
+                le.LastModified = now;
+                string[] datacols = lines[i].Split(',');
+
+                // Property by property
+
+                foreach (string propName in mapping.Keys)
+                {
+                    string MapsToDataCol = mapping[propName];
+                    int MapsToDataColOrdinal = headersIndices.Where(x => x.Value == MapsToDataCol).Select(d => d.Key).First();
+                    string sourceDataValue = datacols[MapsToDataColOrdinal].Trim();
+
+                    PropertyInfo pi = le.GetType().GetProperty(propName);
+
+                    if (propName == "LoginType")
+                    {
+                        //Test match on enum else NotSet
+                        if (sourceDataValue.ToLower() == "password")
+                        {
+                            pi.SetValue(le, LoginTypes.Password);
+                        }
+                        else if (sourceDataValue.ToLower() == "pinfour")
+                        {
+                            pi.SetValue(le, LoginTypes.PinFour);
+                        }
+                        else if (sourceDataValue.ToLower() == "pinsix")
+                        {
+                            pi.SetValue(le, LoginTypes.PinSix);
+                        }
+                        else
+                        {
+                            pi.SetValue(le, LoginTypes.NotSet);
+                        }
+
+                    }
+                    else if (propName == "HasTwoFa")
+                    {
+                        //test for Y or 1
+                        if (sourceDataValue.ToLower() == "y" || sourceDataValue == "1")
+                        {
+                            pi.SetValue(le, true);
+                        }
+                        else
+                        {
+                            pi.SetValue(le, false);
+                        }
+                    }
+                    else
+                    {
+                        //standard text
+                        pi.SetValue(le, sourceDataValue);
+                    }
+                }
+                passwordBank.Add(le);
+            }
+            return passwordBank;
+        }
+
+        #endregion
     }
 }

@@ -26,3 +26,7 @@ C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\tabs\PasswordSectionEdit
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\tabs\PasswordSectionEditor.baml
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\SecurityReport.g.cs
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\SecurityReport.baml
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ConfirmPublish.g.cs
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ConfirmPublish.baml
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.g.cs
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.baml

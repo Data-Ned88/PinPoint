@@ -17,7 +17,7 @@
     <TableSizing name="Large" default="0" fontSizeSectionHead="18.0" fontSizeTableHead="16.0" fontSizeText="14.0" fontSizeLineBreak="10.5" />
   </TableSizings>
   <ColorThemes>
-    <!-- These are al based on Excel table styles -->
+    <!-- These are all based on Excel table styles -->
     <ColorTheme name="Grey" default="1" titleShade="#000000" mainShade="#D9D9D9" alternateShade="#FFFFFF"  titleColor="#FFFFFF"/>
     <ColorTheme name="Blue" default="0" titleShade="#4472C4" mainShade="#D9E1F2" alternateShade="#FFFFFF" titleColor="#FFFFFF"/>
     <ColorTheme name="Green" default="0" titleShade="#70AD47" mainShade="#E2EFDA" alternateShade="#FFFFFF" titleColor="#FFFFFF"/>

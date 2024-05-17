@@ -272,7 +272,7 @@ namespace PinpointUI.tabs
 
             rowStates.Clear();
         }
-
+        
         private void PwordTabExit_Click(object sender, RoutedEventArgs e)
         {
             //Application.Current.Shutdown();
@@ -422,7 +422,15 @@ namespace PinpointUI.tabs
 
         private void btnImportFromFile_Click(object sender, RoutedEventArgs e)
         {
-
+            //Tester Function to ascertain that the OneNote confirmation form broadly works.
+            CsvLoad csvLoad = new CsvLoad();
+            Opacity = 0.6;
+            csvLoad.ShowDialog();
+            Opacity = 1;
+            if (csvLoad.ExitChoice == false)
+            {
+                //do Nothing
+            }
         }
 
         private void btnAddNew_Click(object sender, RoutedEventArgs e)
@@ -595,83 +603,114 @@ namespace PinpointUI.tabs
 
         private void PublishToOneNote()
         {
-            XElement tableCol = stylingresource.Descendants("ColorTheme").Where(x => x.Attribute("default").Value == "1").First(); // TODO get a button in place to choose this.
-            XElement tableSize = stylingresource.Descendants("TableSizing").Where(x => x.Attribute("default").Value == "1").First();// TODO get a button in place to choose this.
-            XElement tabColourEl = stylingresource.Elements("BaseStyles").Where(x => x.Attribute("name").Value == "Base").First().Elements("SectionTabCol").FirstOrDefault();
-            //Hydrate passwordbank and prepare for publication
-            List<LoginEntry> passwordBankPublish = new List<LoginEntry>();
-            foreach (LoginEntry le in passwordBank)
-            {
-                passwordBankPublish.Add(
-                    new LoginEntry(le)
-                    );
-            }
 
-            //Convert the password bank data to OneNote schema
-            passwordBankPublish = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankPublish);
-            OneNoteTable passwordBankPublishTable = DataParsers.BuildTableFromPasswordBank(passwordBankPublish, tableSize, tableCol, AllowableFonts.Arial); //TODO Set the font to a button - more enum mapping.
-            List<OneNoteOE> passwordPageData = DataParsers.BuildPasswordBankPageData(passwordBankPublishTable, tableSize, AllowableFonts.Arial);
 
-            if (isNew)
+            ConfirmPublish confirmPub = new ConfirmPublish();
+            Opacity = 0.6;
+            confirmPub.ShowDialog();
+            Opacity = 1;
+
+            if (confirmPub.ExitChoice == false)
             {
-                //1.Create Section
-                //1a. Necessary params
-                List<OneNoteSection> sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
-                string sectionColour = "#F6B078";
-                if (tabColourEl!= null)
+                XElement tableCol = stylingresource.Descendants("ColorTheme").Where(x => x.Attribute("name").Value == confirmPub.SelectedTheme).First();
+                XElement tableSize = stylingresource.Descendants("TableSizing").Where(x => x.Attribute("name").Value == confirmPub.SelectedFontSize).First();
+                XElement tabColourEl = stylingresource.Elements("BaseStyles").Where(x => x.Attribute("name").Value == "Base").First().Elements("SectionTabCol").FirstOrDefault();
+                //Hydrate passwordbank and prepare for publication
+                List<LoginEntry> passwordBankPublish = new List<LoginEntry>();
+                foreach (LoginEntry le in passwordBank)
                 {
-                    sectionColour = tabColourEl.Value.ToString();
+                    passwordBankPublish.Add(
+                        new LoginEntry(le)
+                        );
                 }
-                sectionId = OnenoteMethods.AddSectionToNotebook(app, ref hier, ref nsmgr, sectionName, ref sectionsthisNotebook, notebookId, sectionColour);
 
-                //2.Create Notes and Instructions Page
-                string newNotesPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Notes and Instructions");
+                //Convert the password bank data to OneNote schema
+                passwordBankPublish = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankPublish);
+                OneNoteTable passwordBankPublishTable = DataParsers.BuildTableFromPasswordBank(passwordBankPublish, tableSize, tableCol, confirmPub.SelectedFont);
+                List<OneNoteOE> passwordPageData = DataParsers.BuildPasswordBankPageData(passwordBankPublishTable, tableSize, confirmPub.SelectedFont);
 
-                //3.Create Password Bank Page
-                string newPasswordBankPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Password Bank");
+                if (isNew)
+                {
+                    //1.Create Section
+                    //1a. Necessary params
+                    List<OneNoteSection> sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
+                    string sectionColour = "#F6B078";
+                    if (tabColourEl!= null)
+                    {
+                        sectionColour = tabColourEl.Value.ToString();
+                    }
+                    sectionId = OnenoteMethods.AddSectionToNotebook(app, ref hier, ref nsmgr, sectionName, ref sectionsthisNotebook, notebookId, sectionColour);
 
-                //4. Get the section XML again updated with the new page IDs, then prepare the section-id>page-Id lookup table.
-                sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
-                onSection = sectionsthisNotebook.Where(x => x.SectionID == sectionId).First();
-                Dictionary<string, Dictionary<string, object>> newSectionItemsLookup = OnenoteMethods.GetSectionPagesLookup(app, onSection.SectionXML); //Password Section page links lookup
+                    //2.Create Notes and Instructions Page
+                    string newNotesPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Notes and Instructions");
 
-                //5.Rendering
-                //5.a. Render notes page
+                    //3.Create Password Bank Page
+                    string newPasswordBankPageId = OneNotePageFmtMethods.AddOneNoteNewPage(app, sectionId, "Password Bank");
 
-                XElement notesResource = XElement.Parse(PinpointOnenote.Properties.Resources.StaticAndTestData);
-                XElement notesPageStaticXml = notesResource.Descendants("Page").Where(x => x.Attribute("name").Value == "Notes and Instructions").First();
-                List<OneNoteOE> notesPageData = DataParsers.BuildPageDataFromXml(notesPageStaticXml, tableSize, tableCol, AllowableFonts.Arial, newSectionItemsLookup);
-                XDocument renderNotesPage = OneNotePageFmtMethods.RenderOneNotePage(app, newNotesPageId, notesPageData,true);
+                    //4. Get the section XML again updated with the new page IDs, then prepare the section-id>page-Id lookup table.
+                    sectionsthisNotebook = OnenoteMethods.GetSectionsInNotebook(app, hier, nsmgr, notebookName);
+                    onSection = sectionsthisNotebook.Where(x => x.SectionID == sectionId).First();
+                    Dictionary<string, Dictionary<string, object>> newSectionItemsLookup = OnenoteMethods.GetSectionPagesLookup(app, onSection.SectionXML); //Password Section page links lookup
+
+                    //5.Rendering
+                    //5.a. Render notes page
+
+                    XElement notesResource = XElement.Parse(PinpointOnenote.Properties.Resources.StaticAndTestData);
+                    XElement notesPageStaticXml = notesResource.Descendants("Page").Where(x => x.Attribute("name").Value == "Notes and Instructions").First();
+                    List<OneNoteOE> notesPageData = DataParsers.BuildPageDataFromXml(notesPageStaticXml, tableSize, tableCol, AllowableFonts.Arial, newSectionItemsLookup);
+                    XDocument renderNotesPage = OneNotePageFmtMethods.RenderOneNotePage(app, newNotesPageId, notesPageData,true);
 
 
-                //6. Render new Password bank page with data created at the top of this function.
-                XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, newPasswordBankPageId, passwordPageData, true);
+                    //6. Render new Password bank page with data created at the top of this function.
+                    XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, newPasswordBankPageId, passwordPageData, true);
 
-                isNew = false;
+                    isNew = false;
+                }
+                else
+                {
+                    //Update Password Bank Page
+                    XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, passwordBankPageId, passwordPageData);
+                    
+                }
+                Console.WriteLine("Publish Action Code here. Need new mode and existing mode.");
+                //Set Password Bank Original to passwordBank (permanent save.)
+                passwordBankOriginal = new List<LoginEntry>();
+                foreach (LoginEntry le in passwordBank)
+                {
+                    passwordBankOriginal.Add(
+                        new LoginEntry(le)
+                        );
+                }
+                pwordTabSectionTitle.Text = mainBannerText;
+
             }
-            else
-            {
-                //Update Password Bank Page
-                XDocument renderPasswordPage = OneNotePageFmtMethods.RenderOneNotePage(app, passwordBankPageId, passwordPageData);
-                
-            }
-            Console.WriteLine("Publish Action Code here. Need new mode and existing mode.");
-            //Set Password Bank Original to passwordBank (permanent save.)
-            passwordBankOriginal = new List<LoginEntry>();
-            foreach (LoginEntry le in passwordBank)
-            {
-                passwordBankOriginal.Add(
-                    new LoginEntry(le)
-                    );
-            }
-            pwordTabSectionTitle.Text = mainBannerText;
         }
         public RelayCommand fnPublishToOneNoteButtonCmd => new RelayCommand(execute => { PublishToOneNote(); },
                                                                 canExecute => { return canPublishToOneNote(); });
-        #endregion
+
+        private void PublishToOneNoteForm()
+        {
+            //Tester Function to ascertain that the OneNote confirmation form broadly works.
+            ConfirmPublish confirmPub = new ConfirmPublish();
+            Opacity = 0.6;
+            confirmPub.ShowDialog();
+            Opacity = 1;
+            if (confirmPub.ExitChoice == false)
+            {
+                Console.WriteLine(confirmPub.SelectedTheme);
+                Console.WriteLine(confirmPub.SelectedFontSize);
+                Console.WriteLine(confirmPub.SelectedFont.ToString());
+            }
+        }
 
 
-        private void btnUndoChanges_Click(object sender, RoutedEventArgs e)
+
+
+
+    #endregion
+
+
+    private void btnUndoChanges_Click(object sender, RoutedEventArgs e)
         {
             toggleVisibilitySinglePasswordEditor("new", Visibility.Hidden);
             toggleVisibilitySinglePasswordEditor("sel", Visibility.Hidden);

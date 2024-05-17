@@ -58,9 +58,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="modals\ConfirmPublish.xaml.cs">
+      <DependentUpon>ConfirmPublish.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="modals\CsvLoad.xaml.cs">
+      <DependentUpon>CsvLoad.xaml</DependentUpon>
+    </Compile>
     <Compile Include="modals\SecurityReport.xaml.cs">
       <DependentUpon>SecurityReport.xaml</DependentUpon>
     </Compile>
+    <Compile Include="modals\SelectableColourTheme.cs" />
     <Compile Include="tabs\OneNoteManagementTab.xaml.cs">
       <DependentUpon>OneNoteManagementTab.xaml</DependentUpon>
     </Compile>
@@ -80,6 +87,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="modals\ConfirmPublish.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="modals\CsvLoad.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="modals\LandingExitConfirm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
