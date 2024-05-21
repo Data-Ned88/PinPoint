@@ -28,12 +28,15 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="1">
                 <TextBlock Text="Font" FontWeight="DemiBold"  FontSize="14" DockPanel.Dock="Top" Margin="2,0,0,0"/>
-                <ListBox x:Name="FontListBox" ItemsSource="{Binding fontListItems}" SelectionMode="Single" SelectedIndex="0" SelectionChanged="FontListBox_SelectionChanged">
+                <ListBox x:Name="FontListBox" ItemsSource="{Binding fontListItems}" SelectionMode="Single" SelectedIndex="0" SelectionChanged="FontListBox_SelectionChanged"
+                         Loaded="FontListBox_Loaded">
                 </ListBox>
             </DockPanel>
             <DockPanel Grid.Column="3">
                 <TextBlock Text="Font Size" FontWeight="DemiBold" FontSize="14" DockPanel.Dock="Top" Margin="2,0,0,0"/>
-                <ListBox x:Name="FontSizeListBox" ItemsSource="{Binding fontSizeListItems}" SelectionMode="Single" SelectedIndex="0" SelectionChanged="FontSizeListBox_SelectionChanged">
+                <ListBox x:Name="FontSizeListBox" ItemsSource="{Binding fontSizeListItems}" SelectionMode="Single" SelectedIndex="0" SelectionChanged="FontSizeListBox_SelectionChanged"
+                         Loaded="FontSizeListBox_Loaded"
+                         >
 
                 </ListBox>
             </DockPanel>
@@ -46,6 +49,7 @@
                AutoGenerateColumns="False"
                IsReadOnly="True"
                SelectedIndex="0" SelectionChanged="colourThemeGrid_SelectionChanged"
+                      Loaded="colourThemeGrid_Loaded"
                >
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" Binding="{Binding ThemeDisplayName}" Width="40*"/>

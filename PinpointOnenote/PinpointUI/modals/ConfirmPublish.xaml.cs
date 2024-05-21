@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace PinpointUI.modals
 {
@@ -39,10 +40,15 @@ namespace PinpointUI.modals
         private string fontListBoxSelected;
         private string fontSizeListBoxSelected;
         private SelectableColourTheme selectedColourTheme;
-
-        public ConfirmPublish()
+        XElement stylingresource = XElement.Parse(PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles);
+        private Dictionary<string, string> dataPassedIn = null;
+        public ConfirmPublish(Dictionary<string, string> inputParam = null)
         {
             DataContext = this;
+            if (inputParam != null)
+            {
+                dataPassedIn = inputParam;
+            }
             coloursAvailable.Add(new SelectableColourTheme("Grey","Standard Black", "#D9D9D9", "#FFFFFF"));
             coloursAvailable.Add(new SelectableColourTheme("Blue", "Blue", "#D9E1F2", "#FFFFFF"));
             coloursAvailable.Add(new SelectableColourTheme("Green", "Green", "#E2EFDA", "#FFFFFF"));
@@ -91,6 +97,48 @@ namespace PinpointUI.modals
                 SelectedTheme = selectedColourTheme.ConfigKey;
             }
 
+        }
+
+        private void colourThemeGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (dataPassedIn != null)
+            {
+                XElement colourItemXml = stylingresource.Descendants("ColorTheme").Where(x => x.Attribute("titleShade").Value == dataPassedIn["titleShade"]).FirstOrDefault();
+                if(colourItemXml != null)
+                {
+                    string colourKey = colourItemXml.Attribute("name").Value;
+                    colourThemeGrid.SelectedIndex = coloursAvailable.FindIndex(x => x.ConfigKey == colourKey);
+                }
+            }
+            //XElement tableCol = stylingresource.Descendants("ColorTheme").Where(x => x.Attribute("name").Value == confirmPub.SelectedTheme).First();
+            //XElement tableSize = stylingresource.Descendants("TableSizing").Where(x => x.Attribute("name").Value == confirmPub.SelectedFontSize).First();
+            //XElement tabColourEl = stylingresource.Elements("BaseStyles").Where(x => x.Attribute("name").Value == "Base").First().Elements("SectionTabCol").FirstOrDefault();
+
+        }
+
+        private void FontSizeListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (dataPassedIn != null)
+            {
+                XElement sizingItemXml = stylingresource.Descendants("TableSizing").Where(x => x.Attribute("fontSizeTableHead").Value == dataPassedIn["fontSizeTableHead"]).FirstOrDefault();
+                if (sizingItemXml != null)
+                {
+                    string textsizeKey = sizingItemXml.Attribute("fontSizeText").Value.Replace(".0","") + " pt";
+                    FontSizeListBox.SelectedIndex = fontSizeListItems.IndexOf(textsizeKey);
+                }
+            }
+        }
+
+        private void FontListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (dataPassedIn != null)
+            {
+
+                if (fontListItems.Contains(dataPassedIn["fontFamily"]))
+                {
+                    FontListBox.SelectedIndex = fontListItems.IndexOf(dataPassedIn["fontFamily"]);
+                }
+            }
         }
     }
 }

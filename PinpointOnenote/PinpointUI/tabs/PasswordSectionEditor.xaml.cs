@@ -52,6 +52,7 @@ namespace PinpointUI.tabs
         private XDocument passwordBankPageContent;
         XElement stylingresource = XElement.Parse(PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles);
         private int countUpdates = 0;
+        private Dictionary<string, string> formattingFromPassBankOnenote;
 
         //The below is a mapping dict to hold the row state (added/deleted/uncahnged/modified) for a LoginEntry Item.
         //It is populated and updated by UpdateRowState beneath it, which is itself triggered by the add new/Update Existing buttons,
@@ -210,6 +211,7 @@ namespace PinpointUI.tabs
                 passwordBankPageId = OneNotePageFmtMethods.GetPageIdInSection(inpSection.SectionXML, "Password Bank"); // THIS WILL HAVE BEEN TESTED AS VALID BY PREV GUI.
                 passwordBankPageContent = OneNotePageFmtMethods.GetPageXmlLinq(app, passwordBankPageId);
                 passwordBankOriginal = DataParsers.GetPasswordsFromValidPage(passwordBankPageContent, passwordBankPageContent.Root.Name.Namespace);
+                formattingFromPassBankOnenote = DataParsers.GetFormattingFromValidPage(passwordBankPageContent);
                 passwordBankOriginal = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankOriginal);
                 passwordBank = new ObservableCollection<LoginEntry>();
                 foreach (LoginEntry le in passwordBankOriginal)
@@ -603,9 +605,13 @@ namespace PinpointUI.tabs
 
         private void PublishToOneNote()
         {
+            Dictionary<string, string> modalParamConfirmPublish = null;
+            if (!isNew)
+            {
+                modalParamConfirmPublish = formattingFromPassBankOnenote;
+            }
 
-
-            ConfirmPublish confirmPub = new ConfirmPublish();
+            ConfirmPublish confirmPub = new ConfirmPublish(modalParamConfirmPublish);
             Opacity = 0.6;
             confirmPub.ShowDialog();
             Opacity = 1;

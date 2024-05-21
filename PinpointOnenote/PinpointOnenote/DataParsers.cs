@@ -863,6 +863,29 @@ namespace PinpointOnenote
             return outputBool;
         }
 
+        public static Dictionary<string,string> GetFormattingFromValidPage (XDocument pageContent)
+        {
+            // This gets the shading colour, Font, and font-size of the first cell in the header row of a VALID password bank table.
+            // This can then be compared against the style XML to retrieve the right styling based on header shading, table-head font size. It can also get the allowable font.
+            Dictionary<string, string> returnDict = new Dictionary<string, string>();
+            XNamespace ns = pageContent.Root.Name.Namespace;
+            XElement passwordBankOutline = pageContent.Element(ns + "Page").Elements(ns + "Outline").Where(x => x.Attribute("author").Value == "PasswordBankTable").First();
+            XElement passwordTableInData = passwordBankOutline.Descendants(ns + "Table").Where(x => TestTableIsValidPasswordTable(x, ns)).First();
+            XElement headerRowFirstCell = passwordTableInData.Elements(ns + "Row").First().Elements(ns + "Cell").First(); // This will evaluate given the pre-requisites for calling this in the first instance.
+            XElement firstCellFirstOE = headerRowFirstCell.Element(ns + "OEChildren").Elements(ns + "OE").First();
+            string headershadingCol = headerRowFirstCell.Attribute("shadingColor").Value;
+            string OeStyle = firstCellFirstOE.Attribute("style").Value;
+            string[] styles = OeStyle.Split(';');
+            string fontFamily = styles.Where(x => x.StartsWith("font-family")).First().Replace("font-family:", "").Replace("'", "");
+            string fontWeight = styles.Where(x => x.StartsWith("font-size")).First().Replace("font-size:", "").Replace("pt", "");
+            returnDict.Add("titleShade", headershadingCol);
+            returnDict.Add("fontFamily", fontFamily);
+            returnDict.Add("fontSizeTableHead", fontWeight);
+            return returnDict;
+        }
+
+
+
         /// <summary>
         /// Gets a PasswordBank (List<LoginEntry>) from a OneNote page.
         /// ONLY RUN THIS AFTER YOU@VE TESTED THE PAGE for having valid password bank table using TestOneNotePageValidPasswordBank.
