@@ -100,14 +100,14 @@ namespace PinpointUI.modals
             InitializeComponent();
 
 
-            textBlockPassBankName.Text = passwordBankName;
+            textBlockPassBankName.Text = string.Format("{0} ({1} valid PINS/Passwords)", passwordBankName, pBank.Where(x=> x.LoginType != LoginTypes.NotSet).Count().ToString("N0"));
             textBlockPassBankDVS.Text = string.Format("{0} ({1})", pBankLBS.totalScoreAll.ToString("N0"),pBankLBS.scoreRange);
             textBlockPassBankDVS.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pBankLBS.scoreRangeColor));
 
             // Tree view headers
 
             treeViewSingleLogins.Header = string.Format("Logins as Single Items: {0} DVS Points ({1} total items)", 
-                pBankLBS.singleLoginPoints.ToString("N0"), pBank.Count.ToString("N0"));
+                pBankLBS.singleLoginPoints.ToString("N0"), pBank.Where(x => x.LoginType != LoginTypes.NotSet).Count().ToString("N0"));
 
 
             treeViewExactShares.Header = string.Format("Passwords/PINs shared by multiple logins: {0} DVS Points ({1} items)",

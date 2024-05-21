@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
 
 namespace PinpointUI.modals
 {
@@ -30,6 +31,7 @@ namespace PinpointUI.modals
         private List<string> columnsFromCSVLoad;
 
         private string selectedFileData;
+        private string selectedFilePath;
         public List<LoginEntry> ReturnPasswordBank { get; set; }
 
         public Dictionary<string,string> MappingChoice { get; set; } //This gets returned. set by FillMappingDict() void only after validation on selected items.
@@ -56,18 +58,28 @@ namespace PinpointUI.modals
             if (openFileDialog.ShowDialog() == true)
             {
                 // Get the selected file path
-                string selectedFilePath = openFileDialog.FileName;
+                selectedFilePath = openFileDialog.FileName;
                 // Update the TextBlock with the selected file path
                 textBlockSelectedFilePath.Text = selectedFilePath;
                 textBlockSelectedFilePath.ToolTip = selectedFilePath;
-                DataParsers.LoadFile(selectedFilePath);
-                columnsFromCSVLoad = DataParsers.LoadPasswordBankHeadersFromCsvData(DataParsers.LoadFile(selectedFilePath));
-                Console.WriteLine("Loaded CSV no Error");
-                publicSelectableColumns = columnsFromCSVLoad;
+                if (IsFileLocked(selectedFilePath)) 
+                {
+                    textBlockSelectedFilePath.Text = "The file you selected is already open.";
+                    textBlockSelectedFilePath.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF0000"));
+                    textBlockSelectedFilePath.ToolTip = "Close the file and retry";
+                }
+                else
+                {
+                    DataParsers.LoadFile(selectedFilePath);
+                    columnsFromCSVLoad = DataParsers.LoadPasswordBankHeadersFromCsvData(DataParsers.LoadFile(selectedFilePath));
+                    //Console.WriteLine("Loaded CSV no Error");
+                    publicSelectableColumns = columnsFromCSVLoad;
 
-                setIndexNullCBoxes();
-                switchItemsColNamesCBoxes();        
-                resetIndexZeroCBoxes();
+                    setIndexNullCBoxes();
+                    switchItemsColNamesCBoxes();
+                    resetIndexZeroCBoxes();
+                }
+
                 
             }
         }
@@ -87,23 +99,54 @@ namespace PinpointUI.modals
 
         private void fillMappingDictLoadDataAndReturn()
         {
-            MappingChoice.Add("LoginDescription", comboBoxLoginDescription.SelectedItem.ToString());
-            MappingChoice.Add("LoginType", comboBoxLoginType.SelectedItem.ToString());
-            MappingChoice.Add("LoginUrl", comboBoxLoginUrl.SelectedItem.ToString());
-            MappingChoice.Add("LoginUsername", comboBoxLoginUsername.SelectedItem.ToString());
-            MappingChoice.Add("LoginPass", comboBoxLoginPass.SelectedItem.ToString());
-            MappingChoice.Add("HasTwoFa", comboBoxHasTwoFa.SelectedItem.ToString());
-            MappingChoice.Add("TwoFaMethod", comboBoxTwoFaMethod.SelectedItem.ToString());
+            if (IsFileLocked(selectedFilePath))
+            {
+                string message = "This file is already open in another application.";
+                string caption = "File Open Error";
+                MessageBoxButton button = MessageBoxButton.OK;
+                MessageBoxImage icon = MessageBoxImage.Error;
 
-            //TODO Add in the logic to Load the data into a password bank and return with exitchoice = false
+                MessageBox.Show(message, caption, button, icon);
+            }
+            else
+            {
+                MappingChoice = new Dictionary<string, string>();
+                MappingChoice.Add("LoginDescription", comboBoxLoginDescription.SelectedItem.ToString());
+                MappingChoice.Add("LoginType", comboBoxLoginType.SelectedItem.ToString());
+                MappingChoice.Add("LoginUrl", comboBoxLoginUrl.SelectedItem.ToString());
+                MappingChoice.Add("LoginUsername", comboBoxLoginUsername.SelectedItem.ToString());
+                MappingChoice.Add("LoginPass", comboBoxLoginPass.SelectedItem.ToString());
+                MappingChoice.Add("HasTwoFa", comboBoxHasTwoFa.SelectedItem.ToString());
+                MappingChoice.Add("TwoFaMethod", comboBoxTwoFaMethod.SelectedItem.ToString());
 
-            //THis replaces btnConfirm_Click
+                //TODO Add in the logic to Load the data into a password bank and return with exitchoice = false
 
+                ReturnPasswordBank = DataParsers.LoadPasswordBankFromCsvData(DataParsers.LoadFile(selectedFilePath), MappingChoice, columnsFromCSVLoad);
+
+                //THis replaces btnConfirm_Click
+                ExitChoice = false;
+                Close();
+            }
+
+        }
+        private bool comboBoxValidSelection (ComboBox cb)
+        {
+            bool returnable = cb.SelectedItem != null && cb.SelectedItem.ToString() != "No CSV Selected" && cb.SelectedItem.ToString() != "Select column name...";
+            return returnable;
         }
         private bool canFillMappingDict()
         {
-            return false;
-            //TODO - only true if all the combox selected items are columns from the user selection.
+            
+            bool descOk = comboBoxValidSelection(comboBoxLoginDescription);
+            bool typeOk = comboBoxValidSelection(comboBoxLoginType);
+            bool urlOk = comboBoxValidSelection(comboBoxLoginUrl);
+            bool userOk = comboBoxValidSelection(comboBoxLoginUsername);
+            bool passOk = comboBoxValidSelection(comboBoxLoginPass);
+            bool twoFaOk = comboBoxValidSelection(comboBoxHasTwoFa);
+            bool twoFaMethodOk = comboBoxValidSelection(comboBoxTwoFaMethod);
+            List<bool> madatoryFields = new List<bool> { descOk, typeOk, urlOk, userOk, passOk, twoFaOk, twoFaMethodOk };
+            return madatoryFields.All(x => x);
+            
         }
         public RelayCommand fnUpdateItemInGrid_UpdateButton => new RelayCommand(execute => { fillMappingDictLoadDataAndReturn(); },
                                                         canExecute => { return canFillMappingDict(); });
@@ -190,8 +233,24 @@ namespace PinpointUI.modals
             comboBoxHasTwoFa.SelectedIndex = 0;
             
         }
+        private static bool IsFileLocked(string filePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    // If we get here, the file is not locked
+                    fs.Close();
+                }
+            }
+            catch (IOException)
+            {
+                // The file is locked
+                return true;
+            }
 
-
-
+            // The file is not locked
+            return false;
+        }
     }
 }

@@ -82,7 +82,7 @@
                 <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
             <TextBlock  Padding ="0" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="0"  Grid.Column="1">
-                        <Underline>Password Bank Name</Underline>
+                        <Underline>Password Bank</Underline>
             </TextBlock>
             <TextBlock Padding ="0" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="1"  Grid.Column="1">
                         <Underline>Digital Vulnerability Score</Underline>

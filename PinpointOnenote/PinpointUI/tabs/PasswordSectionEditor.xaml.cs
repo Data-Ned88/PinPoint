@@ -429,9 +429,15 @@ namespace PinpointUI.tabs
             Opacity = 0.6;
             csvLoad.ShowDialog();
             Opacity = 1;
-            if (csvLoad.ExitChoice == false)
+            if (csvLoad.ExitChoice == false) //The user did not cancel and we have a password bank
             {
                 //do Nothing
+                foreach (LoginEntry csv_le in csvLoad.ReturnPasswordBank)
+                {
+                    PasswordBank.Add(
+                    new LoginEntry(csv_le)
+                    );
+                }
             }
         }
 
