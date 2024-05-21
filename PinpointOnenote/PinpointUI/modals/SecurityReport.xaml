@@ -81,7 +81,7 @@
                 <ColumnDefinition Width="54*"/>
                 <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock  Padding ="0" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="0"  Grid.Column="1">
+            <TextBlock Padding ="0" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="0"  Grid.Column="1">
                         <Underline>Password Bank</Underline>
             </TextBlock>
             <TextBlock Padding ="0" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="1"  Grid.Column="1">
@@ -109,11 +109,11 @@
             <TextBlock Padding ="0,5" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Row="0" Grid.Column="1">
                         <Underline>Score Breakdown</Underline></TextBlock>
             <TreeView  Grid.Row="1" Grid.Column="1" Background="#E4E4E4">
-                <TreeViewItem x:Name="treeViewSingleLogins" Header="Logins as Single Items">
+                <TreeViewItem x:Name="treeViewSingleLogins">
                 </TreeViewItem>
-                <TreeViewItem x:Name="treeViewExactShares" Header="Passwords/PINs shared by multiple logins">
+                <TreeViewItem x:Name="treeViewExactShares">
                 </TreeViewItem>
-                <TreeViewItem x:Name="treeViewStems" Header="Password stems shared by multiple logins">
+                <TreeViewItem x:Name="treeViewStems">
                 </TreeViewItem>
 
             </TreeView>

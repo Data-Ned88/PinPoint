@@ -100,22 +100,36 @@ namespace PinpointUI.modals
             InitializeComponent();
 
 
-            textBlockPassBankName.Text = string.Format("{0} ({1} valid PINS/Passwords)", passwordBankName, pBank.Where(x=> x.LoginType != LoginTypes.NotSet).Count().ToString("N0"));
+            //textBlockPassBankName.Text = string.Format("{0} ({1} valid PINS/Passwords)", passwordBankName, pBank.Where(x=> x.LoginType != LoginTypes.NotSet).Count().ToString("N0"));
+            textBlockPassBankName.Inlines.Add(GetBoldRun(passwordBankName));
+            textBlockPassBankName.Inlines.Add(GetRun(string.Format(" ({0} valid items)", pBank.Where(x => x.LoginType != LoginTypes.NotSet).Count().ToString("N0"))));
             textBlockPassBankDVS.Text = string.Format("{0} ({1})", pBankLBS.totalScoreAll.ToString("N0"),pBankLBS.scoreRange);
             textBlockPassBankDVS.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pBankLBS.scoreRangeColor));
 
             // Tree view headers
 
-            treeViewSingleLogins.Header = string.Format("Logins as Single Items: {0} DVS Points ({1} total items)", 
-                pBankLBS.singleLoginPoints.ToString("N0"), pBank.Where(x => x.LoginType != LoginTypes.NotSet).Count().ToString("N0"));
+            SetTreeViewItemHeader(treeViewSingleLogins,
+                GetUnderlineRun("Logins as Single Items:"),
+                GetRun(string.Format(" {0} DVS Points ({1} total items)",
+                    pBankLBS.singleLoginPoints.ToString("N0"), pBank.Where(x => x.LoginType != LoginTypes.NotSet).Count().ToString("N0")))
+                );
 
-
-            treeViewExactShares.Header = string.Format("Passwords/PINs shared by multiple logins: {0} DVS Points ({1} items)",
-                sharesAllDVS.ToString("N0"), sharesAllCount.ToString("N0"));
-
-            treeViewStems.Header = string.Format("Password stems shared by multiple logins: {0} DVS Points ({1} stems found)",
-                pBankLBS.totalScoreStems.ToString("N0"), pBankLBS.passwordStems.Keys.Count.ToString("N0"));
-
+            //treeViewExactShares.Header = string.Format("Passwords/PINs shared by multiple logins: {0} DVS Points ({1} items)",
+            //    sharesAllDVS.ToString("N0"), sharesAllCount.ToString("N0"));
+            SetTreeViewItemHeader(treeViewExactShares,
+                GetUnderlineRun("Passwords / PINs shared by multiple logins:"),
+                GetRun(string.Format(" {0} DVS Points ({1} items)",
+                sharesAllDVS.ToString("N0"), sharesAllCount.ToString("N0"))
+                    )
+                );
+            //treeViewStems.Header = string.Format("Password stems shared by multiple logins: {0} DVS Points ({1} stems found)",
+            //    pBankLBS.totalScoreStems.ToString("N0"), pBankLBS.passwordStems.Keys.Count.ToString("N0"));
+            SetTreeViewItemHeader(treeViewStems,
+                   GetUnderlineRun("Password stems shared by multiple logins:"),
+                   GetRun(string.Format(" {0} DVS Points ({1} stems found)",
+                pBankLBS.totalScoreStems.ToString("N0"), pBankLBS.passwordStems.Keys.Count.ToString("N0"))
+                       )
+                   );
             //Tree view: treeViewSingleLogins 3 x children with count and score
 
             foreach (string _type in typeLoopControl)
@@ -214,6 +228,7 @@ namespace PinpointUI.modals
             if ((int)dataValue[propertyKey][compareToZero] > 0)
             {
                 TreeViewItem tv = new TreeViewItem();
+                //TODO SetTreeViewItemHeader(tv,GetRun1, GetRun2) and turn the below statement off.
                 tv.Header = string.Format("{0}: {1} DVS Points ({2} items)", headerFormat, pBankLBS.singleLoginPointsBreakdown[propertyKey][formatOne].ToString("N0"),
                                                         pBankLBS.singleLoginPointsBreakdown[propertyKey][FormatTwo].ToString("N0"));
 
@@ -270,10 +285,12 @@ namespace PinpointUI.modals
 
             if (countShares > 0)
             {
+                //TODO Return this as a List<Run> where each run is a segment formatted how we like.
                 return string.Format("{0}: {1} DVS Points ({2} items)", headerFormat, totalPoints.ToString("N0"), countShares.ToString("N0"));
             }
             else
             {
+                //TODO Return List<GetRun("")>
                 return "";
             }
         }
@@ -324,6 +341,7 @@ namespace PinpointUI.modals
             }
             else
             {
+                //TODO Return this as a List<Run> where each run is a segment formatted how we like.
                 return string.Format(formatstring, itemHeaderVal, totalPoints.ToString("N0"), countShares.ToString("N0"));
             }
         }
@@ -347,6 +365,7 @@ namespace PinpointUI.modals
             }
             else
             {
+                //TODO Return this as a List<Run> where each run is a segment formatted how we like.
                 return string.Format(formatstring, headerFormat, totalPoints.ToString("N0"), countShares.ToString("N0"));
             }
         }
@@ -356,7 +375,9 @@ namespace PinpointUI.modals
 
         private TreeViewItem GetTreeViewItem(string header)
         {
+            //TODO - ocne we've converted the functiosn that produce the inputs into returners of List<Run> we convert the input type to List<Run>
             TreeViewItem tv = new TreeViewItem();
+            //TODO SetTreeViewItemHeader(tv,header AS LIST<Run>) and turn the below statement off.
             tv.Header = header;
             return tv;
         }
@@ -368,6 +389,55 @@ namespace PinpointUI.modals
             return dataValue;
         }
 
+        private static Run GetBoldRun(string inputText)
+        {
+            Run boldRun = new Run(inputText);
+            boldRun.FontWeight = FontWeights.Bold;
+
+            return boldRun;
+        }
+        private static Run GetUnderlineRun(string inputText)
+        {
+            Run underlineRun = new Run(inputText);
+            underlineRun.TextDecorations = TextDecorations.Underline;
+
+            return underlineRun;
+        }
+        private static Run GetRun(string inputText)
+        {
+            Run normalRun = new Run(inputText);
+            return normalRun;
+        }
+        private void SetTreeViewItemHeader(TreeViewItem tv, List<Run> runs)
+        {
+            //overload for SetTreeViewItemHeader which takes the runs as a list.
+            if (runs.Count == 0)
+            {
+                SetTreeViewItemHeader(tv,GetRun(""));
+            }
+            else if (runs.Count == 1)
+            {
+                SetTreeViewItemHeader(tv, runs[0]);
+            }
+            else
+            {
+                SetTreeViewItemHeader(tv, runs[0], runs[1]);
+            }
+        }
+        private void SetTreeViewItemHeader(TreeViewItem tv, Run runOne, Run runTwo = null)
+        {
+            // Create a TextBlock
+            TextBlock headerTextBlock = new TextBlock();
+
+            headerTextBlock.Inlines.Add(runOne);
+            if (runTwo != null)
+            {
+                headerTextBlock.Inlines.Add(runTwo);
+            }
+
+            // Assign the TextBlock to the Header property of the TreeViewItem
+            tv.Header = headerTextBlock;
+        }
 
     }
 }
