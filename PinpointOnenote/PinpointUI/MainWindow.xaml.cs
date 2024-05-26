@@ -28,6 +28,8 @@ namespace PinpointUI
         public MainWindow()
         {
             InitializeComponent();
+            OneNoteTab.Visibility = Visibility.Hidden;
+            PasswordsTab.Visibility = Visibility.Hidden;
             
     }
 
@@ -61,6 +63,7 @@ namespace PinpointUI
             if (Process.GetProcessesByName("onenote").Any())
             {
                 LandingTab.Visibility = Visibility.Collapsed;
+                OneNoteTab.Visibility = Visibility.Visible;
                 OneNoteTab.IsSelected = true;
 
 

@@ -143,10 +143,12 @@ namespace PinpointUI.modals
             {
                 Console.WriteLine(_type);
                 Dictionary<string, Dictionary<string, int>> sharePropVal = GetPropertyValue(pBankLBS, typeToSharePropName[_type]);
-                string shareTypeSubhead = GetSharesTypeHeader(sharePropVal, typeToHeader[_type]);
-                if (shareTypeSubhead != "")
+                List<Run> shareTypeSubhead = GetSharesTypeHeader(sharePropVal, typeToHeader[_type]);
+                if (shareTypeSubhead[0].Text != "")
                 {
-                    TreeViewItem shareTypeTV = GetTreeViewItem(shareTypeSubhead);
+                    TreeViewItem shareTypeTV = new TreeViewItem(); //GetTreeViewItem(shareTypeSubhead);
+                    SetTreeViewItemHeader(shareTypeTV, shareTypeSubhead);
+
                     treeViewExactShares.Items.Add(shareTypeTV);
                     foreach (string k in sharePropVal.Keys)
                     {
@@ -155,19 +157,21 @@ namespace PinpointUI.modals
                         
                         if (_type == "Passwords") //additional level of looping (shares vs PINS 4/6)
                         {
-                            
-                            string shareItemHead = GetSharesItemHeader(k, propertiesForShareItem, typeToHeader[_type]);
-                            if (shareItemHead != "")
+
+                            List<Run> shareItemHead = GetSharesItemHeader(k, propertiesForShareItem, typeToHeader[_type]);
+                            if (shareItemHead[0].Text != "")
                             {
-                                TreeViewItem shareItemTV = GetTreeViewItem(shareItemHead);
+                                TreeViewItem shareItemTV = new TreeViewItem(); // GetTreeViewItem(shareItemHead);
+                                SetTreeViewItemHeader(shareItemTV, shareItemHead);
                                 shareTypeTV.Items.Add(shareItemTV);
                                 
                                 foreach (string _mutual_type in typeLoopControl)
                                 {
-                                    string granularHead = GetGranularShareHeaderPasswords(propertiesForShareItem, typeToHeader[_mutual_type], typeToGranularShareSearch[_mutual_type]);
-                                    if (granularHead != "")
+                                    List<Run> granularHead = GetGranularShareHeaderPasswords(propertiesForShareItem, typeToHeader[_mutual_type], typeToGranularShareSearch[_mutual_type]);
+                                    if (granularHead[0].Text != "")
                                     {
-                                        TreeViewItem shareGranularItemTV = GetTreeViewItem(granularHead);
+                                        TreeViewItem shareGranularItemTV = new TreeViewItem(); //  GetTreeViewItem(granularHead);
+                                        SetTreeViewItemHeader(shareGranularItemTV, granularHead);
                                         shareItemTV.Items.Add(shareGranularItemTV);
                                     }
                                 }                                
@@ -176,10 +180,11 @@ namespace PinpointUI.modals
                         }
                         else
                         {
-                            string shareItemHead = GetSharesItemHeader(k, propertiesForShareItem, typeToHeader[_type]);
-                            if (shareItemHead != "")
+                            List<Run> shareItemHead = GetSharesItemHeader(k, propertiesForShareItem, typeToHeader[_type]);
+                            if (shareItemHead[0].Text != "")
                             {
-                                TreeViewItem shareItemTV = GetTreeViewItem(shareItemHead);
+                                TreeViewItem shareItemTV = new TreeViewItem(); // GetTreeViewItem(shareItemHead);
+                                SetTreeViewItemHeader(shareItemTV, shareItemHead);
                                 shareTypeTV.Items.Add(shareItemTV);
                                 
                             }
@@ -194,17 +199,21 @@ namespace PinpointUI.modals
             foreach (string sk in stemPropVal.Keys)
             {
                 Dictionary<string, int> propertiesForStemItem = stemPropVal[sk];
-                string stemItemHead = GetSharesItemHeader(sk, propertiesForStemItem, typeToHeader["Passwords"],true);
-                if (stemItemHead != "")
+                List<Run> stemItemHead = GetSharesItemHeader(sk, propertiesForStemItem, typeToHeader["Passwords"],true);
+                if (stemItemHead[0].Text != "")
                 {
-                    TreeViewItem stemItemTV = GetTreeViewItem(stemItemHead);
+
+                    TreeViewItem stemItemTV = new TreeViewItem(); //GetTreeViewItem(stemItemHead);
+                    SetTreeViewItemHeader(stemItemTV, stemItemHead);
                     treeViewStems.Items.Add(stemItemTV);
+
                     foreach (string _mutual_type in typeLoopControl)
                     {
-                        string stemGranularHead = GetGranularShareHeaderPasswords(propertiesForStemItem, typeToHeader[_mutual_type], typeToGranularStemSearch[_mutual_type],true);
-                        if (stemGranularHead != "")
+                        List<Run> stemGranularHead = GetGranularShareHeaderPasswords(propertiesForStemItem, typeToHeader[_mutual_type], typeToGranularStemSearch[_mutual_type],true);
+                        if (stemGranularHead[0].Text != "")
                         {
-                            TreeViewItem stemGranularItemTV = GetTreeViewItem(stemGranularHead);
+                            TreeViewItem stemGranularItemTV = new TreeViewItem(); //GetTreeViewItem(stemGranularHead);
+                            SetTreeViewItemHeader(stemGranularItemTV, stemGranularHead);
                             stemItemTV.Items.Add(stemGranularItemTV);
                         }
                     }
@@ -229,8 +238,19 @@ namespace PinpointUI.modals
             {
                 TreeViewItem tv = new TreeViewItem();
                 //TODO SetTreeViewItemHeader(tv,GetRun1, GetRun2) and turn the below statement off.
-                tv.Header = string.Format("{0}: {1} DVS Points ({2} items)", headerFormat, pBankLBS.singleLoginPointsBreakdown[propertyKey][formatOne].ToString("N0"),
-                                                        pBankLBS.singleLoginPointsBreakdown[propertyKey][FormatTwo].ToString("N0"));
+                SetTreeViewItemHeader(tv,
+                    GetUnderlineRun(string.Format("{0}:", headerFormat)),
+                    GetRun(
+                        string.Format(
+                            " {0} DVS Points ({1} items)", 
+                            pBankLBS.singleLoginPointsBreakdown[propertyKey][formatOne].ToString("N0"), 
+                            pBankLBS.singleLoginPointsBreakdown[propertyKey][FormatTwo].ToString("N0")
+                            )
+                        )
+                    );
+
+                //tv.Header = string.Format("{0}: {1} DVS Points ({2} items)", headerFormat, pBankLBS.singleLoginPointsBreakdown[propertyKey][formatOne].ToString("N0"),
+                                                       // pBankLBS.singleLoginPointsBreakdown[propertyKey][FormatTwo].ToString("N0"));
 
                 tvi.Items.Add(tv);
             }
@@ -252,9 +272,9 @@ namespace PinpointUI.modals
             }
         }
 
-        private string GetSharesTypeHeader(Dictionary<string, Dictionary<string, int>> dataValue, string headerFormat)
+        private List<Run> GetSharesTypeHeader(Dictionary<string, Dictionary<string, int>> dataValue, string headerFormat)
         {
-
+            List<Run> runs = new List<Run>();
 
             int totalPoints = 0;
             int countShares = 0;
@@ -286,18 +306,20 @@ namespace PinpointUI.modals
             if (countShares > 0)
             {
                 //TODO Return this as a List<Run> where each run is a segment formatted how we like.
-                return string.Format("{0}: {1} DVS Points ({2} items)", headerFormat, totalPoints.ToString("N0"), countShares.ToString("N0"));
+                runs.Add(GetUnderlineRun(string.Format("{0}:", headerFormat)));
+                runs.Add(GetRun(string.Format(" {0} DVS Points ({1} items)", totalPoints.ToString("N0"), countShares.ToString("N0"))));
             }
             else
             {
                 //TODO Return List<GetRun("")>
-                return "";
+                runs.Add(GetRun(""));
             }
+            return runs;
         }
 
-        private string GetSharesItemHeader (string itemHeaderVal, Dictionary<string, int> dataValue, string headerFormat, bool forStems = false)
+        private List<Run> GetSharesItemHeader (string itemHeaderVal, Dictionary<string, int> dataValue, string headerFormat, bool forStems = false)
         {
-
+            List<Run> runs = new List<Run>();
             int totalPoints = 0;
             int countShares = 0;
 
@@ -307,7 +329,8 @@ namespace PinpointUI.modals
             string count_shared_pin_four = "count_shared_pin_four";
             string dvs_total_pin_six = "dvs_total_pin_six";
             string count_shared_pin_six = "count_shared_pin_six";
-            string formatstring = "{0}: {1} DVS Points (shared {2} times)";
+            string formatstring = ": {0} DVS Points (shared {1} times)";
+
             if (forStems)
             {
                 dvs_total = "total_dvs_passwords";
@@ -319,7 +342,7 @@ namespace PinpointUI.modals
                 dvs_total_pin_four = "total_dvs_pin_four";
                 count_shared_pin_four = "count_pin_four";
 
-                formatstring = "{0}: {1} DVS Points (used in {2} items)";
+                formatstring = ": {0} DVS Points (used in {1} items)";
             }
 
 
@@ -337,37 +360,50 @@ namespace PinpointUI.modals
             }
             if (countShares <= 0)
             {
-                return "";
+                //return "";
+                runs.Add(GetRun(""));
             }
             else
             {
+                runs.Add(GetBoldRun(itemHeaderVal));
+                runs.Add(GetRun(string.Format(formatstring, totalPoints.ToString("N0"), countShares.ToString("N0"))));
                 //TODO Return this as a List<Run> where each run is a segment formatted how we like.
-                return string.Format(formatstring, itemHeaderVal, totalPoints.ToString("N0"), countShares.ToString("N0"));
+                //return string.Format(formatstring, itemHeaderVal, totalPoints.ToString("N0"), countShares.ToString("N0"));
             }
+            return runs;
         }
-        private string GetGranularShareHeaderPasswords(Dictionary<string, int> dataValue, string headerFormat,string searchable, bool forStems = false)
+        private List<Run> GetGranularShareHeaderPasswords(Dictionary<string, int> dataValue, string headerFormat,string searchable, bool forStems = false)
         {
+            List<Run> runs = new List<Run>();
+            //Underline start, standard end
             string searchableCount = "count_shared" + searchable;
             string searchableDVS = "dvs_total" + searchable;
             string formatstring = "Shared with other {0}: {1} DVS Points ({2} times)";
+            string runOneFmt = "Shared with other {0}:";
+            string runTwoFmt = " {0} DVS Points ({1} times)";
             if (forStems)
             {
                 searchableCount = "count" + searchable;
                 searchableDVS = "total_dvs" + searchable;
                 formatstring = "{0}: {1} DVS Points (used in {2} items)";
+                runOneFmt = "{0}:";
             }
             int totalPoints = dataValue[searchableDVS];
             int countShares = dataValue[searchableCount];
 
             if (countShares <= 0)
             {
-                return "";
+                runs.Add(GetRun(""));
+
             }
             else
             {
                 //TODO Return this as a List<Run> where each run is a segment formatted how we like.
-                return string.Format(formatstring, headerFormat, totalPoints.ToString("N0"), countShares.ToString("N0"));
+                runs.Add(GetUnderlineRun(string.Format(runOneFmt, headerFormat)));
+                runs.Add(GetRun(string.Format(runTwoFmt, totalPoints.ToString("N0"), countShares.ToString("N0"))));
+                //return string.Format(formatstring, headerFormat, totalPoints.ToString("N0"), countShares.ToString("N0"));
             }
+            return runs;
         }
 
 
@@ -375,7 +411,7 @@ namespace PinpointUI.modals
 
         private TreeViewItem GetTreeViewItem(string header)
         {
-            //TODO - ocne we've converted the functiosn that produce the inputs into returners of List<Run> we convert the input type to List<Run>
+            //TODO - once we've converted the functiosn that produce the inputs into returners of List<Run> we convert the input type to List<Run>
             TreeViewItem tv = new TreeViewItem();
             //TODO SetTreeViewItemHeader(tv,header AS LIST<Run>) and turn the below statement off.
             tv.Header = header;

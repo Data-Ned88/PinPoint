@@ -134,6 +134,7 @@ namespace PinpointUI.tabs
             // User wants to go back to the welcome page.
             callingWindow.OneNoteTab.IsSelected = false;
             callingWindow.LandingTab.Visibility = Visibility.Visible;
+            callingWindow.OneNoteTab.Visibility = Visibility.Hidden;
             callingWindow.LandingTab.IsSelected = true;
             callingWindow.OneNoteTab.Content = null;
             Marshal.FinalReleaseComObject(app);
@@ -212,12 +213,15 @@ namespace PinpointUI.tabs
             //called by the fnLoadSection RelayCommand on the load button as "canExecute".
             //---Validates that the section selected is a valid pinpoint. Greys the button out if not.
             bool returnable = false;
+            btnLoadSection.Cursor = Cursors.Arrow;
             if (selectedSection != null)
             {
                 if (selectedSection.IsValidPinPointInstance == true) // going to want to change this to true once we've worked out the function!!!
                 {
                     returnable = true;
+                    btnLoadSection.Cursor = Cursors.Hand;
                 }
+                
             }
             return returnable;
         }

@@ -11,18 +11,18 @@
         >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="15*"/>
-            <RowDefinition Height="9*"/>
-            <RowDefinition Height="0.5*"/>
-            <RowDefinition Height="9*"/>
+            <RowDefinition Height="83"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="2.5"/>
+            <RowDefinition Height="48"/>
             <RowDefinition Height="64.5*"/>
-            <RowDefinition Height="8*"/>
+            <RowDefinition Height="45"/>
         </Grid.RowDefinitions>
         <Rectangle Fill="#E4E4E4"/>
         <TextBlock TextWrapping="Wrap" Padding ="5,5,5,5" FontSize="11">
                         The UCOVI PinPoint <Bold>Digital Vulnerability Score (DVS)</Bold>
                         measures the strength of your passwords and PINs based on 
-                        their individual strength scores (0-100) and their collective strength, where use of the same password/PIN 
+                        their individual strength scores (0-100) and their collective strength, where uses of the same password/PIN 
                          or 'stem' within passwords across 2 or more logins are identified as weaknesses.
         </TextBlock>
         <Grid Grid.Row="1">
@@ -97,7 +97,7 @@
         <Rectangle Fill="#E4E4E4" Grid.Row="4"/>
         <Grid Grid.Row="4">
             <Grid.RowDefinitions>
-                <RowDefinition Height="8*"/>
+                <RowDefinition Height="20"/>
                 <RowDefinition Height="92*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>

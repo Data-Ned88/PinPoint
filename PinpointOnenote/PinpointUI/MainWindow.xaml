@@ -35,9 +35,9 @@
                                 <RowDefinition Height="37.5*"/>
                                 <RowDefinition Height="25*"/>
                             </Grid.RowDefinitions>
-                            <Button x:Name="LandingCreate" Margin="20" Content="Create New Password Section" Click="LandingCreate_Click"/>
-                            <Button x:Name="LandingLoad" Grid.Row="1" Margin="20" Content="Load Existing Password Section" Click="LandingLoad_Click"/>
-                            <Button Name="BtnLandingTabExit" Grid.Row="2" Margin="20" Content="Exit PinPoint" Click="BtnLandingTabExit_Click"/>
+                            <Button x:Name="LandingCreate" Margin="20" Content="Create New Password Section" Click="LandingCreate_Click"  Cursor="Hand"/>
+                            <Button x:Name="LandingLoad" Grid.Row="1" Margin="20" Content="Load Existing Password Section" Click="LandingLoad_Click"  Cursor="Hand"/>
+                            <Button Name="BtnLandingTabExit" Grid.Row="2" Margin="20" Content="Exit PinPoint" Click="BtnLandingTabExit_Click"  Cursor="Hand"/>
 
 
                         </Grid>
@@ -52,7 +52,7 @@
             <TabItem Name="OneNoteTab" Header="OneNote Setup">
                 <!--<tabs:OneNoteManagementTab/>-->
             </TabItem>
-            <TabItem Name="PasswordsTab" Header="Section Passwords (Make dynamic)">
+            <TabItem Name="PasswordsTab" Header="Section Passwords">
                 
             </TabItem>
         </TabControl>

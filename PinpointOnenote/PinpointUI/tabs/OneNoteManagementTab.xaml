@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Rectangle Fill="LightGray"/>
         <Rectangle Grid.Row="3" Fill="LightGray"/>
-        <Button x:Name="OneNoteTabBackToWelcome" Content="&lt;&lt; Back to Welcome Page" Margin="20,0,0,0" Width="200" Height="23" HorizontalAlignment="Left" Click="OneNoteTabBackToWelcome_Click">
+        <Button x:Name="OneNoteTabBackToWelcome" Content="&lt;&lt; Back to Welcome Page" Margin="20,0,0,0" Width="200" Height="23" HorizontalAlignment="Left" Click="OneNoteTabBackToWelcome_Click" Cursor="Hand">
             <Button.ToolTip>
                 <ToolTip>
                     Click to go back to the last screen
@@ -102,7 +102,7 @@
                     </Grid.ColumnDefinitions>
                     <Rectangle Fill="LightGray" Stroke="Azure"/>
                     <Rectangle Fill="Gray" Stroke="Azure" Grid.Column="1"/>
-                    <Button x:Name="btnRefreshSectionInfo" Content="Refresh Sections" Margin="10,15,10,15" Click="btnRefreshSectionInfo_Click"/>
+                    <Button x:Name="btnRefreshSectionInfo" Content="Refresh Sections" Margin="10,15,10,15" Click="btnRefreshSectionInfo_Click" Cursor="Hand"/>
                     <Button x:Name="btnLoadSection" Command="{Binding fnLoadSection}" Content="Load Section" Margin="10,15,10,15" Grid.Column="1"/>
                 </Grid>
                 <Grid x:Name="ONT_ActionButtonsCreateNew" Grid.Row="1" Visibility="Hidden">
