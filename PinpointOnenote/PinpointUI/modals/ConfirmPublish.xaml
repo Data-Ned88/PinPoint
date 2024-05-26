@@ -79,8 +79,8 @@
                 <ColumnDefinition Width="35*"/>
                 <ColumnDefinition Width="10*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnConfirm"  Grid.Row="1" Margin="10,14" Grid.Column="1" Content="Confirm and Publish" IsDefault="True" BorderThickness="2" Click="btnConfirm_Click"/>
-            <Button x:Name="btnCancel" Grid.Row="1" Grid.Column="3" Margin="30,14" Content="Cancel" Click="btnCancel_Click"/>
+            <Button x:Name="btnConfirm"  Grid.Row="1" Margin="10,14" Grid.Column="1" Content="Confirm and Publish" IsDefault="True" BorderThickness="2" Click="btnConfirm_Click" Cursor="Hand"/>
+            <Button x:Name="btnCancel" Grid.Row="1" Grid.Column="3" Margin="30,14" Content="Cancel" Click="btnCancel_Click" Cursor="Hand"/>
         </Grid>
     </Grid>
 </Window>

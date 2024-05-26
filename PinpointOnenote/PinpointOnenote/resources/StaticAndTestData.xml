@@ -186,7 +186,7 @@
                   </Line>
                 </Cell>
               </Row>
-              <Row>
+             <!-- <Row>
                 <Cell shadingColor="#FFD965" colIndex="0" alignment="left">
                   <Line>
                     <span customFontWeight="12.0">
@@ -200,8 +200,8 @@
                       <RawText><![CDATA[The ]]></RawText>
                       <HTML><![CDATA[<span>The </span>]]></HTML>
                     </span>
-                    <span InternalLinkPageName="Insights" InternalLinkSectionName="Passwords"> <!--- The data parser looks for these tags in each span, and if found, hydrates the relevant properties in the OneNoteSpan object so that a future function can look up the IDs and use the to call GetHyperLink on the HTML span property.-->
-                      <RawText><![CDATA[Insights]]></RawText>
+                    <span InternalLinkPageName="Insights" InternalLinkSectionName="Passwords">--> <!--- The data parser looks for these tags in each span, and if found, hydrates the relevant properties in the OneNoteSpan object so that a future function can look up the IDs and use the to call GetHyperLink on the HTML span property.-->
+                      <!--<RawText><![CDATA[Insights]]></RawText>
                       <HTML><![CDATA[<span>Insights</span>]]></HTML>
                     </span>
                     <span>
@@ -262,7 +262,7 @@
                     </Line>
                   </Line>
                 </Cell>
-              </Row>              
+              </Row>     -->   
             </Table>
           </Section>
         </Sections>     

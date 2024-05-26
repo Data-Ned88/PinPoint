@@ -26,14 +26,14 @@
   <ColumnsWidthSettings>
     <Column tableTemplate="PasswordBank" index="0" customWidth="150.00"  customWidthType="cap_at"/>
     <Column tableTemplate="PasswordBank" index="1" customWidth="75.00"  customWidthType="cap_at"/>
-    <Column tableTemplate="PasswordBank" index="2" customWidth="150.00"  customWidthType="cap_at"/>
-    <Column tableTemplate="PasswordBank" index="3" customWidth="150.00"  customWidthType="cap_at"/>
-    <Column tableTemplate="PasswordBank" index="4" customWidth="150.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="2" customWidth="175.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="3" customWidth="175.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="4" customWidth="175.00"  customWidthType="cap_at"/>
     <Column tableTemplate="PasswordBank" index="5" customWidth="40.00"  customWidthType="cap_at"/>
     <Column tableTemplate="PasswordBank" index="6" customWidth="100.00"  customWidthType="cap_at"/>
     <Column tableTemplate="PasswordBank" index="7" customWidth="125.00"  customWidthType="cap_at"/>
-    <Column tableTemplate="PasswordBank" index="8" customWidth="40.00"  customWidthType="cap_at"/>
-    <Column tableTemplate="PasswordBank" index="9" customWidth="50.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="8" customWidth="125.00"  customWidthType="cap_at"/>
+    <Column tableTemplate="PasswordBank" index="9" customWidth="75.00"  customWidthType="cap_at"/>
   </ColumnsWidthSettings>
   <StrengthScoreFormats>
     <StrengthScoreType typeName="NotSet">

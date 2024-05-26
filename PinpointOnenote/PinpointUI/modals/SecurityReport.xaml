@@ -125,7 +125,7 @@
                 <ColumnDefinition Width="33*"/>
                 <ColumnDefinition Width="33*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnExit" Grid.Column="2" Margin="12,4" Content="Close Report" BorderThickness="2" Click="btnExit_Click"/>
+            <Button x:Name="btnExit" Grid.Column="2" Margin="12,4" Content="Close Report" BorderThickness="2" Click="btnExit_Click"  Cursor="Hand"/>
         </Grid>
     </Grid>
 </Window>

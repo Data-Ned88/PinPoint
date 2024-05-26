@@ -242,7 +242,7 @@ namespace PinpointUI.tabs
             }
             else
             {
-                Regex rx = new Regex(@"\W");
+                Regex rx = new Regex(@"[^\w\s]");
                 Match match = rx.Match(newSectionNameData);
                 if (match.Success)
                 {

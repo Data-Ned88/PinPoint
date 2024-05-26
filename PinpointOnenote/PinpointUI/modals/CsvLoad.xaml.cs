@@ -136,7 +136,7 @@ namespace PinpointUI.modals
         }
         private bool canFillMappingDict()
         {
-            
+            btnConfirm.Cursor = Cursors.Arrow;
             bool descOk = comboBoxValidSelection(comboBoxLoginDescription);
             bool typeOk = comboBoxValidSelection(comboBoxLoginType);
             bool urlOk = comboBoxValidSelection(comboBoxLoginUrl);
@@ -145,6 +145,10 @@ namespace PinpointUI.modals
             bool twoFaOk = comboBoxValidSelection(comboBoxHasTwoFa);
             bool twoFaMethodOk = comboBoxValidSelection(comboBoxTwoFaMethod);
             List<bool> madatoryFields = new List<bool> { descOk, typeOk, urlOk, userOk, passOk, twoFaOk, twoFaMethodOk };
+            if (madatoryFields.All(x => x))
+            {
+                btnConfirm.Cursor = Cursors.Hand;
+            }
             return madatoryFields.All(x => x);
             
         }

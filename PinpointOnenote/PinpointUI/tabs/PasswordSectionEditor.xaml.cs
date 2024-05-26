@@ -58,16 +58,6 @@ namespace PinpointUI.tabs
         //It is populated and updated by UpdateRowState beneath it, which is itself triggered by the add new/Update Existing buttons,
         //      so that the correct row state for that Login Entry is available to the existingPasswordsDatagrid to act on it when its LoadingRow handler function is triggered.
         //      It is scbrubbed clean by the "Clear Button".
-        private Dictionary<LoginEntry, DataRowState> rowStates = new Dictionary<LoginEntry, DataRowState>(); 
-
-        // Method to update row state
-        private void UpdateRowState(LoginEntry loginEntry, DataRowState state)
-        {
-            if (!rowStates.ContainsKey(loginEntry))
-            {
-                rowStates.Add(loginEntry, state);
-            }
-        }
         private string GetBrainToolTip(object ltype = null)
         {
             if (ltype == null || (LoginTypes)ltype == LoginTypes.NotSet || (LoginTypes)ltype == LoginTypes.Password) {
@@ -156,6 +146,16 @@ namespace PinpointUI.tabs
         }
         private List<LoginEntry> passwordBankOriginal;
 
+        private static void HydrateIdColl(ObservableCollection<LoginEntry> pBank)
+        {
+            // self hydrate ids
+            for (int i = 0; i < pBank.Count; i++)
+            {
+                pBank[i].id = i;
+            }
+        }
+
+
         private LoginEntry selectedLogin;
         public LoginEntry SelectedLogin
         {
@@ -220,6 +220,7 @@ namespace PinpointUI.tabs
                         new LoginEntry(le)
                         );
                 }
+                HydrateIdColl(passwordBank);
                 //passwordBankOriginal = LoginFunctionality.HydrateIdAndModifiedSort(passwordBankOriginal);
 
             }
@@ -272,7 +273,6 @@ namespace PinpointUI.tabs
             countUpdates = 0;
             pwordTabSectionTitle.Text = mainBannerText;//mainBannerText + "*";
 
-            rowStates.Clear();
         }
         
         private void PwordTabExit_Click(object sender, RoutedEventArgs e)
@@ -434,12 +434,15 @@ namespace PinpointUI.tabs
                 //do Nothing
                 foreach (LoginEntry csv_le in csvLoad.ReturnPasswordBank)
                 {
-                    PasswordBank.Add(
-                    new LoginEntry(csv_le)
-                    );
+                    LoginEntry nle = new LoginEntry(csv_le);
+                    nle.InterfaceStatusColour = "#349D1F";
+                    nle.InterfaceStatusIcon = "\u002B";
+                    PasswordBank.Add(nle);
                 }
+                HydrateIdColl(PasswordBank);
             }
         }
+
 
         private void btnAddNew_Click(object sender, RoutedEventArgs e)
         {
@@ -470,19 +473,23 @@ namespace PinpointUI.tabs
             be.UpdateSource();
             be = selItemTwoFaMethodInput.GetBindingExpression(TextBox.TextProperty);
             be.UpdateSource();
+
             existingPasswords.Items.Refresh(); // need to do this to get the Strength scores in the grid to update.
             selectedLogin.LastModified = DateTime.Now;
+            selectedLogin.InterfaceStatusIcon = "\u270E";
+            selectedLogin.InterfaceStatusColour = "#D28E14";
             singleItemAreaHeader.Text = "Changes saved to selected login.";
             countUpdates++;
             pwordTabSectionTitle.Text = mainBannerText + "*";
 
-            UpdateRowState(selectedLogin, DataRowState.Modified);
+            //UpdateRowState(selectedLogin.id, DataRowState.Modified);
         }
 
         private bool fnCanUpdateSingleItemInGrid()
         {
             bool returnable = false;
             bool userNameCheckOnPasswords = true;
+            btnUpdate.Cursor = Cursors.Arrow;
             if (selItemStrengthLabel.IsLoaded)
             {
                 if (existingPasswords.SelectedItems.Count > 0 && selItemTypeInput.SelectedItem != null)
@@ -501,14 +508,17 @@ namespace PinpointUI.tabs
                     {
                         if ((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.Password)
                         {
+                            btnUpdate.Cursor = Cursors.Hand;
                             returnable = true;
                         }
                         else if (((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.PinSix) && LoginFunctionality.isValidPinSix(selItemPassPinInput.Text))
                         {
+                            btnUpdate.Cursor = Cursors.Hand;
                             returnable = true;
                         }
                         else if (((LoginTypes)selItemTypeInput.SelectedItem == LoginTypes.PinFour) && LoginFunctionality.isValidPinFour(selItemPassPinInput.Text))
                         {
+                            btnUpdate.Cursor = Cursors.Hand;
                             returnable = true;
                         }
                         
@@ -523,6 +533,7 @@ namespace PinpointUI.tabs
         {
             bool returnable = false;
             bool userNameCheckOnPasswords = true;
+            btnAddNew.Cursor = Cursors.Arrow;
             if (newItemStrengthLabel.IsLoaded)
             {
                 LoginStrength lsFly = new LoginStrength((LoginTypes)newItemTypeInput.SelectedItem, newItemPassPinInput.Text, newItemUsernameInput.Text, (bool)newItemTwoFaInput.IsChecked);
@@ -539,14 +550,17 @@ namespace PinpointUI.tabs
                 {
                     if ((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.Password)
                     {
+                        btnAddNew.Cursor = Cursors.Hand;
                         returnable = true;
                     }
                     else if (((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.PinSix) && LoginFunctionality.isValidPinSix(newItemPassPinInput.Text))
                     {
+                        btnAddNew.Cursor = Cursors.Hand;
                         returnable = true;
                     }
                     else if (((LoginTypes)newItemTypeInput.SelectedItem == LoginTypes.PinFour) && LoginFunctionality.isValidPinFour(newItemPassPinInput.Text))
                     {
+                        btnAddNew.Cursor = Cursors.Hand;
                         returnable = true;
                     }
                 }
@@ -566,6 +580,9 @@ namespace PinpointUI.tabs
             newEntryFromForm.HasTwoFa = (bool)newItemTwoFaInput.IsChecked;
             newEntryFromForm.TwoFaMethod = newItemTwoFaMethodInput.Text;
             newEntryFromForm.LastModified = DateTime.Now;
+            newEntryFromForm.InterfaceStatusIcon = "\u002B";
+            newEntryFromForm.InterfaceStatusColour = "#349D1F";
+
 
             passwordBank.Add(newEntryFromForm);
 
@@ -586,7 +603,7 @@ namespace PinpointUI.tabs
             newItemTwoFaMethodInput.Text = null;
             newItemTwoFaInput.IsChecked = false;
 
-            UpdateRowState(newEntryFromForm, DataRowState.Added);
+            //UpdateRowState(newEntryFromForm.id, DataRowState.Added);
 
         }
 
@@ -601,9 +618,11 @@ namespace PinpointUI.tabs
         #region Publish To OneNote RelayCOmmand and 2 x precedent functions
         private bool canPublishToOneNote() 
         {
+            PwordTabSave.Cursor = Cursors.Arrow;
             bool returnable = false;
             if (passwordBank.Count > 0)
             {
+                PwordTabSave.Cursor = Cursors.Hand;
                 returnable = true;
             }
             return returnable;
@@ -978,32 +997,6 @@ namespace PinpointUI.tabs
             }
         }
 
-        private void existingPasswords_LoadingRow(object sender, DataGridRowEventArgs e)
-        {
-            if (existingPasswords.IsLoaded)
-            {
-                // Check if the DataContext is set and is of type LoginEntry. This is a row of a dat grid bound to an observable coll of loginEntry, so it should be.
-                if (e.Row.DataContext is LoginEntry loginEntry)
-                {
-                    if (rowStates.TryGetValue(loginEntry, out DataRowState state))
-                    {
-                        switch (state)
-                        {
-                            case DataRowState.Added:
-                                e.Row.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C0F4B2"));
-                                break;
-                            case DataRowState.Modified:
-                                e.Row.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3CA81"));
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        // Handle the case where the state is not tracked
-                    }
-                }
-            }
-        }
 
         private void DigiVulnScore_Click(object sender, RoutedEventArgs e)
         {

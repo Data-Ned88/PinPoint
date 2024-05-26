@@ -28,9 +28,9 @@
                 <ColumnDefinition Width="60*"/>
             </Grid.ColumnDefinitions>
             <Rectangle Fill="LightGray"/>
-            <TextBlock Text="Select a Notebook from your available OneNote notebooks below" VerticalAlignment="Center" Margin="10,0,10,0" TextWrapping="Wrap"/>
-            <Rectangle Grid.Column="1" Fill="DarkGray"/>
-            <TextBlock x:Name="txthdrAvailableSections" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,10,0" TextWrapping="Wrap" Foreground="AliceBlue"/>
+            <TextBlock Text="Select a Notebook from your available OneNote notebooks below" VerticalAlignment="Center" Margin="10,0,10,0" TextWrapping="Wrap" FontSize="14"/>
+            <Rectangle Grid.Column="1" Fill="#686868"/>
+            <TextBlock x:Name="txthdrAvailableSections" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,10,0" TextWrapping="Wrap" Foreground="AliceBlue" FontWeight="Medium" FontSize="14"/>
         </Grid>
         <Grid Name="OneNoteTabThirdRow" Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -101,9 +101,9 @@
                         <ColumnDefinition Width="50*"/>
                     </Grid.ColumnDefinitions>
                     <Rectangle Fill="LightGray" Stroke="Azure"/>
-                    <Rectangle Fill="Gray" Stroke="Azure" Grid.Column="1"/>
+                    <Rectangle Fill="LightGray" Stroke="Azure" Grid.Column="1"/>
                     <Button x:Name="btnRefreshSectionInfo" Content="Refresh Sections" Margin="10,15,10,15" Click="btnRefreshSectionInfo_Click" Cursor="Hand"/>
-                    <Button x:Name="btnLoadSection" Command="{Binding fnLoadSection}" Content="Load Section" Margin="10,15,10,15" Grid.Column="1"/>
+                    <Button x:Name="btnLoadSection" Command="{Binding fnLoadSection}" Content="Load Section" FontWeight="Medium" Margin="10,15,10,15" Grid.Column="1" FontSize="14"/>
                 </Grid>
                 <Grid x:Name="ONT_ActionButtonsCreateNew" Grid.Row="1" Visibility="Hidden">
                     <Grid.ColumnDefinitions>
@@ -112,7 +112,7 @@
                     </Grid.ColumnDefinitions>
                     <Rectangle Fill="LightGray"/>
                     <Rectangle Fill="LightGray" Grid.Column="1"/>
-                    <Button x:Name="btnCreateSection" Content="Create New Section" Margin="10,15,10,15" Grid.Column="1" Click="btnCreateSection_Click"/>
+                    <Button x:Name="btnCreateSection" Content="Create New Section" Margin="10,15,10,15" Grid.Column="1" Click="btnCreateSection_Click" Cursor="Hand"/>
                 </Grid>
             </Grid>
         </Grid>
