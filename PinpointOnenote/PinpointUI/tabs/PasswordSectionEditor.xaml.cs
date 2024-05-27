@@ -679,6 +679,7 @@ namespace PinpointUI.tabs
             }
             //Set Password Bank Original to passwordBank (permanent save.)
             passwordBankOriginal = LoginEntryInterfaceFunctionality.GetPublishableBankFromInterface(passwordBank);
+            PasswordBank = LoginEntryInterfaceFunctionality.ResetPasswordBankChangeIcons(PasswordBank);
 
         }
 

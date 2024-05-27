@@ -44,5 +44,32 @@ namespace PinpointUI.tabs
 
             return returnPassBank;
         }
+
+        public static ObservableCollection<LoginEntryInterface> ResetPasswordBankChangeIcons(ObservableCollection<LoginEntryInterface> pBank)
+        {
+            ObservableCollection<LoginEntryInterface> returnPassBank = new ObservableCollection<LoginEntryInterface>();
+
+            foreach (LoginEntryInterface lei in pBank)
+            {
+                LoginEntryInterface le = new LoginEntryInterface();
+                le.LoginType = lei.LoginType;
+                le.LoginDescription = lei.LoginDescription;
+                le.LoginUrl = lei.LoginUrl;
+                le.LoginUsername = lei.LoginUsername;
+                le.LoginPass = lei.LoginPass;
+                le.HasTwoFa = lei.HasTwoFa;
+                le.TwoFaMethod = lei.TwoFaMethod;
+                le.LastModified = lei.LastModified;
+                le.InterfaceStatusColour = "#FFFFFF";
+                le.InterfaceStatusIcon = "";
+
+                returnPassBank.Add(le);
+            }
+
+            return returnPassBank;
+        }
+
+
+
     }
 }
