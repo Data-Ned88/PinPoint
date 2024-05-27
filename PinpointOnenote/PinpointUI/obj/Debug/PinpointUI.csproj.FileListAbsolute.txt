@@ -30,3 +30,5 @@ C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ConfirmPublish.g.
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ConfirmPublish.baml
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.g.cs
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.baml
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ProgressBar.g.cs
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ProgressBar.baml

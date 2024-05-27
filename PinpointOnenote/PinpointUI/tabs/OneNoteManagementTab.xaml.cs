@@ -149,6 +149,7 @@ namespace PinpointUI.tabs
             selectedNotebook = (XmlNode)listAvailableNotebooks.SelectedItem;
             if (selectedNotebook != null)
             {
+                this.Cursor = Cursors.Wait;
                 notebookSelIndex = listAvailableNotebooks.SelectedIndex;
                 txthdrAvailableSections.Text = string.Format(colTwoHeaderPlacehold, selectedNotebook.Attributes["name"].Value);
                 if (newSectionLabel != null)
@@ -159,6 +160,7 @@ namespace PinpointUI.tabs
                 {
                     SectionsList = OnenoteMethods.GetSectionsInNotebook(app,selectedNotebook);
                 }
+                this.Cursor = Cursors.Arrow;
             }
         }
 
@@ -193,7 +195,7 @@ namespace PinpointUI.tabs
 
         private void loadSelectedValidSection ()
         {
-
+            
              PasswordSectionEditor PasswordEditor = new PasswordSectionEditor(this, callingWindow,
                                                     callingButtonName, app, selectedNotebook.Attributes["name"].Value,
                                                     hier, nsmgr, selectedSection.SectionName,selectedSection

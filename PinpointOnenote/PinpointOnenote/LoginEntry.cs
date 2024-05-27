@@ -19,8 +19,6 @@ namespace PinpointOnenote
         public DateTime? LastModified { get; set; } = null;
         public int LastModifiedSort { get; set; } = -1;
 
-        public string InterfaceStatusColour { get; set; } = "#FFFFFF"; //For the GUI only
-        public string InterfaceStatusIcon { get; set; } = ""; //For the GUI only
         public LoginStrength LoginStrength 
         { 
             get

@@ -55,15 +55,8 @@ namespace PinpointUI.modals
             { "PinSixes","_pin_six"}
             };
 
-        public SecurityReport(ObservableCollection<LoginEntry> passwordBank,string passwordBankName) //Instantiation
+        public SecurityReport(List<LoginEntry> pBank,string passwordBankName) //Instantiation
         {
-            pBank = new List<LoginEntry>();
-            foreach (LoginEntry le in passwordBank)
-            {
-                pBank.Add(
-                    new LoginEntry(le)
-                    );
-            }
             pBank = LoginFunctionality.HydrateIdAndModifiedSort(pBank);
             pBankLBS = new LoginBankStrength(pBank);
 

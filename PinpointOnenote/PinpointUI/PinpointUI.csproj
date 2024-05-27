@@ -64,10 +64,15 @@
     <Compile Include="modals\CsvLoad.xaml.cs">
       <DependentUpon>CsvLoad.xaml</DependentUpon>
     </Compile>
+    <Compile Include="modals\ProgressBar.xaml.cs">
+      <DependentUpon>ProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="modals\SecurityReport.xaml.cs">
       <DependentUpon>SecurityReport.xaml</DependentUpon>
     </Compile>
     <Compile Include="modals\SelectableColourTheme.cs" />
+    <Compile Include="tabs\LoginEntryInterface.cs" />
+    <Compile Include="tabs\LoginEntryInterfaceFunctionality.cs" />
     <Compile Include="tabs\OneNoteManagementTab.xaml.cs">
       <DependentUpon>OneNoteManagementTab.xaml</DependentUpon>
     </Compile>
@@ -96,6 +101,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="modals\LandingExitConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="modals\ProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

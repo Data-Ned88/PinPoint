@@ -18,7 +18,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Margin ="5,20,5,5">
                         <TextBlock TextWrapping="Wrap" FontWeight="Medium" FontSize="14">
-                        PinPoint is an admin tool for Windows which helps users to organise logins, passwords, PINs in Microsoft OneNote.
+                        PinPoint is an admin tool for Windows which helps users organise logins, passwords, PINs in Microsoft OneNote.
                         </TextBlock>
                         <TextBlock FontSize="2"></TextBlock>
                         <TextBlock TextWrapping="Wrap" FontSize="13">

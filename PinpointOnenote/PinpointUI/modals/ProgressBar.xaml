@@ -1,0 +1,16 @@
+﻿<Window x:Class="PinpointUI.modals.ProgressBar"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PinpointUI.modals"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Title="Publishing to OneNote..." Height="68" Width="400">
+    <Grid>
+        <StackPanel VerticalAlignment="Center">
+            <ProgressBar x:Name="PublishingProgressBar" Height="19" Width="350" Margin="0,5" Background="White" Foreground="DarkOrange" Visibility="Visible" IsIndeterminate="True"/>
+            <!--<TextBlock VerticalAlignment="Bottom">This may take 30 seconds on Password banks with more than 100 logins...</TextBlock>-->
+        </StackPanel>
+    </Grid>
+</Window>

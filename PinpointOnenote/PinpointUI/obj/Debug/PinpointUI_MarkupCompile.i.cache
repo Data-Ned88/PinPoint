@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\github\PinPoint\PinpointOnenote\PinpointUI\App.xaml
-71627225173
+8678356811
 
-14-2116395150
+171546674250
 15-594495089
-MainWindow.xaml;modals\ConfirmPublish.xaml;modals\CsvLoad.xaml;modals\LandingExitConfirm.xaml;modals\SecurityReport.xaml;tabs\OneNoteManagementTab.xaml;tabs\PasswordSectionEditor.xaml;
+MainWindow.xaml;modals\ConfirmPublish.xaml;modals\CsvLoad.xaml;modals\LandingExitConfirm.xaml;modals\ProgressBar.xaml;modals\SecurityReport.xaml;tabs\OneNoteManagementTab.xaml;tabs\PasswordSectionEditor.xaml;
 
 True
 
