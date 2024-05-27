@@ -58,7 +58,6 @@
                 <!--<tabs:OneNoteManagementTab/>-->
             </TabItem>
             <TabItem Name="PasswordsTab" Header="Section Passwords">
-                
             </TabItem>
         </TabControl>
     </Grid>

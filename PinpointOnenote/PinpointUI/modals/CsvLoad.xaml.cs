@@ -119,7 +119,6 @@ namespace PinpointUI.modals
                 MappingChoice.Add("HasTwoFa", comboBoxHasTwoFa.SelectedItem.ToString());
                 MappingChoice.Add("TwoFaMethod", comboBoxTwoFaMethod.SelectedItem.ToString());
 
-                //TODO Add in the logic to Load the data into a password bank and return with exitchoice = false
 
                 ReturnPasswordBank = DataParsers.LoadPasswordBankFromCsvData(DataParsers.LoadFile(selectedFilePath), MappingChoice, columnsFromCSVLoad);
 

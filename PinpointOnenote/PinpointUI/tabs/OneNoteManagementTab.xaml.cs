@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace PinpointUI.tabs
 {
@@ -33,8 +34,7 @@ namespace PinpointUI.tabs
         private string createNewSectionLabelPlacehold = "Provide a name for your new PinPoint password section in {0}.\n(Max. 25 characters and letters, numbers and spaces only)";
         Microsoft.Office.Interop.OneNote.Application app = OnenoteMethods.InstantiateOneNoteApp();
 
-        public RelayCommand fnLoadSection => new RelayCommand(execute => { loadSelectedValidSection(); }, //showTestMessage(selectedSection)
-                                                                canExecute => { return isValidselectedSection(selectedSection); });
+
 
 
 
@@ -200,15 +200,24 @@ namespace PinpointUI.tabs
                                                     callingButtonName, app, selectedNotebook.Attributes["name"].Value,
                                                     hier, nsmgr, selectedSection.SectionName,selectedSection
                                                     );
-             callingWindow.PasswordsTab.Content = PasswordEditor;
-             callingWindow.PasswordsTab.Visibility = Visibility.Visible;
-             callingWindow.OneNoteTab.IsSelected = false;
-             callingWindow.PasswordsTab.IsSelected = true;
-             callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
+            callingWindow.PasswordsTab.Content = PasswordEditor;
+            callingWindow.OneNoteTab.Visibility = Visibility.Collapsed;
+            callingWindow.PasswordsTab.IsSelected = true;
+            callingWindow.PasswordsTab.Visibility = Visibility.Visible;
+            callingWindow.OneNoteTab.IsSelected = false;
+
+
 
 
         }
+        private void CloseTabAndLoadEditor() 
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            loadSelectedValidSection();
+            Mouse.OverrideCursor = null; // This is the failsafe when your async/await just won't work. 
 
+
+        }
 
         private bool isValidselectedSection(OneNoteSection selectedSection)
         {
@@ -227,6 +236,11 @@ namespace PinpointUI.tabs
             }
             return returnable;
         }
+
+
+
+        public RelayCommand fnLoadSection => new RelayCommand( execute => { CloseTabAndLoadEditor(); }, //showTestMessage(selectedSection)
+                                                        canExecute => { return isValidselectedSection(selectedSection); });
 
         private void btnCreateSection_Click(object sender, RoutedEventArgs e)
         {

@@ -287,7 +287,6 @@ namespace PinpointOnenote
             AllowableFonts defaultFont, Dictionary<string, Dictionary<string, object>> linksLookup, int inheritedIndents = 0,
             string inheritedFontColor = "black", bool boldByDefault = false,string inheritedAlignment = "left")
         {
-            //TODO build out the 2 recursive functions to make class data from static XML, and onenote XML from class object.
             //This should be recursive and take in a Section element from a page from StaticAndTestData.xml, or anything more granular. //THIS IS UNFINISHED
 
             // XElement resource = XElement.Parse(PinpointOnenote.Properties.Resources.StaticAndTestData);  // gets the static and test data resource file.
@@ -1192,8 +1191,6 @@ namespace PinpointOnenote
                 headerRow.Add(cellOE);
             }
             output.dataRows.Add(headerRow);
-
-            //TODO - decide here if were going to try and sort the password bank by last modified sort, or have it come into this function pre-sorted. I think PRE-SORT IT.
 
 
             defaultFontSize = sizingOptions.Attribute("fontSizeText").Value;

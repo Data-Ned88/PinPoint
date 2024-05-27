@@ -972,7 +972,6 @@ namespace PinpointOnenote
             Dictionary<string, int> pBankShares = getAllSharedPasswordStemsInBank(allStemLists); // all shared stems with their counts.
             Dictionary<string, List<int>> matrix = getPasswordShareMatrix(pBankShares, passwordIdsWithStems); // stem, list ID for all shared stems, cross-deduplciated prioritising msot complex.
 
-            // TODO: Use the whole password bank AND matrix variable to calculate the properties of LoginBankStrength.passwordStems, and return it in passwordStems.
 
             foreach (string stemKey in matrix.Keys)
             {

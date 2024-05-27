@@ -126,8 +126,6 @@ namespace PinpointOnenote
         }
         public static List<OneNoteSection> GetSectionsInNotebook(OneNoteInterop.Application app, XmlNode nbXml)
         { 
-            //TODO: Move this (and its overload) into a dedicated section for PinPoint Logic. It's not ubiqutous OneNote admin and dependent on the interface, making explicit reference
-            // to the Refresh button on the OneNoteManagementTab.xaml
             List<OneNoteSection> output = new List<OneNoteSection>();
             foreach (XmlNode cn in nbXml.ChildNodes)
             {
@@ -148,7 +146,6 @@ namespace PinpointOnenote
                     {
                         SectionListEntry.IsValidTooltip = "This section is locked.\n\nGo to OneNote and unlock this section,\nthen click 'Refresh Sections' below.";
                     }
-                    //TODO Parser function to determine if it's a valid PinPoint Existing Section. Would we have this here??
                     output.Add(SectionListEntry);
 
                 }

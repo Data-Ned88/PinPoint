@@ -19,7 +19,6 @@ namespace PinpointOnenote
             XElement AlgorithmFormatsXml = XElement.Parse(Properties.Resources.OneNotePageAndElementStyles).Element("StrengthScoreFormats");
 
             // The above 2 do for all types of login algorithm
-            //TODO have these as input parameters to this contructor method, so taht the parsing only need happen on application startup.
             // For this, we will need to have the LoginType (which uses this) having them both as properties.
             // Any method that contructs a LoginEntry or list of loginEntry will have to take them both in as well.
 

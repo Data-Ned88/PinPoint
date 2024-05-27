@@ -702,7 +702,9 @@ namespace PinpointUI.tabs
             {
                 modals.ProgressBar pb = new modals.ProgressBar();
                 pb.Show();
-                await Task.Run(() =>  { ActionPublishOneNote(confirmPub); });
+                await Task.Run(() =>  { ActionPublishOneNote(confirmPub); }); 
+                // THis works because of all the async/await, and because the progress bar is a modal, and becuase the Action function does stuff to data only, not anything to form elements.
+                // It can therefore survive on the background thread.
                 pb.Close();
                 pwordTabSectionTitle.Text = mainBannerText;
             }
@@ -721,9 +723,9 @@ namespace PinpointUI.tabs
             Opacity = 1;
             if (confirmPub.ExitChoice == false)
             {
-                Console.WriteLine(confirmPub.SelectedTheme);
-                Console.WriteLine(confirmPub.SelectedFontSize);
-                Console.WriteLine(confirmPub.SelectedFont.ToString());
+                //Console.WriteLine(confirmPub.SelectedTheme);
+                //Console.WriteLine(confirmPub.SelectedFontSize);
+                //Console.WriteLine(confirmPub.SelectedFont.ToString());
             }
         }
 

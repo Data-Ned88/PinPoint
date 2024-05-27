@@ -54,7 +54,7 @@ namespace PinpointOnenote
             {
                 passwordBank = LoginFunctionality.HydrateIdAndModifiedSort(passwordBank);
             }
-            //TODO - this is the constructor method based on a hydrated password bank. Finsih it.
+
             exactSharesPinSix = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.PinSix);
             exactSharesPinFour = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.PinFour);
             exactSharesPassword = LoginFunctionality.GetExactShares(passwordBank, LoginTypes.Password);
