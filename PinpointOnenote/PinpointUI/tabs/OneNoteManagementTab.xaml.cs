@@ -166,6 +166,7 @@ namespace PinpointUI.tabs
 
         private void btnRefreshSectionInfo_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             hier = OnenoteMethods.GetOneNoteHierarchy(app);
             nsmgr = OnenoteMethods.GetOneNoteNSMGR(hier);
             Notebookslist = OnenoteMethods.GetAvailableNotebooks(hier, nsmgr);
@@ -173,8 +174,11 @@ namespace PinpointUI.tabs
             listAvailableNotebooks.SelectedIndex = notebookSelIndex;
             SectionsList = OnenoteMethods.GetSectionsInNotebook(app,selectedNotebook);
             txthdrAvailableSections.Text = string.Format(colTwoHeaderPlacehold, selectedNotebook.Attributes["name"].Value);
+            Mouse.OverrideCursor = null;
 
         }
+
+        
 
         private void gridSections_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

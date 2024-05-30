@@ -32,3 +32,7 @@ C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.g.cs
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\CsvLoad.baml
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ProgressBar.g.cs
 C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\modals\ProgressBar.baml
+C:\github\PinPoint\PinpointOnenote\PinpointUI\bin\Debug\PinpointUI.exe.manifest
+C:\github\PinPoint\PinpointOnenote\PinpointUI\bin\Debug\PinpointUI.application
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\PinpointUI.exe.manifest
+C:\github\PinPoint\PinpointOnenote\PinpointUI\obj\Debug\PinpointUI.application
