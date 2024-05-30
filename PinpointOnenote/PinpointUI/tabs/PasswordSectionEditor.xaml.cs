@@ -687,13 +687,19 @@ namespace PinpointUI.tabs
         private async Task PublishToOneNote()
         {
             Opacity = 0.6;
+            ConfirmPublish confirmPub;
             Dictionary<string, string> modalParamConfirmPublish = null;
             if (!isNew)
             {
                 modalParamConfirmPublish = formattingFromPassBankOnenote;
+                confirmPub = new ConfirmPublish(app,notebookName,sectionId,sectionName,modalParamConfirmPublish);
+            }
+            else
+            {
+                confirmPub = new ConfirmPublish(app, notebookName);
             }
 
-            ConfirmPublish confirmPub = new ConfirmPublish(modalParamConfirmPublish);
+            //ConfirmPublish confirmPub = new ConfirmPublish(modalParamConfirmPublish);
             
             confirmPub.ShowDialog();
             
@@ -717,7 +723,7 @@ namespace PinpointUI.tabs
         private void PublishToOneNoteForm()
         {
             //Tester Function to ascertain that the OneNote confirmation form broadly works.
-            ConfirmPublish confirmPub = new ConfirmPublish();
+            ConfirmPublish confirmPub = new ConfirmPublish(app,notebookName);
             Opacity = 0.6;
             confirmPub.ShowDialog();
             Opacity = 1;

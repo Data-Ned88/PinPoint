@@ -305,5 +305,25 @@ namespace PinpointOnenote
             pagesLookup.Add(sectionName, SectionDict);
             return pagesLookup;
         }
+
+        public static bool sectionIsLocked (OneNoteInterop.Application app, XmlDocument hier, XmlNamespaceManager nsmgr, string notebookName, string sectionId)
+        {
+
+            //to determine if a onenote section is locked in Xml
+
+            bool returnable = false;
+
+            List<OneNoteSection> sections = GetSectionsInNotebook(app, hier, nsmgr, notebookName);
+
+            if (sections.Count > 0)
+            {
+                OneNoteSection targetSection = sections.Where(x => x.SectionID == sectionId).FirstOrDefault();
+                if (targetSection != null && targetSection.IsLocked == true)
+                {
+                    returnable = true;
+                }
+            }
+            return returnable;
+        }
     }
 }

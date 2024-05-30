@@ -29,7 +29,7 @@
     <SupportUrl>https://www.ucovi-data.com/software/Pinpoint.html</SupportUrl>
     <ProductName>PinPoint Desktop</ProductName>
     <PublisherName>UCOVI</PublisherName>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>3</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

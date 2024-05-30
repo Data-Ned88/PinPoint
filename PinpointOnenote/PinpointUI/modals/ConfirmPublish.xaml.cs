@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace PinpointUI.modals
@@ -42,12 +43,30 @@ namespace PinpointUI.modals
         private SelectableColourTheme selectedColourTheme;
         XElement stylingresource = XElement.Parse(PinpointOnenote.Properties.Resources.OneNotePageAndElementStyles);
         private Dictionary<string, string> dataPassedIn = null;
-        public ConfirmPublish(Dictionary<string, string> inputParam = null)
+
+        private Microsoft.Office.Interop.OneNote.Application app;
+        private string sectionId;
+        private string sectionName;
+        private string notebookName;
+        private XmlDocument hier;
+        private XmlNamespaceManager nsmgr;
+
+
+        public ConfirmPublish(Microsoft.Office.Interop.OneNote.Application inpApp,
+              string inpNotebookName, string inpSectionId = null, string inSectionName = null,
+            Dictionary<string, string> inputParam = null)
         {
             DataContext = this;
             if (inputParam != null)
             {
                 dataPassedIn = inputParam;
+            }
+            app = inpApp;
+            notebookName = inpNotebookName;
+            if (inpSectionId != null)
+            {
+                sectionId = inpSectionId;
+                sectionName = inSectionName;
             }
             coloursAvailable.Add(new SelectableColourTheme("Grey","Standard Black", "#D9D9D9", "#FFFFFF"));
             coloursAvailable.Add(new SelectableColourTheme("Blue", "Blue", "#D9E1F2", "#FFFFFF"));
@@ -59,8 +78,33 @@ namespace PinpointUI.modals
 
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
         {
-            ExitChoice = false;
-            Close();
+            if (sectionId != null) // PROXY test for whether the section is new or not.
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+                hier = OnenoteMethods.GetOneNoteHierarchy(app);
+                nsmgr = OnenoteMethods.GetOneNoteNSMGR(hier);
+                if(OnenoteMethods.sectionIsLocked(app, hier, nsmgr, notebookName, sectionId))
+                {
+                    Mouse.OverrideCursor = null;
+                    string message = String.Format("Your OneNote section ({0}) is locked.\nPlease unlock it to save changes.",sectionName);
+                    string caption = "OneNote Section Locked";
+                    MessageBoxButton button = MessageBoxButton.OK;
+                    MessageBoxImage icon = MessageBoxImage.Error;
+
+                    MessageBox.Show(message, caption, button, icon);
+                }
+                else
+                {
+                    ExitChoice = false;
+                    Close();
+                }
+                Mouse.OverrideCursor = null;
+            }
+            else
+            {
+                ExitChoice = false;
+                Close();
+            }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
